@@ -2,23 +2,45 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { resetPassword } from '@/services/authApi';
 
 export default function ResetPassword() {
+  const router = useRouter();
+  const useParams = useSearchParams();
+  const email = useParams.get("email");
+  console.log(email);
   const [otp, setOtp] = useState("");
-  const [password, setPassword] = useState("");
+  const [newpassword, setNewpassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await resetPassword({
+        email,
+        otp,
+        newpassword
+      })
+      console.log(res);
+      if (res.success) {
+        setIsSuccess(true);
+        setTimeout(() => {
+          router.push("/auth/login");
+        }, 1500);
+      }
+
+    } catch (error) {
+      console.log(error);
+    } finally {
       setIsLoading(false);
-      setIsSuccess(true);
-    }, 2000);
+    }
+
   };
 
   return (
@@ -30,7 +52,7 @@ export default function ResetPassword() {
       {/* Left Branding Panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-[#2563EB] relative items-center justify-center p-12 overflow-hidden border-r border-[#E5E7EB]/10">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
-        
+
         <div className="relative z-10 max-w-xl w-full text-white space-y-8">
           <div className="flex items-center space-x-3 w-fit">
             <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-md">
@@ -38,7 +60,7 @@ export default function ResetPassword() {
             </div>
             <span className="text-2xl font-bold tracking-tight">DevReview</span>
           </div>
-          
+
           <div className="space-y-3">
             <h1 className="text-4xl font-extrabold tracking-tight">Reset your password</h1>
             <p className="text-blue-100 text-lg">Establish a secure connection and define your new access credentials.</p>
@@ -57,7 +79,7 @@ export default function ResetPassword() {
 
       {/* Right Form Panel */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
@@ -68,9 +90,9 @@ export default function ResetPassword() {
 
           <AnimatePresence mode="wait">
             {!isSuccess ? (
-              <motion.form 
+              <motion.form
                 key="reset-form"
-                onSubmit={handleSubmit} 
+                onSubmit={handleSubmit}
                 className="space-y-5"
                 initial={{ opacity: 1 }}
                 exit={{ opacity: 0, x: -10 }}
@@ -79,14 +101,14 @@ export default function ResetPassword() {
                 {/* Normal Plain OTP Input */}
                 <div>
                   <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-2">Verification Matrix OTP</label>
-                  <input 
-                    type="text" 
-                    maxLength="6" 
-                    required 
+                  <input
+                    type="text"
+                    maxLength="6"
+                    required
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ""))}
-                    placeholder="Enter 6-digit OTP" 
-                    className="w-full px-4 py-3 bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-shadow duration-150" 
+                    placeholder="Enter 6-digit OTP"
+                    className="w-full px-4 py-3 bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-shadow duration-150"
                   />
                 </div>
 
@@ -94,13 +116,13 @@ export default function ResetPassword() {
                 <div className="relative">
                   <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-2">New Access Key</label>
                   <div className="relative">
-                    <input 
-                      type={showPassword ? "text" : "password"} 
-                      required 
-                      value={password} 
-                      onChange={(e) => setPassword(e.target.value)} 
-                      placeholder="••••••••" 
-                      className="w-full pl-4 pr-10 py-3 bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-shadow duration-150" 
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={newpassword}
+                      onChange={(e) => setNewpassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-4 pr-10 py-3 bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-shadow duration-150"
                     />
                     <button
                       type="button"
@@ -120,13 +142,13 @@ export default function ResetPassword() {
                 <div className="relative">
                   <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-2">Confirm Access Key</label>
                   <div className="relative">
-                    <input 
-                      type={showConfirmPassword ? "text" : "password"} 
-                      required 
-                      value={confirmPassword} 
-                      onChange={(e) => setConfirmPassword(e.target.value)} 
-                      placeholder="••••••••" 
-                      className="w-full pl-4 pr-10 py-3 bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-shadow duration-150" 
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-4 pr-10 py-3 bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10 transition-shadow duration-150"
                     />
                     <button
                       type="button"
@@ -177,7 +199,7 @@ export default function ResetPassword() {
               </motion.form>
             ) : (
               /* Success State Card */
-              <motion.div 
+              <motion.div
                 key="success-card"
                 initial={{ opacity: 0, scale: 0.98, x: 10 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}

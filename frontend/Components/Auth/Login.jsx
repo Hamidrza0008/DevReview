@@ -133,7 +133,7 @@ export default function Login() {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider">Access Key / Password</label>
-                <a href="/auth/forgotpassword" className="text-xs font-bold text-[#2563EB]">Lost Key?</a>
+                <a href="/auth/forgot-password" className="text-xs font-bold text-[#2563EB]">Lost Key?</a>
               </div>
               <div className="relative">
                 <input

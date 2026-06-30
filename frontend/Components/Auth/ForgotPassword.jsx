@@ -2,19 +2,36 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { forgotPassword } from '@/services/authApi';
+import { useRouter } from 'next/navigation';
+
 
 export default function ForgotPassword() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [isSent, setIsSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await forgotPassword({
+        email
+      })
+      console.log(res);
+
+      if (res.success) {
+        setIsSent(true);
+        setTimeout(() => {
+          router.push(`/auth/reset-password?email=${email}`);
+        }, 1500);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
       setIsLoading(false);
-      setIsSent(true);
-    }, 2000);
+    }
   };
 
   return (
@@ -25,7 +42,7 @@ export default function ForgotPassword() {
       {/* Left Panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-[#2563EB] relative items-center justify-center p-12 overflow-hidden border-r border-[#E5E7EB]/10">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
-        
+
         <div className="relative z-10 max-w-xl w-full text-white space-y-8">
           <div className="flex items-center space-x-3 w-fit">
             <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-md">
@@ -33,7 +50,7 @@ export default function ForgotPassword() {
             </div>
             <span className="text-2xl font-bold tracking-tight">DevReview</span>
           </div>
-          
+
           <div className="space-y-3">
             <h1 className="text-4xl font-extrabold tracking-tight">Forgot your password?</h1>
             <p className="text-blue-100 text-lg">No worries, we will help you get back to your DevReview account.</p>
@@ -52,7 +69,7 @@ export default function ForgotPassword() {
 
       {/* Right Panel */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
@@ -63,9 +80,9 @@ export default function ForgotPassword() {
 
           <AnimatePresence mode="wait">
             {!isSent ? (
-              <motion.form 
+              <motion.form
                 key="recovery-form"
-                onSubmit={handleSubmit} 
+                onSubmit={handleSubmit}
                 className="space-y-5"
                 initial={{ opacity: 1 }}
                 exit={{ opacity: 0, x: -10 }}
@@ -109,7 +126,7 @@ export default function ForgotPassword() {
                 </button>
               </motion.form>
             ) : (
-              <motion.div 
+              <motion.div
                 key="success-card"
                 initial={{ opacity: 0, scale: 0.98, x: 10 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}
