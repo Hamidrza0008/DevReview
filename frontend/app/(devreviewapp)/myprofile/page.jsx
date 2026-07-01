@@ -1,9 +1,9 @@
-import Profile from "@/Components/DevReviewLayout/Profile"
+import MyProfile from "@/Components/DevReviewLayout/MyProfile";
 
 const profile = () => {
     return(
         <>
-        <Profile/>
+        <MyProfile/>
         </>
     )
 }

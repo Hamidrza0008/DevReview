@@ -29,7 +29,7 @@ export default function Sidebar() {
     { name: "Explore Projects", icon: Compass, path: "/explore" },
     { name: "Saved Projects", icon: Bookmark, path: "/saved" },
     { name: "Community", icon: Users, path: "/community" },
-    { name: "Profile", icon: User, path: "/profile" },
+    { name: "Profile", icon: User, path: "/myprofile" },
     { name: "Settings", icon: Settings, path: "/settings" },
   ];
 

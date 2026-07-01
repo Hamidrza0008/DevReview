@@ -3,7 +3,9 @@ const cors = require("cors")
 const connectDB = require("./config/db");
 const express = require("express");
 const authRoutes = require("./routes/auth.routes");
+const userRoutes = require("./routes/user.routes")
 const cookieParser = require("cookie-parser");
+const projectRoutes = require("./routes/projectRoutes")
 
 
 
@@ -20,10 +22,13 @@ app.use(cookieParser());
 connectDB();
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 app.get("/" , (req , res) => {
     res.send("DevReview Backend Running 🚀");
 })
+
+app.use("/api/projects" , projectRoutes);
 
 
 

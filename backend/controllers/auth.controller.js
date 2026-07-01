@@ -344,4 +344,5 @@ const updateMe = async (req, res) => {
     }
 }
 
+
 module.exports = { signUp, login, verifyOTP, forgotPassword, resetPassword, getMe, logout , updateMe }
