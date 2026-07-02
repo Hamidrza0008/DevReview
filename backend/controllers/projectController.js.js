@@ -102,4 +102,22 @@ const getProjectById = async (req, res) => {
     }
 }
 
-module.exports = { createProjects, getMyProjects, getProjectById };
+const getExploreProjects = async (req, res) => {
+  try {
+    const projects = await Projects.find({})
+      .populate("owner", "username fullName profileImage")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      projects,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { createProjects, getMyProjects, getProjectById , getExploreProjects };
