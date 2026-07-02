@@ -3,10 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal, Flame, Code, Heart, MessageSquare, ExternalLink, GitBranch } from 'lucide-react';
 import { getExploreProjects } from '@/services/getExploreProjectsApi';
+import { useRouter } from 'next/navigation';
 
 export default function ExploreProjects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const getProjects = async () => {
     try {
@@ -117,9 +119,12 @@ export default function ExploreProjects() {
             >
               <div>
                 {/* Thumbnail / Card Banner */}
-                <div className="relative h-44 w-full bg-slate-100 overflow-hidden group border-b border-gray-50">
+                <div 
+                onClick={() => router.push(`/projects/${project._id}`)}
+                className="relative h-44 w-full bg-slate-100 overflow-hidden group border-b border-gray-50">
                   {project.thumbnail ? (
                     <img 
+                    
                       src={project.thumbnail} 
                       alt={project.title} 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
