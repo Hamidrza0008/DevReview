@@ -7,261 +7,14 @@ import {
   GitBranch, 
   Globe, 
   BadgeCheck, 
-  Users, 
-  FolderGit2, 
-  Star, 
   UserPlus, 
   UserCheck, 
   ArrowRight,
   Sparkles,
   Code2
 } from "lucide-react";
-
-// ==========================================
-// DUMMY DATA (20 Realistic Developers)
-// ==========================================
-const developersData = [
-  {
-    name: "Alex Rivera",
-    username: "alexr_dev",
-    email: "alex@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    bio: "Building the future of open-source design systems. Ex-Vercel. Obsessed with micro-interactions and performance.",
-    skills: ["Frontend", "React", "Next.js", "Tailwind CSS", "Framer Motion", "TypeScript"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: true,
-    stats: { projects: "42", reviews: "128", followers: "12.4k", joined: "Joined 2 years ago" }
-  },
-  {
-    name: "Marcus Chen",
-    username: "marcus_codes",
-    email: "marcus@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-    bio: "Distributed systems engineer. Writing highly concurrent Go microservices and optimizing database queries.",
-    skills: ["Backend", "Go", "Kubernetes", "PostgreSQL", "Docker", "gRPC"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "",
-    isVerified: true,
-    stats: { projects: "19", reviews: "94", followers: "8.1k", joined: "Joined 1 year ago" }
-  },
-  {
-    name: "Sarah Jenkins",
-    username: "sarah_ai",
-    email: "sarah@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
-    bio: "Training LLMs to understand code intent. Researcher turned Full Stack ML builder. Open source enthusiast.",
-    skills: ["AI/ML", "Python", "PyTorch", "Next.js", "TypeScript", "FastAPI"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: true,
-    stats: { projects: "31", reviews: "210", followers: "15.9k", joined: "Joined 3 years ago" }
-  },
-  {
-    name: "Elena Rostova",
-    username: "elena_ux",
-    email: "elena@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
-    bio: "Crafting beautiful, accessible digital products. Bridging the gap between UI design and production React code.",
-    skills: ["UI/UX", "Figma", "React", "CSS Architecture", "Tailwind CSS"],
-    githubUrl: "",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: false,
-    stats: { projects: "56", reviews: "88", followers: "4.3k", joined: "Joined 6 months ago" }
-  },
-  {
-    name: "David Kim",
-    username: "davidk_mobile",
-    email: "david@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
-    bio: "Cross-platform mobile architect. Crafting 60fps animations in React Native and Flutter. Swift contributor.",
-    skills: ["Mobile", "React Native", "Flutter", "SwiftUI", "Kotlin", "Firebase"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: true,
-    stats: { projects: "24", reviews: "65", followers: "6.2k", joined: "Joined 1 year ago" }
-  },
-  {
-    name: "Amara Okafor",
-    username: "amara_codes",
-    email: "amara@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&auto=format&fit=crop&q=80",
-    bio: "Full Stack Engineer building web scale infrastructure. Core Maintainer of multiple open-source utilities.",
-    skills: ["Full Stack", "Open Source", "Node.js", "GraphQL", "React", "AWS"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: true,
-    stats: { projects: "68", reviews: "340", followers: "22.1k", joined: "Joined 4 years ago" }
-  },
-  {
-    name: "Lucas Becker",
-    username: "lucas_dev",
-    email: "lucas@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
-    bio: "Computer Science Major & Indie Hacker. Building micro-SAAS products while mastering backend architecture.",
-    skills: ["Student", "Backend", "Node.js", "Express", "MongoDB", "Vue.js"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: false,
-    stats: { projects: "12", reviews: "14", followers: "920", joined: "Joined 3 months ago" }
-  },
-  {
-    name: "Sofia Martinez",
-    username: "sofia_ml",
-    email: "sofia@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
-    bio: "Data Scientist passionate about computer vision and generative art. Teaching models how to create.",
-    skills: ["AI/ML", "Python", "TensorFlow", "OpenCV", "Scikit-Learn"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "",
-    isVerified: true,
-    stats: { projects: "27", reviews: "102", followers: "7.8k", joined: "Joined 2 years ago" }
-  },
-  {
-    name: "James Wilson",
-    username: "jwilson_stack",
-    email: "james@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150&auto=format&fit=crop&q=80",
-    bio: "Pragmatic full stack developer focused on business outcomes. Creating clean dashboards and APIs.",
-    skills: ["Full Stack", "Laravel", "Vue.js", "Tailwind CSS", "MySQL", "InertiaJS"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: false,
-    stats: { projects: "45", reviews: "115", followers: "5.4k", joined: "Joined 1 year ago" }
-  },
-  {
-    name: "Yuki Tanaka",
-    username: "yuki_oss",
-    email: "yuki@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
-    bio: "Linux kernel tinkerer and system level Rust programmer. Loving memory safety without GC.",
-    skills: ["Open Source", "Backend", "Rust", "C++", "WebAssembly", "Linux"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: true,
-    stats: { projects: "89", reviews: "412", followers: "31.5k", joined: "Joined 5 years ago" }
-  },
-  {
-    name: "Chloe Dupont",
-    username: "chloe_ui",
-    email: "chloe@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80",
-    bio: "Obsessed with layouts, motion design, and typography. Creating web experiences that feel alive.",
-    skills: ["UI/UX", "Frontend", "Svelte", "Three.js", "WebGL", "Framer Motion"],
-    githubUrl: "",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: true,
-    stats: { projects: "34", reviews: "96", followers: "9.3k", joined: "Joined 1 year ago" }
-  },
-  {
-    name: "Ryan Patel",
-    username: "ryan_dev",
-    email: "ryan@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1488161628813-04466f872be2?w=150&auto=format&fit=crop&q=80",
-    bio: "Senior iOS Engineer. Architecting swift workflows and offline-first reactive mobile applications.",
-    skills: ["Mobile", "Swift", "Objective-C", "CoreData", "Combine"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: true,
-    stats: { projects: "21", reviews: "73", followers: "4.9k", joined: "Joined 2 years ago" }
-  },
-  {
-    name: "Emma Watson",
-    username: "emma_codes",
-    email: "emma@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1548142813-c348350df52b?w=150&auto=format&fit=crop&q=80",
-    bio: "CS Sophomore learning the ropes of cloud architecture. AWS certification aspirant.",
-    skills: ["Student", "Frontend", "React", "JavaScript", "HTML/CSS"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "",
-    isVerified: false,
-    stats: { projects: "6", reviews: "5", followers: "340", joined: "Joined 2 months ago" }
-  },
-  {
-    name: "Liam O'Connor",
-    username: "liam_backend",
-    email: "liam@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=150&auto=format&fit=crop&q=80",
-    bio: "API reliability enthusiast. Building resilient software backends with enterprise Java & Spring Boot.",
-    skills: ["Backend", "Java", "Spring Boot", "Kafka", "Redis", "Elasticsearch"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: true,
-    stats: { projects: "18", reviews: "61", followers: "3.7k", joined: "Joined 1 year ago" }
-  },
-  {
-    name: "Zoe Wang",
-    username: "zoe_fullstack",
-    email: "zoe@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1554151228-14d9def656e4?w=150&auto=format&fit=crop&q=80",
-    bio: "Full Stack Wizard. Shipping highly stable products with Next.js, Prisma, and serverless edge functions.",
-    skills: ["Full Stack", "Next.js", "Prisma", "PostgreSQL", "Tailwind CSS", "GraphQL"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: true,
-    stats: { projects: "41", reviews: "144", followers: "11.2k", joined: "Joined 2 years ago" }
-  },
-  {
-    name: "Niko Tesla",
-    username: "niko_ml",
-    email: "niko@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150&auto=format&fit=crop&q=80",
-    bio: "Deep learning engineer specialized in natural language processing and transformer architectures.",
-    skills: ["AI/ML", "NLP", "Transformers", "Python", "HuggingFace"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "",
-    isVerified: false,
-    stats: { projects: "15", reviews: "49", followers: "2.8k", joined: "Joined 8 months ago" }
-  },
-  {
-    name: "Nina Simone",
-    username: "nina_oss",
-    email: "nina@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    bio: "DevOps specialist turned open source developer. Making CI/CD pipelines blazingly fast.",
-    skills: ["Open Source", "GitHub Actions", "Terraform", "Bash", "Docker"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: true,
-    stats: { projects: "52", reviews: "198", followers: "14.1k", joined: "Joined 3 years ago" }
-  },
-  {
-    name: "Vikram Singh",
-    username: "vikram_ui",
-    email: "vikram@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
-    bio: "Creative Developer crafting immersive interactive WebGL spaces. Blending engineering and fine art.",
-    skills: ["UI/UX", "Frontend", "Three.js", "WebGPU", "Blender", "GSAP"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: true,
-    stats: { projects: "29", reviews: "112", followers: "8.7k", joined: "Joined 1 year ago" }
-  },
-  {
-    name: "Owen Wright",
-    username: "owen_mobile",
-    email: "owen@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
-    bio: "Android fanatic. Building hyper-optimized Kotlin applications with modern Jetpack Compose layouts.",
-    skills: ["Mobile", "Kotlin", "Jetpack Compose", "Coroutines", "Dagger Hilt"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "",
-    isVerified: false,
-    stats: { projects: "14", reviews: "32", followers: "1.9k", joined: "Joined 10 months ago" }
-  },
-  {
-    name: "Maya Lin",
-    username: "maya_student",
-    email: "maya@devreview.io",
-    profileImage: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
-    bio: "Final year student experimenting with systems programming and full-stack TypeScript engineering.",
-    skills: ["Student", "Full Stack", "TypeScript", "Node.js", "React", "Rust"],
-    githubUrl: "https://github.com",
-    portfolioUrl: "https://portfolio.com",
-    isVerified: true,
-    stats: { projects: "11", reviews: "23", followers: "1.2k", joined: "Joined 7 months ago" }
-  }
-];
+import { getAllUsers } from "@/services/usersApi";
+import { useRouter } from "next/navigation";
 
 const categories = [
   "All",
@@ -275,45 +28,55 @@ const categories = [
   "Student"
 ];
 
-// ==========================================
-// MAIN EXPLORE COMPONENT
-// ==========================================
 export default function ExploreUsers() {
+  const [users, setUsers] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [followingState, setFollowingState] = useState({});
+  const router = useRouter()
+
+  const getAllusers = async () => {
+    try {
+      setLoading(true);
+      const res = await getAllUsers();
+      if (res && res.allUsers) {
+        setUsers(res.allUsers);
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
+    getAllusers();
   }, []);
 
-  // Filter Logic: Instantly filter based on category pills and search inputs
-  const filteredDevelopers = developersData.filter((dev) => {
+  const filteredDevelopers = users.filter((dev) => {
+    const devSkills = dev.skills || [];
     const matchesCategory =
-      selectedFilter === "All" || dev.skills.includes(selectedFilter);
+      selectedFilter === "All" || 
+      devSkills.some(skill => skill.toLowerCase() === selectedFilter.toLowerCase());
 
     const normQuery = searchQuery.toLowerCase().trim();
     const matchesSearch =
       !normQuery ||
-      dev.name.toLowerCase().includes(normQuery) ||
-      dev.username.toLowerCase().includes(normQuery) ||
-      dev.skills.some((skill) => skill.toLowerCase().includes(normQuery));
+      (dev.name && dev.name.toLowerCase().includes(normQuery)) ||
+      (dev.username && dev.username.toLowerCase().includes(normQuery)) ||
+      devSkills.some((skill) => skill.toLowerCase().includes(normQuery));
 
     return matchesCategory && matchesSearch;
   });
 
-  const toggleFollow = (username) => {
+  const toggleFollow = (id) => {
     setFollowingState((prev) => ({
       ...prev,
-      [username]: !prev[username]
+      [id]: !prev[id]
     }));
   };
 
-  // Animation variants for Staggered list
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -330,9 +93,7 @@ export default function ExploreUsers() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#111827] px-4 py-12 md:px-8 max-w-7xl mx-auto selection:bg-[#2563EB]/10 selection:text-[#2563EB]">
       
-      {/* ==========================================
-          HEADER SECTION
-         ========================================== */}
+      {/* HEADER SECTION */}
       <div className="text-center max-w-3xl mx-auto mb-12">
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
@@ -363,9 +124,7 @@ export default function ExploreUsers() {
         </motion.p>
       </div>
 
-      {/* ==========================================
-          SEARCH BAR
-         ========================================== */}
+      {/* SEARCH BAR */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -385,9 +144,7 @@ export default function ExploreUsers() {
         />
       </motion.div>
 
-      {/* ==========================================
-          CATEGORY FILTERS
-         ========================================== */}
+      {/* CATEGORY FILTERS */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -412,11 +169,10 @@ export default function ExploreUsers() {
         })}
       </motion.div>
 
-      {/* ==========================================
-          LOADING SKELETON LAYER
-         ========================================== */}
+      {/* MAIN DATA LAYER */}
       <AnimatePresence mode="wait">
         {loading ? (
+          /* LOADING SKELETON LAYER */
           <motion.div
             key="skeleton-grid"
             initial={{ opacity: 1 }}
@@ -426,13 +182,10 @@ export default function ExploreUsers() {
             {Array.from({ length: 8 }).map((_, idx) => (
               <div 
                 key={idx} 
-                className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 flex flex-col justify-between h-[380px] overflow-hidden relative shadow-sm"
+                className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 flex flex-col justify-between h-[360px] overflow-hidden relative shadow-sm"
               >
-                {/* Shimmer Effect */}
                 <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-[#FFFFFF]/60 to-transparent" />
-                
                 <div>
-                  {/* Top Stats Skeleton */}
                   <div className="flex justify-between items-start mb-4">
                     <div className="w-12 h-12 rounded-full bg-[#F1F5F9] animate-pulse" />
                     <div className="flex gap-2">
@@ -440,27 +193,17 @@ export default function ExploreUsers() {
                       <div className="w-6 h-6 rounded bg-[#F1F5F9] animate-pulse" />
                     </div>
                   </div>
-
-                  {/* Name & Username */}
                   <div className="w-2/3 h-5 bg-[#F1F5F9] rounded animate-pulse mb-1.5" />
                   <div className="w-1/3 h-3.5 bg-[#F1F5F9] rounded animate-pulse mb-4" />
-
-                  {/* Bio */}
                   <div className="w-full h-3 bg-[#F1F5F9] rounded animate-pulse mb-2" />
                   <div className="w-5/6 h-3 bg-[#F1F5F9] rounded animate-pulse mb-5" />
-
-                  {/* Skills */}
                   <div className="flex flex-wrap gap-1.5 mb-5">
                     <div className="w-14 h-5 bg-[#F1F5F9] rounded-md animate-pulse" />
                     <div className="w-12 h-5 bg-[#F1F5F9] rounded-md animate-pulse" />
-                    <div className="w-16 h-5 bg-[#F1F5F9] rounded-md animate-pulse" />
                   </div>
                 </div>
-
                 <div>
-                  {/* Divider */}
                   <div className="w-full h-[1px] bg-[#F1F5F9] mb-4" />
-                  {/* Buttons */}
                   <div className="grid grid-cols-2 gap-2">
                     <div className="h-9 bg-[#F1F5F9] rounded-lg animate-pulse" />
                     <div className="h-9 bg-[#F1F5F9] rounded-lg animate-pulse" />
@@ -470,9 +213,7 @@ export default function ExploreUsers() {
             ))}
           </motion.div>
         ) : (
-          /* ==========================================
-              ACTUAL RENDERED DEVELOPERS GRID
-             ========================================== */
+          /* ACTUAL RENDERED DEVELOPERS GRID FROM DB */
           <motion.div
             key="real-grid"
             variants={containerVariants}
@@ -481,25 +222,27 @@ export default function ExploreUsers() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
           >
             {filteredDevelopers.map((dev) => {
-              const isFollowing = followingState[dev.username] || false;
-              
+              const isFollowing = followingState[dev._id] || false;
+              const devSkills = dev.skills || [];
+              const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(dev.name || 'User')}&background=random`;
+
               return (
                 <motion.div
-                  key={dev.username}
+                  key={dev._id}
                   variants={itemVariants}
                   whileHover={{ 
                     y: -6, 
                     borderColor: "#2563EB", 
                     boxShadow: "0 12px 30px -10px rgba(37,99,235,0.12)" 
                   }}
-                  className="group bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 relative shadow-sm hover:z-10"
+                  className="group bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 relative shadow-sm hover:z-10 h-[360px]"
                 >
                   <div>
-                    {/* Card Top Section (Image, Icons, Verified Badge) */}
+                    {/* Card Top Section (Image, Icons) */}
                     <div className="flex justify-between items-start mb-3.5">
                       <div className="relative rounded-full overflow-hidden w-14 h-14 border-2 border-transparent group-hover:border-[#2563EB]/10 transition-colors duration-300">
                         <img
-                          src={dev.profileImage}
+                          src={dev.profileImage || defaultAvatar}
                           alt={dev.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
@@ -530,61 +273,47 @@ export default function ExploreUsers() {
 
                     {/* Developer Metadata */}
                     <div className="flex items-center gap-1.5 mb-0.5">
-                      <h3 className="font-bold text-[#111827] text-[15px] tracking-tight group-hover:text-[#2563EB] transition-colors duration-200">
-                        {dev.name}
+                      <h3 className="font-bold text-[#111827] text-[15px] tracking-tight group-hover:text-[#2563EB] transition-colors duration-200 truncate max-w-[150px]">
+                        {dev.name || "Anonymous User"}
                       </h3>
-                      {dev.isVerified && (
-                        <BadgeCheck className="w-4 h-4 text-[#2563EB] fill-[#2563EB]/10 flex-shrink-0" />
-                      )}
+                      <BadgeCheck className="w-4 h-4 text-[#2563EB] fill-[#2563EB]/10 flex-shrink-0" />
                     </div>
-                    <p className="text-xs font-semibold text-[#6B7280] mb-3">@{dev.username}</p>
+                    <p className="text-xs font-semibold text-[#6B7280] mb-3">@{dev.username || "user"}</p>
                     
                     {/* Bio */}
                     <p className="text-xs text-[#6B7280] leading-relaxed line-clamp-2 min-h-[36px] mb-4">
-                      {dev.bio}
+                      {dev.bio || "No bio added yet. Just a passionate builder crafting amazing web solutions."}
                     </p>
 
                     {/* Skill Badges */}
-                    <div className="flex flex-wrap gap-1.5 mb-5 min-h-[54px] content-start">
-                      {dev.skills.slice(0, 5).map((skill) => (
-                        <span
-                          key={skill}
-                          className="px-2.5 py-0.5 rounded-md bg-[#F1F5F9] text-[#111827] text-[10px] font-bold border border-[#E5E7EB] group-hover:border-[#2563EB]/20 group-hover:bg-[#2563EB]/5 transition-colors duration-300"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                      {dev.skills.length > 5 && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-[#F8FAFC] text-[#6B7280] text-[10px] font-medium border border-[#E5E7EB]">
-                          +{dev.skills.length - 5}
-                        </span>
+                    <div className="flex flex-wrap gap-1.5 mb-5 min-h-[26px] content-start">
+                      {devSkills.length > 0 ? (
+                        <>
+                          {devSkills.slice(0, 3).map((skill) => (
+                            <span
+                              key={skill}
+                              className="px-2.5 py-0.5 rounded-md bg-[#F1F5F9] text-[#111827] text-[10px] font-bold border border-[#E5E7EB] group-hover:border-[#2563EB]/20 group-hover:bg-[#2563EB]/5 transition-colors duration-300"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                          {devSkills.length > 3 && (
+                            <span className="px-1.5 py-0.5 rounded-md bg-[#F8FAFC] text-[#6B7280] text-[10px] font-medium border border-[#E5E7EB]">
+                              +{devSkills.length - 3}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-[11px] italic text-[#9CA3AF]">No skills listed</span>
                       )}
                     </div>
                   </div>
 
                   <div>
-                    {/* Dummy Metrics Tracker Row */}
-                    <div className="grid grid-cols-3 gap-1 border-t border-[#F1F5F9] pt-3.5 mb-4 text-center">
-                      <div>
-                        <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wider">Proj</p>
-                        <p className="text-xs font-bold text-[#111827] mt-0.5">{dev.stats.projects}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wider">Rev</p>
-                        <p className="text-xs font-bold text-[#111827] mt-0.5 flex items-center justify-center gap-0.5">
-                          {dev.stats.reviews}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-semibold text-[#6B7280] uppercase tracking-wider">Fol</p>
-                        <p className="text-xs font-bold text-[#111827] mt-0.5">{dev.stats.followers}</p>
-                      </div>
-                    </div>
-
                     {/* CTA Actions Block */}
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2 border-t border-[#F1F5F9] pt-4">
                       <button
-                        onClick={() => toggleFollow(dev.username)}
+                        onClick={() => toggleFollow(dev._id)}
                         className={`w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 border transition-all duration-300 ${
                           isFollowing
                             ? "bg-[#22C55E] text-[#FFFFFF] border-[#22C55E] shadow-sm shadow-[#22C55E]/10"
@@ -604,14 +333,10 @@ export default function ExploreUsers() {
                         )}
                       </button>
 
-                      <button className="w-full py-2 px-3 bg-[#FFFFFF] border border-[#E5E7EB] text-[#111827] text-xs font-bold rounded-xl hover:bg-[#F1F5F9] hover:text-[#2563EB] hover:border-[#2563EB]/30 flex items-center justify-center gap-1 transition-all duration-200">
+                      <button onClick={() => router.push(`/users/${dev.username}`)} className="w-full py-2 px-3 bg-[#FFFFFF] border border-[#E5E7EB] text-[#111827] text-xs font-bold rounded-xl hover:bg-[#F1F5F9] hover:text-[#2563EB] hover:border-[#2563EB]/30 flex items-center justify-center gap-1 transition-all duration-200">
                         <span>Profile</span>
                         <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                       </button>
-                    </div>
-                    
-                    <div className="text-[10px] text-[#6B7280]/70 text-center mt-3 font-medium">
-                      {dev.stats.joined}
                     </div>
                   </div>
                 </motion.div>
@@ -621,9 +346,7 @@ export default function ExploreUsers() {
         )}
       </AnimatePresence>
 
-      {/* ==========================================
-          EMPTY STATE DESIGNED FOR SEARCH REJECTIONS
-         ========================================== */}
+      {/* EMPTY STATE */}
       {!loading && filteredDevelopers.length === 0 && (
         <motion.div
           initial={{ opacity: 0, y: 15 }}
