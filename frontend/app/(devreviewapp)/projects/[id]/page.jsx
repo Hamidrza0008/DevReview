@@ -1,10 +1,11 @@
-import Project from "@/Components/DevReviewLayout/Project"
+import SingleProject from "@/Components/DevReviewLayout/Project"
 
 const project = () => {
     return(
         <>
-        <Project/>
+        <SingleProject/>
         </>
     )
 }
+
 export default project;

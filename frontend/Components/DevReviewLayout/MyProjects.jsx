@@ -27,7 +27,7 @@ export default function MyProjects() {
       const res = await getMyProjects();
       if (res && res.projects) {
         setProjects(res.projects);
-        console.log(res.projects)
+        // console.log(res.projects)
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -111,7 +111,7 @@ export default function MyProjects() {
             >
               <div>
                 {/* COMPACT IMAGE / GRADIENT BANNER */}
-                <div className="h-32 w-full relative overflow-hidden bg-[#F8FAFC] border-b border-[#E5E7EB]">
+                <div                 onClick={() => router.push(`/projects/${project._id}`)}  className="h-32 w-full relative overflow-hidden bg-[#F8FAFC] border-b border-[#E5E7EB]">
                   {hasThumbnail ? (
                     <img 
                       src={project.thumbnail} 
