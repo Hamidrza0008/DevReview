@@ -47,18 +47,14 @@ const projectSchema = new mongoose.Schema({
     },
 
 
-    likes: {
-        type: Number,
-        default: 0
-    },
+    likes: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Users"
+        }
+    ],
+}, { timestamps: true })
 
-
-    reviews: {
-        type: Number,
-        default: 0
-    },
-} , {timestamps:true})
-
-const projects = mongoose.model("projects" , projectSchema);
+const projects = mongoose.model("projects", projectSchema);
 
 module.exports = projects;

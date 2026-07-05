@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { getProjectById } from '@/services/getProjectByIdApi';
 import { deleteProject } from '@/services/editProjectApi';
+import { toggleLikes } from '@/services/toggleLikesApi';
 
 // SKELETON LOADING COMPONENT FOR BETTER UX
 function ProjectSkeleton() {
@@ -65,11 +66,13 @@ export default function SingleProject() {
   const [ownerId, setOwnerId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const { user } = useAuth();
+  const [likesCount , setLikesCount] = useState("");
 
   const [currentLoggedInUserId, setCurrentLoggedInUserId] = useState(user?._id);
 
   const { id } = useParams();
   const router = useRouter();
+  // console.log(id);
 
   useEffect(() => {
     if (id) {
@@ -82,6 +85,9 @@ export default function SingleProject() {
       const res = await getProjectById(projectId);
       if (res && res.project) {
         setProject(res.project);
+        setLiked(res.isLiked)
+        setLikesCount(res.likesCount)
+        // console.log(res)
         if (res.project.owner?._id) {
           setOwnerId(res.project.owner._id.toString());
         }
@@ -115,6 +121,14 @@ export default function SingleProject() {
       setIsDeleting(false);
     }
   };
+
+  const handleLikeButton = async() => {
+    const res = await toggleLikes(id);
+    if(res.success){
+      setLiked(res.isLiked);
+      setLikesCount(res.likesCount)
+    }
+  }
 
   const handleEditRedirect = () => {
     router.push(`/projects/${id}/edit`);
@@ -322,7 +336,7 @@ export default function SingleProject() {
 
                 <div className="grid grid-cols-2 gap-2">
                   <button
-                    onClick={() => setLiked(!liked)}
+                    onClick={()=>handleLikeButton(id)}
                     className={`flex items-center justify-center space-x-1.5 text-xs font-semibold py-2 px-3 rounded-xl border transition-all shadow-3xs ${
                       liked
                         ? 'bg-rose-50/60 text-rose-600 border-rose-200'
@@ -406,7 +420,7 @@ export default function SingleProject() {
                 <div className="p-3 bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl">
                   <span className="text-[9px] font-bold uppercase tracking-wider text-[#6B7280] block mb-0.5">Likes</span>
                   <p className="text-base font-bold text-[#111827] tabular-nums">
-                    {liked ? (project.likes || 0) + 1 : (project.likes || 0)}
+                    {likesCount}
                   </p>
                 </div>
                 <div className="p-3 bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl">

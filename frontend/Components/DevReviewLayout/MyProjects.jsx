@@ -21,12 +21,15 @@ export default function MyProjects() {
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState([]);
   const router = useRouter();
+  // const [isLiked , setLiked] = useState();
+  // const [likesCount , setLikesCount] = useState();
 
   const getProjects = async () => {
     try {
       const res = await getMyProjects();
       if (res && res.projects) {
         setProjects(res.projects);
+
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -131,6 +134,8 @@ export default function MyProjects() {
         {projects.map((project, i) => {
           const hasThumbnail = project.thumbnail && project.thumbnail.trim() !== "";
           const fallbackGradient = getFallbackGradient(project.title);
+          console.log(project)
+          
 
           return (
             <motion.div
@@ -234,7 +239,7 @@ export default function MyProjects() {
                 <div className="flex space-x-3">
                   <span className="flex items-center space-x-1 cursor-pointer group/heart transition-colors">
                     <Heart className="w-3.5 h-3.5 text-[#6B7280] group-hover/heart:text-rose-500 group-hover/heart:fill-rose-500/10 transition-colors" /> 
-                    <span className="text-[#111827] font-semibold">{project.likes || 0}</span>
+                    <span className="text-[#111827] font-semibold">{project.likes.length}</span>
                   </span>
                   <span className="flex items-center space-x-1 cursor-pointer group/msg transition-colors">
                     <MessageSquare className="w-3.5 h-3.5 text-[#6B7280] group-hover/msg:text-[#2563EB] transition-colors" /> 

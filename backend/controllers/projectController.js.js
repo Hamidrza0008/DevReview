@@ -1,3 +1,4 @@
+const projects = require("../models/Projects");
 const Projects = require("../models/Projects");
 const User = require("../models/Users")
 const mongoose = require("mongoose");
@@ -66,11 +67,8 @@ const getMyProjects = async (req, res) => {
 
 const getProjectById = async (req, res) => {
     try {
-
-
-
         const { id } = req.params;
-
+        const userId = req.user.id
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 success: false,
@@ -87,8 +85,13 @@ const getProjectById = async (req, res) => {
             })
         }
 
+        const isLiked = project.likes.some((id) => id.toString() === userId);
+
+
         return res.status(200).json({
             success: true,
+            isLiked,
+            likesCount: project.likes.length,
             project
         })
     } catch (error) {
@@ -261,4 +264,49 @@ const deleteProject = async (req, res) => {
         });
     }
 };
-module.exports = { createProjects, getMyProjects, getProjectById, getExploreProjects, updateProject, deleteProject , getProjectForEdit };
+
+const toggleLikes = async (req, res) => {
+        
+    try {
+        const {id} = req.params;
+        
+        const userId = req.user.id;
+
+        const project = await Projects.findById(id);
+        if (!project) {
+            return res.status(404).json({
+                success: false,
+                message: "Project not found"
+            })
+        }
+
+const alreadyLiked = project.likes.some(
+    (id) => id.toString() === userId
+);
+        if (alreadyLiked) {
+            project.likes = project.likes.filter((id) => id.toString() !== userId);
+        }
+        else {
+            project.likes.push(userId);
+        }
+
+        await project.save();
+
+        return res.status(200).json({
+            success: true,
+            message: alreadyLiked
+                ? "Project unliked successfully"
+                : "Project liked successfully",
+            isLiked: !alreadyLiked,
+            likesCount: project.likes.length
+        })
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+}
+module.exports = { createProjects, getMyProjects, getProjectById, getExploreProjects, updateProject, deleteProject, getProjectForEdit, toggleLikes };

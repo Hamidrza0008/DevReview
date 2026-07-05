@@ -412,7 +412,7 @@ export default function ExploreProjects() {
                       <div className="flex items-center space-x-3 text-[#6B7280]">
                         <span className="flex items-center text-[11px] font-bold hover:text-red-500 cursor-pointer transition-colors group/like select-none">
                           <Heart className="w-3.5 h-3.5 mr-1 stroke-[2] group-hover/like:fill-red-500 group-hover/like:text-red-500 transition-all" /> 
-                          {project.likes || 0}
+                          {project.likes.length || 0}
                         </span>
                         <span className="flex items-center text-[11px] font-bold hover:text-[#2563EB] cursor-pointer transition-colors select-none">
                           <MessageSquare className="w-3.5 h-3.5 mr-1 stroke-[2]" /> 
@@ -420,7 +420,7 @@ export default function ExploreProjects() {
                         </span>
                         <span className="hidden sm:flex items-center text-[11px] font-bold opacity-80">
                           <Eye className="w-3.5 h-3.5 mr-1 stroke-[2]" /> 
-                          {((project.likes || 0) * 3) + 12}
+                          {((project.likes.length || 0) * 3) + 12}
                         </span>
                       </div>
 
