@@ -169,14 +169,14 @@ git clone https://github.com/your-username/devreview.git
 ### Frontend
 
 ```bash
-cd client
+cd frontend
 npm install
 ```
 
 ### Backend
 
 ```bash
-cd server
+cd backend
 npm install
 ```
 
