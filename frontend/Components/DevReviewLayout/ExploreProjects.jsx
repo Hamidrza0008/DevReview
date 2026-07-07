@@ -432,9 +432,9 @@ export default function ExploreProjects() {
                           />
                           {project.likes.length || 0}
                         </span>
-                        <span className="flex items-center text-[11px] font-bold hover:text-[#2563EB] cursor-pointer transition-colors select-none">
+                        <span onClick={()=>router.push(`/projects/${project._id}`)} className="flex items-center text-[11px] font-bold hover:text-[#2563EB] cursor-pointer transition-colors select-none">
                           <MessageSquare className="w-3.5 h-3.5 mr-1 stroke-[2]" />
-                          {project.reviews || 0}
+                          {project.reviewsCount || 0}
                         </span>
                         <span className="hidden sm:flex items-center text-[11px] font-bold opacity-80">
                           <Eye className="w-3.5 h-3.5 mr-1 stroke-[2]" />

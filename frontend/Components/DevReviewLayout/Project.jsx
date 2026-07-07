@@ -158,6 +158,9 @@ export default function SingleProject() {
     }
 
     addReviews(id , reviewRating , reviewComment)
+    setTimeout(() => {
+      getAllReviews();
+    }, 0);
 
     console.log("=== NEW REVIEW SUBMITTED ===");
     console.log("Project ID:", id);

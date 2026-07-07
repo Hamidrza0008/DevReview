@@ -103,10 +103,10 @@ const getProjectById = async (req, res) => {
 
         const isLiked = project.likes.some((id) => id.toString() === userId);
 
-        const reviews = await Reviews.find({project:id});
+        const reviews = await Reviews.find({ project: id });
         const reviewsCount = reviews.length
-        const totalRating = reviews.reduce((acc , curr) => acc+curr.rating , 0);
-        const avgRating = reviewsCount > 0? Number(totalRating/reviewsCount).toFixed(1) : 0;
+        const totalRating = reviews.reduce((acc, curr) => acc + curr.rating, 0);
+        const avgRating = reviewsCount > 0 ? Number(totalRating / reviewsCount).toFixed(1) : 0;
 
 
         return res.status(200).json({
@@ -114,8 +114,8 @@ const getProjectById = async (req, res) => {
             isLiked,
             likesCount: project.likes.length,
             project,
-            averageRating:avgRating,
-            reviewsCount : reviewsCount
+            averageRating: avgRating,
+            reviewsCount: reviewsCount
 
         })
     } catch (error) {
@@ -136,18 +136,48 @@ const getExploreProjects = async (req, res) => {
         const projects = await Projects.find({})
             .populate("owner", "username fullName profileImage")
             .sort({ createdAt: -1 }
-            );
+        );
 
-        const updatedProject = projects.map((proj) => {
-            const likesCount = proj.likes.length;
-            const isLiked = proj.likes.some((id) => id.toString() === userId);
+        
 
-            return {
-                ...proj.toObject(),
-                likesCount,
-                isLiked,
-            }
-        })
+
+        // const updatedProject = projects.map((proj) => {
+
+        //     const likesCount = proj.likes.length;
+        //     const isLiked = proj.likes.some((id) => id.toString() === userId);
+
+        //     return {
+        //         ...proj.toObject(),
+        //         likesCount,
+        //         isLiked,
+        //     }
+        // })
+
+        const updatedProject = await Promise.all(
+            projects.map(async (proj) => {
+
+                const reviews = await Reviews.find({
+                    project: proj._id
+                });
+
+                const likesCount = proj.likes.length;
+                const isLiked = proj.likes.some((id) => id.toString() === userId);
+
+                const reviewsCount = reviews.length;
+                const totalRating = reviews.reduce((acc , curr) => acc+curr.rating  , 0);
+                const averageRating = reviews>0?Number((totalRating/reviewsCount).toFixed(1)) : 0;
+
+                return {
+                    ...proj.toObject(),
+                    likesCount,
+                    isLiked,
+                    reviewsCount,
+                    averageRating
+                }
+            })
+
+
+        )
 
         return res.status(200).json({
             success: true,
