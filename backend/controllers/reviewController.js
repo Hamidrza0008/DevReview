@@ -1,6 +1,7 @@
 const Reviews = require("../models/Review");
 const Projects = require("../models/Projects");
 const mongoose = require("mongoose");
+const { report } = require("../routes/projectRoutes");
 
 const addReviews = async (req, res) => {
     try {
@@ -157,4 +158,107 @@ const deleteReview = async (req, res) => {
     }
 }
 
-module.exports = { addReviews, getReviews  , deleteReview}
+const getReviewForEdit = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const project = await Projects.findById(id);
+        if (!project) {
+            return res.status(404).json({
+                success: false,
+                message: "Project Not Found",
+            })
+        }
+
+        const review = await Reviews.findOne({
+            project: id,
+            user: userId
+        })
+
+        if (!review) {
+            return res.status(404).json({
+                success: false,
+                message: "Review Not Found",
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            review,
+        })
+
+
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+}
+
+const editReview = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+        console.log(res.body)
+        const { reviewRating, reviewComment} = req.body;
+
+        if (!reviewComment || !reviewRating || reviewRating < 1 || reviewRating > 5 || reviewComment.trim() === "") {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Input Found"
+            })
+        }
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Project ID"
+            });
+        }
+
+        const project = await Projects.findById(id);
+        if (!project) {
+            return res.status(404).json({
+                success: false,
+                message: "Project Not Found"
+            })
+        }
+
+
+        const existingReview = await Reviews.findOne({
+            project: id,
+            user: userId
+        })
+
+        if (!existingReview) {
+            return res.status(404).json({
+                success: false,
+                message: "Reveiw Not Found"
+            })
+        }
+
+        existingReview.rating = reviewRating;
+        existingReview.review = reviewComment;
+        existingReview.isEdited = true;
+
+        await existingReview.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Review updated successfully.",
+            review: existingReview,
+        });
+
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+}
+module.exports = { addReviews, getReviews, deleteReview, getReviewForEdit, editReview }

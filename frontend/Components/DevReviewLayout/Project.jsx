@@ -27,7 +27,7 @@ import {
 import { getProjectById } from '@/services/getProjectByIdApi';
 import { deleteProject } from '@/services/editProjectApi';
 import { toggleLikes } from '@/services/toggleLikesApi';
-import { addReviews, deleteReview, getReviews } from '@/services/reviewApis';
+import { addReviews, deleteReview, editReview, getReviews } from '@/services/reviewApis';
 
 // SKELETON LOADING COMPONENT FOR BETTER UX
 function ProjectSkeleton() {
@@ -79,6 +79,7 @@ export default function SingleProject() {
   const [reviewRating, setReviewRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [reviews, setReviews] = useState([]);
+  const [editingReview, setEditingReview] = useState(null);
 
   const { id } = useParams();
   const router = useRouter();
@@ -103,6 +104,24 @@ export default function SingleProject() {
     const res = await deleteReview(id);
     console.log(res)
     getAllReviews(id);
+  }
+  const handleEditReview = (id, review) => {
+    console.log(review)
+    setReviewComment(review.review);
+    setReviewRating(review.rating);
+    setEditingReview(review)
+  }
+
+  const handleReviewUpdate = async (id) => {
+    const res = await editReview(id, reviewRating, reviewComment);
+    console.log(res)
+    setEditingReview(null);
+    setReviewComment("");
+    setReviewRating(0);
+    setTimeout(() => {
+      getAllReviews();
+    }, 0);
+
   }
 
   // console.log(reviews)
@@ -375,8 +394,8 @@ export default function SingleProject() {
                   <button
                     onClick={() => handleLikeButton(id)}
                     className={`flex items-center justify-center space-x-1.5 text-xs font-semibold py-2 px-3 rounded-xl border transition-all shadow-3xs ${liked
-                        ? 'bg-rose-50/60 text-rose-600 border-rose-200'
-                        : 'bg-[#FFFFFF] text-[#6B7280] border-[#E5E7EB] hover:text-rose-500 hover:border-rose-200'
+                      ? 'bg-rose-50/60 text-rose-600 border-rose-200'
+                      : 'bg-[#FFFFFF] text-[#6B7280] border-[#E5E7EB] hover:text-rose-500 hover:border-rose-200'
                       }`}
                   >
                     <Heart className={`w-3.5 h-3.5 ${liked ? 'fill-rose-500 stroke-rose-600' : ''}`} />
@@ -386,8 +405,8 @@ export default function SingleProject() {
                   <button
                     onClick={() => setBookmarked(!bookmarked)}
                     className={`flex items-center justify-center space-x-1.5 text-xs font-semibold py-2 px-3 rounded-xl border transition-all shadow-3xs ${bookmarked
-                        ? 'bg-blue-50/60 text-[#2563EB] border-blue-200'
-                        : 'bg-[#FFFFFF] text-[#6B7280] border-[#E5E7EB] hover:text-[#2563EB] hover:border-blue-200'
+                      ? 'bg-blue-50/60 text-[#2563EB] border-blue-200'
+                      : 'bg-[#FFFFFF] text-[#6B7280] border-[#E5E7EB] hover:text-[#2563EB] hover:border-blue-200'
                       }`}
                   >
                     <Bookmark className={`w-3.5 h-3.5 ${bookmarked ? 'fill-[#2563EB] stroke-[#2563EB]' : ''}`} />
@@ -517,8 +536,8 @@ export default function SingleProject() {
                     >
                       <Star
                         className={`w-5 h-5 transition-colors cursor-pointer ${isFilled
-                            ? "fill-amber-400 stroke-amber-500 text-amber-500"
-                            : "text-[#E5E7EB] stroke-[#9CA3AF]"
+                          ? "fill-amber-400 stroke-amber-500 text-amber-500"
+                          : "text-[#E5E7EB] stroke-[#9CA3AF]"
                           }`}
                       />
                     </button>
@@ -546,12 +565,19 @@ export default function SingleProject() {
 
             <div className="flex justify-end pt-1">
               <motion.button
-                whileHover={{ scale: 1.01, backgroundColor: '#1D4ED8' }}
+                whileHover={{ scale: 1.01, backgroundColor: editingReview ? '#047857' : '#1D4ED8' }} // Edit ke liye green hover aur normal ke liye blue hover
                 whileTap={{ scale: 0.99 }}
-                type="submit"
-                className="bg-[#2563EB] text-[#FFFFFF] font-bold text-xs py-2 px-4 rounded-xl shadow-2xs transition-colors"
+                type={editingReview ? "button" : "submit"}
+                onClick={(e) => {
+                  if (editingReview) {
+                    e.preventDefault();
+                    handleReviewUpdate && handleReviewUpdate(project._id);
+                  }
+                }}
+                className={`${editingReview ? 'bg-[#10B981]' : 'bg-[#2563EB]'
+                  } text-[#FFFFFF] font-bold text-xs py-2 px-4 rounded-xl shadow-2xs transition-colors`}
               >
-                Submit Review
+                {editingReview ? "Update Review" : "Submit Review"}
               </motion.button>
             </div>
           </form>
@@ -595,7 +621,7 @@ export default function SingleProject() {
                         {review.user?._id.toString() === currentLoggedInUserId && (
                           <div className="flex items-center space-x-1 pl-1 border-l border-[#E5E7EB] ml-1">
                             <button
-                              
+                              onClick={() => handleEditReview(project._id, review)}
                               className="p-1 text-[#6B7280] hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
                               title="Edit Review"
                             >
@@ -613,7 +639,7 @@ export default function SingleProject() {
                       </div>
                     </div>
                     <p className="text-xs text-[#475569] leading-relaxed font-normal bg-white p-2.5 rounded-lg border border-[#F1F5F9] shadow-3xs">
-                      {review.review}
+                      {review.review}{review.isEdited?<span className='p-2'>(Edited)</span> : null}
                     </p>
                   </div>
                 </div>

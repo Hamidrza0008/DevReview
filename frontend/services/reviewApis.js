@@ -1,3 +1,4 @@
+
 export const addReviews = async (id, reviewRating, reviewComment) => {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}/review`, {
@@ -46,6 +47,27 @@ export const deleteReview = async (id) => {
             credentials: "include",
         })
         return await response.json();
+    } catch (error) {
+        console.log(error);
+        return {
+            success: false,
+            message: "Something went wrong"
+        };
+    }
+}
+
+export const editReview = async (id, reviewRating, reviewComment) => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}/review`, {
+            method: "PUT",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ reviewRating, reviewComment })
+        })
+
+        return await response.json()
     } catch (error) {
         console.log(error);
         return {
