@@ -38,3 +38,19 @@ export const getReviews = async (id) => {
         };
     }
 }
+
+export const deleteReview = async (id) => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}/review`, {
+            method: "DELETE",
+            credentials: "include",
+        })
+        return await response.json();
+    } catch (error) {
+        console.log(error);
+        return {
+            success: false,
+            message: "Something went wrong"
+        };
+    }
+}

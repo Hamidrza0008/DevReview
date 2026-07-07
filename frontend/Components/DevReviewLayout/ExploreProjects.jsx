@@ -27,7 +27,7 @@ export default function ExploreProjects() {
   const [loading, setLoading] = useState(true);
   const [isPinned, setIsPinned] = useState(false);
   const router = useRouter();
-  const[reviews , setReviews] = useState([]);
+  const [reviews, setReviews] = useState([]);
 
   // const getReviews = async() =>{
   //   const res = await getReviews(id)
@@ -44,7 +44,7 @@ export default function ExploreProjects() {
     }
   };
 
-  const handleLike = async(id) => {
+  const handleLike = async (id) => {
     try {
       const res = await toggleLikes(id);
       console.log(res);
@@ -285,8 +285,8 @@ export default function ExploreProjects() {
             <span
               key={idx}
               className={`cursor-pointer text-xs px-4 py-2 rounded-full font-semibold tracking-wide transition-all duration-200 select-none active:scale-95 ${idx === 0
-                  ? 'bg-[#2563EB] text-white shadow-md shadow-blue-500/10 hover:bg-blue-700'
-                  : 'bg-white border border-[#E5E7EB] text-[#6B7280] hover:border-[#3B82F6] hover:text-[#2563EB] hover:shadow-sm'
+                ? 'bg-[#2563EB] text-white shadow-md shadow-blue-500/10 hover:bg-blue-700'
+                : 'bg-white border border-[#E5E7EB] text-[#6B7280] hover:border-[#3B82F6] hover:text-[#2563EB] hover:shadow-sm'
                 }`}
             >
               {chip}
@@ -426,26 +426,36 @@ export default function ExploreProjects() {
                         <span onClick={() => handleLike(project._id)} className="flex items-center text-[11px] font-bold hover:text-red-500 cursor-pointer transition-colors group/like select-none">
                           <Heart
                             className={`w-3.5 h-3.5 mr-1 stroke-[2] transition-all ${project.isLiked
-                                ? "fill-red-500 text-red-500"
-                                : "fill-none text-current group-hover/like:fill-red-500 group-hover/like:text-red-500"
+                              ? "fill-red-500 text-red-500"
+                              : "fill-none text-current group-hover/like:fill-red-500 group-hover/like:text-red-500"
                               }`}
                           />
                           {project.likes.length || 0}
                         </span>
-                        <span onClick={()=>router.push(`/projects/${project._id}`)} className="flex items-center text-[11px] font-bold hover:text-[#2563EB] cursor-pointer transition-colors select-none">
+                        <span onClick={() => router.push(`/projects/${project._id}`)} className="flex items-center text-[11px] font-bold hover:text-[#2563EB] cursor-pointer transition-colors select-none">
                           <MessageSquare className="w-3.5 h-3.5 mr-1 stroke-[2]" />
                           {project.reviewsCount || 0}
                         </span>
+                        <div className="flex items-center space-x-1.5">
+                          {project.averageRating && (
+                            <div className="flex items-center text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                              <Star className="w-2.5 h-2.5 mr-0.5 text-amber-500 fill-amber-500" />
+                              {project.averageRating}
+                            </div>
+                          )}
+                          <Bookmark className="w-3 h-3 text-[#6B7280] opacity-60 hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()} />
+                        </div>
                         <span className="hidden sm:flex items-center text-[11px] font-bold opacity-80">
                           <Eye className="w-3.5 h-3.5 mr-1 stroke-[2]" />
                           {((project.likes.length || 0) * 3) + 12}
                         </span>
+
                       </div>
 
                       <div className="flex items-center space-x-2">
-                        {project.GitBranchUrl && (
+                        {project.githubUrl && (
                           <a
-                            href={project.GitBranchUrl}
+                            href={project.githubUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-2 text-[#6B7280] hover:text-[#111827] bg-white border border-[#E5E7EB] rounded-xl hover:shadow-xs hover:border-gray-300 transition-all active:scale-95"

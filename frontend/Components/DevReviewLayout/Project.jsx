@@ -19,12 +19,15 @@ import {
   Calendar,
   Layers,
   Sparkles,
-  ArrowUpRight
+  ArrowUpRight,
+  Pen,
+  PencilIconcilIcon,
+  Edit2
 } from 'lucide-react';
 import { getProjectById } from '@/services/getProjectByIdApi';
 import { deleteProject } from '@/services/editProjectApi';
 import { toggleLikes } from '@/services/toggleLikesApi';
-import { addReviews, getReviews } from '@/services/reviewApis';
+import { addReviews, deleteReview, getReviews } from '@/services/reviewApis';
 
 // SKELETON LOADING COMPONENT FOR BETTER UX
 function ProjectSkeleton() {
@@ -67,7 +70,7 @@ export default function SingleProject() {
   const [ownerId, setOwnerId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const { user } = useAuth();
-  const [likesCount , setLikesCount] = useState("");
+  const [likesCount, setLikesCount] = useState("");
 
   const [currentLoggedInUserId, setCurrentLoggedInUserId] = useState(user?._id);
 
@@ -75,11 +78,13 @@ export default function SingleProject() {
   const [reviewComment, setReviewComment] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
-  const[reviews , setReviews] = useState([]);
- 
+  const [reviews, setReviews] = useState([]);
+
   const { id } = useParams();
   const router = useRouter();
   // console.log(id);
+
+
 
   useEffect(() => {
     if (id) {
@@ -88,11 +93,17 @@ export default function SingleProject() {
     }
   }, [id]);
 
-  const getAllReviews = async() => {
+  const getAllReviews = async () => {
     const res = await getReviews(id);
     console.log(res);
     setReviews(res.reviews || [])
-  } 
+  }
+
+  const handleReviewDelete = async (id) => {
+    const res = await deleteReview(id);
+    console.log(res)
+    getAllReviews(id);
+  }
 
   // console.log(reviews)
   const getProject = async (projectId) => {
@@ -137,9 +148,9 @@ export default function SingleProject() {
     }
   };
 
-  const handleLikeButton = async() => {
+  const handleLikeButton = async () => {
     const res = await toggleLikes(id);
-    if(res.success){
+    if (res.success) {
       setLiked(res.isLiked);
       setLikesCount(res.likesCount)
     }
@@ -157,7 +168,7 @@ export default function SingleProject() {
       return;
     }
 
-    addReviews(id , reviewRating , reviewComment)
+    addReviews(id, reviewRating, reviewComment)
     setTimeout(() => {
       getAllReviews();
     }, 0);
@@ -245,7 +256,7 @@ export default function SingleProject() {
           {/* LEFT COLUMN: CANVAS BANNER AREA */}
           <div className="lg:col-span-7 xl:col-span-8 space-y-6">
             <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-2xs relative aspect-video group flex flex-col justify-between select-none">
-              
+
               {/* Mock Browser Title Bar Layout */}
               <div className="flex items-center justify-between px-4 py-2 bg-[#FFFFFF] border-b border-[#E5E7EB] shrink-0">
                 <div className="flex items-center space-x-1.5">
@@ -362,12 +373,11 @@ export default function SingleProject() {
 
                 <div className="grid grid-cols-2 gap-2">
                   <button
-                    onClick={()=>handleLikeButton(id)}
-                    className={`flex items-center justify-center space-x-1.5 text-xs font-semibold py-2 px-3 rounded-xl border transition-all shadow-3xs ${
-                      liked
+                    onClick={() => handleLikeButton(id)}
+                    className={`flex items-center justify-center space-x-1.5 text-xs font-semibold py-2 px-3 rounded-xl border transition-all shadow-3xs ${liked
                         ? 'bg-rose-50/60 text-rose-600 border-rose-200'
                         : 'bg-[#FFFFFF] text-[#6B7280] border-[#E5E7EB] hover:text-rose-500 hover:border-rose-200'
-                    }`}
+                      }`}
                   >
                     <Heart className={`w-3.5 h-3.5 ${liked ? 'fill-rose-500 stroke-rose-600' : ''}`} />
                     <span>{liked ? 'Endorsed' : 'Endorse'}</span>
@@ -375,11 +385,10 @@ export default function SingleProject() {
 
                   <button
                     onClick={() => setBookmarked(!bookmarked)}
-                    className={`flex items-center justify-center space-x-1.5 text-xs font-semibold py-2 px-3 rounded-xl border transition-all shadow-3xs ${
-                      bookmarked
+                    className={`flex items-center justify-center space-x-1.5 text-xs font-semibold py-2 px-3 rounded-xl border transition-all shadow-3xs ${bookmarked
                         ? 'bg-blue-50/60 text-[#2563EB] border-blue-200'
                         : 'bg-[#FFFFFF] text-[#6B7280] border-[#E5E7EB] hover:text-[#2563EB] hover:border-blue-200'
-                    }`}
+                      }`}
                   >
                     <Bookmark className={`w-3.5 h-3.5 ${bookmarked ? 'fill-[#2563EB] stroke-[#2563EB]' : ''}`} />
                     <span>{bookmarked ? 'Saved' : 'Bookmark'}</span>
@@ -392,10 +401,10 @@ export default function SingleProject() {
 
         {/* DETAILS ARTIFACT WORKSPACE EXPANSION GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-          
+
           {/* PRIMARY TEXT LOG DATA SHIELDS */}
           <div className="lg:col-span-8 space-y-6">
-            
+
             {/* COMPREHENSIVE REPO OVERVIEW */}
             <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 md:p-6 shadow-2xs space-y-2.5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Project Specifications</h3>
@@ -507,11 +516,10 @@ export default function SingleProject() {
                       className="focus:outline-none transition-transform active:scale-90"
                     >
                       <Star
-                        className={`w-5 h-5 transition-colors cursor-pointer ${
-                          isFilled
+                        className={`w-5 h-5 transition-colors cursor-pointer ${isFilled
                             ? "fill-amber-400 stroke-amber-500 text-amber-500"
                             : "text-[#E5E7EB] stroke-[#9CA3AF]"
-                        }`}
+                          }`}
                       />
                     </button>
                   );
@@ -552,7 +560,7 @@ export default function SingleProject() {
           <div className="space-y-4">
             {reviews && reviews.length > 0 ? (
               reviews.map((review) => (
-                <div key={review._id} className="flex items-start space-x-3.5 p-4 bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl shadow-3xs">
+                <div key={review._id} className="flex items-start space-x-3.5 p-4 bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl shadow-3xs relative group">
                   <img
                     src={review.user?.profileImage || "https://i.pravatar.cc/150?img=12"}
                     alt={review.user?.username || "user"}
@@ -571,17 +579,37 @@ export default function SingleProject() {
                       <div className="flex items-center space-x-2 shrink-0">
                         <div className="flex items-center text-amber-500 bg-amber-500/5 border border-amber-500/10 rounded-md px-1.5 py-0.5">
                           {[...Array(5)].map((_, index) => (
-                            <Star 
-                              key={index} 
-                              className={`w-3 h-3 ${index < review.rating ? 'fill-amber-400 stroke-amber-500' : 'text-slate-200 stroke-slate-300'}`} 
+                            <Star
+                              key={index}
+                              className={`w-3 h-3 ${index < review.rating ? 'fill-amber-400 stroke-amber-500' : 'text-slate-200 stroke-slate-300'}`}
                             />
                           ))}
                         </div>
                         <span className="text-[10px] font-medium text-[#6B7280]">
-                          {review.createdAt 
-                            ? new Date(review.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) 
+                          {review.createdAt
+                            ? new Date(review.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
                             : "N/A"}
                         </span>
+
+                        {/* Owner Action Buttons */}
+                        {review.user?._id.toString() === currentLoggedInUserId && (
+                          <div className="flex items-center space-x-1 pl-1 border-l border-[#E5E7EB] ml-1">
+                            <button
+                              
+                              className="p-1 text-[#6B7280] hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
+                              title="Edit Review"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleReviewDelete && handleReviewDelete(project._id)}
+                              className="p-1 text-[#6B7280] hover:text-red-600 rounded-md hover:bg-red-50 transition-colors"
+                              title="Delete Review"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <p className="text-xs text-[#475569] leading-relaxed font-normal bg-white p-2.5 rounded-lg border border-[#F1F5F9] shadow-3xs">
@@ -598,7 +626,7 @@ export default function SingleProject() {
           </div>
         </div>
 
-        
+
 
       </div>
     </div>

@@ -1,5 +1,6 @@
 const Reviews = require("../models/Review");
 const Projects = require("../models/Projects");
+const mongoose = require("mongoose");
 
 const addReviews = async (req, res) => {
     try {
@@ -98,7 +99,7 @@ const getReviews = async (req, res) => {
         });
 
     } catch (error) {
-          console.log(error);
+        console.log(error);
 
         return res.status(500).json({
             success: false,
@@ -107,4 +108,53 @@ const getReviews = async (req, res) => {
     }
 }
 
-module.exports = { addReviews , getReviews }
+const deleteReview = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Project ID",
+            });
+        }
+
+        const project = await Projects.findById(id);
+        if (!project) {
+            return res.status(404).json({
+                "success": false,
+                "message": "Project not found."
+            })
+        }
+
+        const review = await Reviews.findOne({
+            project: id,
+            user: userId,
+        })
+
+        if (!review) {
+            return res.status(404).json({
+                "success": false,
+                "message": "Review not found."
+            })
+        }
+
+        await review.deleteOne();
+        return res.status(200).json(
+            {
+                "success": true,
+                "message": "Review deleted successfully."
+            }
+        )
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+}
+
+module.exports = { addReviews, getReviews  , deleteReview}

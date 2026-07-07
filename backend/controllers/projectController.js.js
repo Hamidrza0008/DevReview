@@ -165,7 +165,7 @@ const getExploreProjects = async (req, res) => {
 
                 const reviewsCount = reviews.length;
                 const totalRating = reviews.reduce((acc , curr) => acc+curr.rating  , 0);
-                const averageRating = reviews>0?Number((totalRating/reviewsCount).toFixed(1)) : 0;
+                const averageRating = reviewsCount>0?Number((totalRating/reviewsCount).toFixed(1)) : 0;
 
                 return {
                     ...proj.toObject(),
