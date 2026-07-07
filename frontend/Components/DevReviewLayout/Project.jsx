@@ -639,7 +639,7 @@ export default function SingleProject() {
                       </div>
                     </div>
                     <p className="text-xs text-[#475569] leading-relaxed font-normal bg-white p-2.5 rounded-lg border border-[#F1F5F9] shadow-3xs">
-                      {review.review}{review.isEdited?<span className='p-2'>(Edited)</span> : null}
+                      {review.review}{review.isEdited?<span className='p-2 text-green-500'>(Edited)</span> : null}
                     </p>
                   </div>
                 </div>
