@@ -21,6 +21,7 @@ import {
 import { getExploreProjects } from '@/services/getExploreProjectsApi';
 import { useRouter } from 'next/navigation';
 import { toggleLikes } from '@/services/toggleLikesApi';
+import { getStats } from '@/services/statsApi';
 
 export default function ExploreProjects() {
   const [projects, setProjects] = useState([]);
@@ -28,6 +29,7 @@ export default function ExploreProjects() {
   const [isPinned, setIsPinned] = useState(false);
   const router = useRouter();
   const [reviews, setReviews] = useState([]);
+  const [stats , setStats] = useState([])
 
   // const getReviews = async() =>{
   //   const res = await getReviews(id)
@@ -44,6 +46,12 @@ export default function ExploreProjects() {
     }
   };
 
+  const getstat = async() => {
+    const res =await getStats();
+    console.log(res);
+    setStats(res);
+  }
+
   const handleLike = async (id) => {
     try {
       const res = await toggleLikes(id);
@@ -56,6 +64,7 @@ export default function ExploreProjects() {
 
   useEffect(() => {
     getProjects();
+    getstat()
 
     const handleScroll = () => {
       if (window.scrollY > 420) {
@@ -196,9 +205,9 @@ export default function ExploreProjects() {
             {/* Stats Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4">
               {[
-                { label: 'Projects', value: '12.4k+', icon: Layers },
-                { label: 'Developers', value: '8.2k', icon: Users },
-                { label: 'Reviews', value: '45.1k', icon: MessageSquare },
+                { label: 'Projects', value: stats.projects, icon: Layers },
+                { label: 'Developers', value: stats.developers, icon: Users },
+                { label: 'Reviews', value: stats.reviews, icon: MessageSquare },
                 { label: 'Avg Rating', value: '4.92', icon: Star, isRating: true },
               ].map((stat, idx) => (
                 <div
