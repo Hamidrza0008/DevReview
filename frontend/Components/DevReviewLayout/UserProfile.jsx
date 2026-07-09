@@ -1,107 +1,189 @@
 "use client";
 
-import React from 'react';
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Heart, MessageSquare, ExternalLink, GitBranch,
   Globe, Mail, CheckCircle2, Eye, Star, MapPin,
-  Calendar, Award, Bookmark, Layers, User, Activity, Zap
-} from 'lucide-react';
-import { getUserProfile } from '@/services/usersApi';
-import { getProjectByUsername } from '@/services/getProjectsByUsernameApi';
+  Calendar, Award, Bookmark, Layers, User, Activity, Zap,
+  AlertCircle, Code2, ArrowUpRight
+} from "lucide-react";
+import { getUserProfile } from "@/services/usersApi";
+import { getProjectByUsername } from "@/services/getProjectsByUsernameApi";
+import { toggleLikes } from "@/services/toggleLikesApi";
 
 export default function UserProfile() {
+  const router = useRouter();
   const { username } = useParams();
-  console.log(username);
 
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('projects');
   const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("projects");
+  
   const [stats, setStats] = useState({
     totalLikes: 0,
     totalProjects: 0,
     totalReviews: 0,
+    profileView: 0,
   });
 
-
+  // fetch user profile and associated projects
   useEffect(() => {
-    getProjects(username);
-    getUser(username);
+    let isMounted = true;
+
+    const fetchProfileData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const [userRes, projectsRes] = await Promise.all([
+          getUserProfile(username),
+          getProjectByUsername(username)
+        ]);
+
+        if (isMounted) {
+          if (!userRes?.user) {
+            setError("User not found.");
+            return;
+          }
+
+          setUser(userRes.user);
+          setStats({
+            totalLikes: userRes.totalLikes || 0,
+            totalProjects: userRes.totalProjects || 0,
+            totalReviews: userRes.totalReviews || 0,
+            profileView: userRes.user.views || 0,
+          });
+          
+          setProjects(projectsRes?.projects || []);
+        }
+      } catch (err) {
+        if (isMounted) setError("Failed to load profile data.");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    if (username) fetchProfileData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [username]);
 
-  const getUser = async (username) => {
-    if (username) {
-      const res = await getUserProfile(username);
-      setUser(res);
-      setStats({
-        totalLikes: res.totalLikes,
-        totalProjects: res.totalProjects,
-        totalReviews: res.totalReviews,
-      });
+  // optimistic update for perceived speed
+  const handleLikeButton = async (e, projectId) => {
+    e.stopPropagation();
+    
+    // store previous state to revert if api fails
+    const previousProjects = [...projects];
+    
+    // instantly update UI
+    setProjects(current => 
+      current.map(p => {
+        if (p._id === projectId) {
+          const isLiked = p.isLiked;
+          return {
+            ...p,
+            isLiked: !isLiked,
+            likes: isLiked ? p.likes.slice(0, -1) : [...(p.likes || []), "temp-like"]
+          };
+        }
+        return p;
+      })
+    );
+
+    try {
+      await toggleLikes(projectId);
+      // background sync to ensure data accuracy
+      const freshProjects = await getProjectByUsername(username);
+      setProjects(freshProjects.projects);
+    } catch (err) {
+      // revert on failure
+      setProjects(previousProjects);
     }
   };
-  console.log(user)
-  console.log(stats)
-  const getProjects = async () => {
-    const res = await getProjectByUsername(username);
-    console.log(res);
-    setProjects(res.projects)
-  }
 
-  // Beautiful UI placeholders and dummy data inside constants (DO NOT TOUCH BACKEND)
-  // const stats = {
-  //   projectsCount: 14,
-  //   reviews: 48,
-  //   likes: 342,
-  //   views: '2.8k'
-  // };
-
+  // mockup data for sidebar
   const rightSidebarData = {
     location: "San Francisco, CA",
     joinedDate: "Joined March 2024",
     languages: [
       { name: "TypeScript", value: 45, color: "#2563EB" },
       { name: "React / Next.js", value: 30, color: "#3B82F6" },
-      { name: "Node.js", value: 15, color: "#10B981" },
+      { name: "Node.js", value: 15, color: "#22C55E" },
       { name: "Other", value: 10, color: "#6B7280" }
     ],
     achievements: [
-      { label: "Top Creator", desc: "Top 5% contributors this month", icon: Award, color: "text-amber-500 bg-amber-50" },
-      { label: "High Reviewer", desc: "45+ constructive reviews given", icon: Star, color: "text-blue-500 bg-blue-50" },
-      { label: "100+ Likes", desc: "Community favorite highlights", icon: Heart, color: "text-rose-500 bg-rose-50" },
-      { label: "Top Contributor", desc: "Active helper on ecosystems", icon: Zap, color: "text-emerald-500 bg-emerald-50" }
+      { label: "Top Creator", desc: "Top 5% contributors this month", icon: Award, color: "text-[#2563EB] bg-[#2563EB]/10 border-[#2563EB]/20" },
+      { label: "High Reviewer", desc: "45+ constructive reviews given", icon: Star, color: "text-[#3B82F6] bg-[#3B82F6]/10 border-[#3B82F6]/20" },
+      { label: "Community Favorite", desc: "Highly starred blueprints", icon: Heart, color: "text-[#EF4444] bg-[#EF4444]/10 border-[#EF4444]/20" }
     ]
   };
 
-  const placeholderBookmarks = [
-    { title: "Next.js 15 Server Actions Deep Dive", category: "Article", author: "Vercel Team" },
-    { title: "Framer Motion Advanced Layout Orchestration", category: "Guide", author: "Matt Perry" }
-  ];
-
   const placeholderActivity = [
-    { type: "commit", text: "Pushed 4 commits to E-Commerce Core repository", time: "2 hours ago" },
-    { type: "review", text: "Approved pull request #231 in DevReview Dashboard", time: "1 day ago" }
+    { type: "commit", text: "Pushed updates to E-Commerce Core repository", time: "2 hours ago" },
+    { type: "review", text: "Approved pull request #231 in DevReview", time: "1 day ago" }
   ];
 
+  // framer variants for staggered lists
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.05 } }
+  };
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 250, damping: 25 } }
+  };
 
-  if (!user) {
+  // handle loading and error states cleanly
+  if (loading || error) {
     return (
-      <div className="p-4 md:p-8 bg-[#F8FAFC] min-h-screen space-y-8 animate-pulse text-[#111827]">
-        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-3xl p-6 h-64 shadow-sm"></div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="h-12 bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl shadow-sm w-2/3"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-72 bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl shadow-sm"></div>
-              ))}
+      <div className="p-4 md:p-8 bg-[#F8FAFC] min-h-screen max-w-7xl mx-auto space-y-8">
+        {error ? (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[#FEF2F2] border border-[#F87171] rounded-[24px] p-8 text-center max-w-2xl mx-auto mt-20 shadow-sm"
+          >
+            <AlertCircle className="w-10 h-10 text-[#EF4444] mx-auto mb-4" />
+            <h3 className="text-lg font-bold text-[#991B1B] mb-2">{error}</h3>
+            <p className="text-sm text-[#B91C1C] mb-6">The profile you are looking for might have been removed or is temporarily unavailable.</p>
+            <button 
+              onClick={() => router.push('/')}
+              className="bg-[#EF4444] text-[#FFFFFF] px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#DC2626] transition-colors"
+            >
+              Return Home
+            </button>
+          </motion.div>
+        ) : (
+          /* layout-matched skeleton */
+          <div className="animate-pulse space-y-8">
+            <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[32px] p-8 h-64 shadow-sm flex items-center gap-8">
+              <div className="w-28 h-28 rounded-full bg-[#F1F5F9]" />
+              <div className="space-y-4 flex-1">
+                <div className="h-8 bg-[#F1F5F9] rounded-lg w-1/4" />
+                <div className="h-4 bg-[#F1F5F9] rounded w-1/3" />
+                <div className="h-4 bg-[#F1F5F9] rounded w-1/2" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-6">
+                <div className="h-12 bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl w-full max-w-sm" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="h-[380px] bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] shadow-sm" />
+                  ))}
+                </div>
+              </div>
+              <div className="h-[600px] bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] shadow-sm" />
             </div>
           </div>
-          <div className="h-96 bg-[#FFFFFF] border border-[#E5E7EB] rounded-3xl shadow-sm"></div>
-        </div>
+        )}
       </div>
     );
   }
@@ -110,124 +192,112 @@ export default function UserProfile() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="p-4 md:p-8 bg-[#F8FAFC] min-h-screen text-[#111827] max-w-7xl mx-auto space-y-8 antialiased relative selection:bg-[#2563EB]/10 selection:text-[#2563EB]"
+      className="p-4 md:p-8 bg-[#F8FAFC] min-h-screen text-[#111827] max-w-7xl mx-auto space-y-8 antialiased relative selection:bg-[#2563EB]/20 selection:text-[#2563EB] pb-24"
     >
-      {/* BACKGROUND ELEMENTS */}
+      {/* background textures */}
       <div className="absolute inset-0 bg-[radial-gradient(#E5E7EB_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none z-0" />
       <div className="absolute top-20 left-1/3 w-[500px] h-[500px] bg-gradient-to-tr from-[#2563EB]/5 to-[#3B82F6]/5 rounded-full blur-[120px] pointer-events-none z-0" />
-      <div className="absolute bottom-40 right-10 w-[400px] h-[400px] bg-gradient-to-br from-[#3B82F6]/5 to-[#2563EB]/5 rounded-full blur-[100px] pointer-events-none z-0" />
 
-      {/* ================= PREMIUM MODERN PROFILE HEADER ================= */}
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-3xl p-6 md:p-8 shadow-sm relative overflow-hidden z-10">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-[#2563EB]/5 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none"></div>
+      {/* header card */}
+      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[32px] p-8 md:p-10 shadow-sm relative overflow-hidden z-10">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-[#2563EB]/5 to-[#3B82F6]/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start relative z-10">
-          <div className="lg:col-span-2 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-center relative z-10">
+          <div className="lg:col-span-2 flex flex-col sm:flex-row items-center sm:items-start gap-8 text-center sm:text-left">
+            
+            {/* avatar */}
             <div className="relative group shrink-0">
-              <motion.div
-                className="absolute -inset-1 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] rounded-full blur-md opacity-30 group-hover:opacity-50 transition duration-300"
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              />
-              <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-4 border-[#FFFFFF] relative z-10 shadow-md">
-                <motion.img
-                  whileHover={{ scale: 1.08 }}
-                  transition={{ duration: 0.3 }}
-                  src={user.profileImage || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80"}
+              <div className="absolute -inset-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] rounded-full blur-md opacity-20 group-hover:opacity-40 transition duration-500" />
+              <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-[#FFFFFF] relative z-10 shadow-md bg-[#F1F5F9]">
+                <img
+                  src={user.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=F1F5F9&color=111827`}
                   alt={user.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                 />
               </div>
             </div>
 
+            {/* user info */}
             <div className="space-y-4 flex-1">
               <div>
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-                  <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#111827] flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                  <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#111827] flex items-center gap-2">
                     {user.name}
-                    {user.isVerified && (
-                      <CheckCircle2 className="w-5 h-5 text-[#22C55E] fill-[#22C55E]/10 shrink-0" />
+                    {(user.isVerified !== false) && (
+                      <CheckCircle2 className="w-6 h-6 text-[#2563EB]" />
                     )}
                   </h1>
-                  <span className="text-xs bg-[#F8FAFC] border border-[#E5E7EB] text-[#6B7280] font-mono px-2 py-0.5 rounded-md">
+                  <span className="text-xs bg-[#F1F5F9] border border-[#E5E7EB] text-[#6B7280] font-mono px-2.5 py-1 rounded-lg">
                     @{user.username}
-                  </span>
-                  <span className="text-[11px] font-semibold bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/10 px-2 py-0.5 rounded-full">
-                    Creator Profile
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-[#6B7280] mt-2.5 font-medium">
-                  <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-[#6B7280]" /> {user.email}</span>
-                  <a href={user.githubUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-[#2563EB] transition-colors group">
-                    <GitBranch className="w-3.5 h-3.5 text-[#6B7280] group-hover:text-[#2563EB]" /> GitHub
-                  </a>
-                  <a href={user.portfolioUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-[#2563EB] transition-colors group">
-                    <Globe className="w-3.5 h-3.5 text-[#6B7280] group-hover:text-[#2563EB]" /> Website
-                  </a>
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-[#6B7280] mt-3 font-medium">
+                  {user.email && <span className="flex items-center gap-1.5"><Mail className="w-4 h-4" /> {user.email}</span>}
+                  {user.githubUrl && (
+                    <a href={user.githubUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-[#2563EB] transition-colors">
+                      <GitBranch className="w-4 h-4" /> GitHub
+                    </a>
+                  )}
+                  {user.portfolioUrl && (
+                    <a href={user.portfolioUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-[#2563EB] transition-colors">
+                      <Globe className="w-4 h-4" /> Website
+                    </a>
+                  )}
                 </div>
               </div>
 
-              <p className="text-sm text-[#6B7280] font-normal leading-relaxed max-w-xl">
-                {user.bio || "No biography details published by this user yet."}
+              <p className="text-sm md:text-base text-[#6B7280] font-normal leading-relaxed max-w-xl">
+                {user.bio || "This user hasn't added a bio yet."}
               </p>
 
-              <div className="pt-1">
-                <div className="flex flex-wrap justify-center sm:justify-start gap-1.5">
-                  {user.skills?.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="text-xs bg-[#F8FAFC] text-[#111827] border border-[#E5E7EB] px-2.5 py-1 rounded-lg font-medium shadow-2xs"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
+              <div className="pt-2 flex flex-wrap justify-center sm:justify-start gap-2">
+                {user.skills?.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="text-xs bg-[#FFFFFF] text-[#111827] border border-[#E5E7EB] px-3 py-1.5 rounded-xl font-semibold shadow-sm"
+                  >
+                    {skill}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* RIGHT SIDE STATS CARD LINKED BEAUTIFULLY */}
-          <div className="flex flex-col gap-4 h-full justify-between lg:border-l lg:border-[#E5E7EB] lg:pl-8">
-            <div className="grid grid-cols-2 gap-3 w-full">
-              <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-3 text-center sm:text-left">
-                <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider block">Projects</span>
-                <span className="text-xl font-bold mt-1 block text-[#111827]">{stats.totalProjects}</span>
-              </div>
-              <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-3 text-center sm:text-left">
-                <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider block">Reviews</span>
-                <span className="text-xl font-bold mt-1 block text-[#111827]">{stats.totalReviews}</span>
-              </div>
-              <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-3 text-center sm:text-left">
-                <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider block">Likes</span>
-                <span className="text-xl font-bold mt-1 block text-[#111827]">{stats.totalLikes}</span>
-              </div>
-              <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-3 text-center sm:text-left">
-                <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider block">Profile Views</span>
-                <span className="text-xl font-bold mt-1 block text-[#111827]">{stats.views}</span>
-              </div>
+          {/* metrics layout */}
+          <div className="flex flex-col gap-4 h-full justify-between lg:border-l lg:border-[#F1F5F9] lg:pl-10">
+            <div className="grid grid-cols-2 gap-4 w-full">
+              {[
+                { label: "Projects", val: stats.totalProjects },
+                { label: "Reviews", val: stats.totalReviews },
+                { label: "Likes", val: stats.totalLikes },
+                { label: "Views", val: stats.profileView }
+              ].map((st, idx) => (
+                <div key={idx} className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-4 hover:border-[#2563EB]/30 transition-all duration-300 group shadow-sm">
+                  <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider block mb-1">{st.label}</span>
+                  <span className="text-2xl font-bold text-[#111827] group-hover:text-[#2563EB] transition-colors">{st.val}</span>
+                </div>
+              ))}
             </div>
 
             <div className="w-full pt-2">
               <motion.button
-                whileHover={{ scale: 1.01, backgroundColor: '#2563EB' }}
-                whileTap={{ scale: 0.99 }}
-                className="w-full text-white bg-[#3B82F6] py-2.5 rounded-xl font-semibold flex items-center justify-center space-x-2 shadow-2xs text-xs tracking-wide transition-all"
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-[#FFFFFF] py-3 rounded-2xl font-bold flex items-center justify-center space-x-2 shadow-sm text-sm transition-colors"
               >
-                <span>CONNECT WITH USER</span>
+                <span>Follow Developer</span>
               </motion.button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ================= TABS NAVIGATION SECTION ================= */}
-      <div className="border-b border-[#E5E7EB] flex items-center space-x-6 z-10 relative overflow-x-auto scrollbar-none">
+      {/* tab navigation */}
+      <div className="border-b border-[#E5E7EB] flex items-center space-x-8 z-10 relative overflow-x-auto no-scrollbar pt-4">
         {[
-          { id: 'projects', label: 'Showcase Projects', icon: Layers },
-          { id: 'about', label: 'About', icon: User },
-          { id: 'activity', label: 'Activity Logs', icon: Activity },
-          { id: 'bookmarks', label: 'Curated Saves', icon: Bookmark }
+          { id: "projects", label: "Repositories", icon: Layers },
+          { id: "about", label: "About", icon: User },
+          { id: "activity", label: "Activity", icon: Activity }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -235,15 +305,16 @@ export default function UserProfile() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 transition-all relative whitespace-nowrap outline-none ${isActive
-                  ? 'border-[#2563EB] text-[#2563EB]'
-                  : 'border-transparent text-[#6B7280] hover:text-[#111827]'
-                }`}
+              className={`flex items-center gap-2 pb-4 text-sm font-semibold border-b-2 transition-all relative whitespace-nowrap outline-none ${
+                isActive
+                  ? "border-[#2563EB] text-[#2563EB]"
+                  : "border-transparent text-[#6B7280] hover:text-[#111827]"
+              }`}
             >
               <Icon className="w-4 h-4" />
               {tab.label}
-              {tab.id === 'projects' && (
-                <span className={`text-[11px] font-mono px-1.5 py-0.2 rounded-md ${isActive ? 'bg-[#2563EB]/10 text-[#2563EB]' : 'bg-[#F8FAFC] text-[#6B7280]'}`}>
+              {tab.id === "projects" && (
+                <span className={`text-xs px-2 py-0.5 rounded-md ml-1 font-bold ${isActive ? "bg-[#2563EB]/10 text-[#2563EB]" : "bg-[#F1F5F9] text-[#6B7280]"}`}>
                   {projects.length}
                 </span>
               )}
@@ -252,192 +323,176 @@ export default function UserProfile() {
         })}
       </div>
 
-      {/* ================= MAIN CONTENT GRID (LEFT TAB CONTENT + RIGHT SIDEBAR) ================= */}
+      {/* main content split */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 z-10 relative">
 
-        {/* LEFT COMPONENT COLUMN */}
+        {/* left column content */}
         <div className="lg:col-span-2 space-y-6">
           <AnimatePresence mode="wait">
-            {activeTab === 'projects' && (
+            
+            {/* projects tab */}
+            {activeTab === "projects" && (
               <motion.div
                 key="projects-tab"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="space-y-4"
+                className="space-y-6"
               >
                 <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-bold text-[#111827]">Engineering Repositories</h2>
-                  <motion.button
-                    whileHover={{ scale: 1.02, backgroundColor: '#1D4ED8' }}
-                    whileTap={{ scale: 0.98 }}
-                    className="bg-[#2563EB] text-white px-3.5 py-2 rounded-xl font-semibold flex items-center space-x-1.5 shadow-sm text-xs transition-all"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> <span>Follow Space</span>
-                  </motion.button>
+                  <h2 className="text-lg font-bold text-[#111827]">Public Projects</h2>
                 </div>
 
-                {/* REDESIGNED PROJECT CARDS IN TWO COLUMN GRID */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {projects.map((project, i) => (
-                    <motion.div
-                      key={i}
-                      whileHover={{ y: -4 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl flex flex-col justify-between overflow-hidden group shadow-xs hover:border-[#2563EB]/50 transition-all"
-                    >
-                      {/* Browser Screenshot Area Mockup */}
-                      <div className="h-36 bg-[#F8FAFC] border-b border-[#E5E7EB] relative flex flex-col overflow-hidden select-none">
-                        {/* Browser Top Header Controls */}
-                        <div className="flex items-center justify-between px-3 py-2 bg-[#FFFFFF] border-b border-[#E5E7EB] shrink-0">
-                          <div className="flex items-center space-x-1.5">
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#E5E7EB] group-hover:bg-rose-400 transition-colors" />
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#E5E7EB] group-hover:bg-amber-400 transition-colors" />
-                            <span className="w-2.5 h-2.5 rounded-full bg-[#E5E7EB] group-hover:bg-emerald-400 transition-colors" />
-                          </div>
-                          <div className="bg-[#F8FAFC] rounded-md text-[10px] px-4 py-0.5 border border-[#E5E7EB] w-36 text-center text-[#6B7280] font-mono truncate">
-                            localhost:3000
-                          </div>
-                          <Bookmark className="w-3.5 h-3.5 text-[#6B7280] hover:text-[#2563EB] cursor-pointer transition-colors" />
-                        </div>
-                        {/* Mockup Body Rendering */}
-                        <div className="p-4 flex-1 flex flex-col justify-center items-center relative">
-                          {project.thumbnail ? (
-                            <div className="absolute inset-0 bg-gradient-to-br from-[#2563EB]/5 to-[#3B82F6]/5 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                              <img src={project.thumbnail} alt="" />
+                {projects.length === 0 ? (
+                  <div className="bg-[#FFFFFF] border border-[#E5E7EB] border-dashed rounded-[24px] p-12 text-center flex flex-col items-center justify-center shadow-sm">
+                    <div className="w-16 h-16 bg-[#F1F5F9] rounded-2xl flex items-center justify-center mb-4">
+                      <Code2 className="w-8 h-8 text-[#6B7280]" />
+                    </div>
+                    <h3 className="text-lg font-bold text-[#111827] mb-2">No projects available</h3>
+                    <p className="text-[#6B7280] max-w-md mx-auto text-sm leading-relaxed">
+                      {user.name} hasn't published any public projects yet.
+                    </p>
+                  </div>
+                ) : (
+                  <motion.div 
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="show"
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+                  >
+                    {projects.map((project) => (
+                      <motion.div
+                        key={project._id}
+                        variants={itemVariants}
+                        whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                        onClick={() => router.push(`/projects/${project._id}`)}
+                        className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] flex flex-col justify-between overflow-hidden group shadow-sm hover:shadow-xl hover:shadow-[#2563EB]/5 hover:border-[#2563EB]/30 cursor-pointer transition-all duration-300"
+                      >
+                        {/* simulated browser chrome header */}
+                        <div className="h-44 bg-[#F8FAFC] border-b border-[#E5E7EB] relative flex flex-col overflow-hidden">
+                          <div className="flex items-center justify-between px-4 py-2.5 bg-[#FFFFFF] border-b border-[#E5E7EB] shrink-0 z-10">
+                            <div className="flex items-center space-x-1.5">
+                              <span className="w-2.5 h-2.5 rounded-full bg-[#E5E7EB] group-hover:bg-[#EF4444] transition-colors" />
+                              <span className="w-2.5 h-2.5 rounded-full bg-[#E5E7EB] group-hover:bg-[#F59E0B] transition-colors" />
+                              <span className="w-2.5 h-2.5 rounded-full bg-[#E5E7EB] group-hover:bg-[#10B981] transition-colors" />
                             </div>
-                          ) : (
-                            <div className="font-mono text-[10px] text-[#6B7280] bg-[#FFFFFF] border border-[#E5E7EB] p-3 rounded-lg shadow-2xs max-w-[80%] truncate">
-                              {"const UserNode = () => <Renderer />;"}
+                            <div className="bg-[#F8FAFC] rounded-md text-[10px] px-4 py-1 border border-[#E5E7EB] w-40 text-center text-[#6B7280] font-mono truncate">
+                              {project.title.toLowerCase().replace(/\s+/g, '-')}.io
                             </div>
-                          )}
+                            <div className="w-10"></div>
+                          </div>
+                          
+                          <div className="flex-1 relative flex items-center justify-center bg-[#F1F5F9]">
+                            {project.thumbnail ? (
+                              <img src={project.thumbnail} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                            ) : (
+                              <Code2 className="w-8 h-8 text-[#6B7280] opacity-40" />
+                            )}
+                            <div className="absolute inset-0 bg-[#111827]/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                              <span className="bg-[#FFFFFF] text-[#111827] px-4 py-2 rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5">
+                                View App <ArrowUpRight className="w-3.5 h-3.5 text-[#2563EB]" />
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Details Area */}
-                      <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                        <div className="space-y-1.5">
-                          <div className="flex justify-between items-center gap-2">
-                            <h3 className="font-bold text-sm text-[#111827] group-hover:text-[#2563EB] transition-colors line-clamp-1">
+                        {/* card body */}
+                        <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                          <div className="space-y-1.5">
+                            <h3 className="font-bold text-lg text-[#111827] group-hover:text-[#2563EB] transition-colors line-clamp-1">
                               {project.title}
                             </h3>
-                            <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${project.status === 'Published'
-                                ? 'bg-[#22C55E]/10 text-[#22C55E] border-[#22C55E]/20'
-                                : 'bg-[#6B7280]/10 text-[#6B7280] border-[#E5E7EB]'
-                              }`}>
-                              {project.status}
-                            </span>
+                            <p className="text-sm text-[#6B7280] line-clamp-2 leading-relaxed">
+                              {project.description || "No description provided."}
+                            </p>
                           </div>
 
-                          <p className="text-xs text-[#6B7280] line-clamp-2 leading-relaxed">
-                            {project.description}
-                          </p>
-                        </div>
-
-                        <div className="space-y-3 pt-1">
-                          {/* Tech badges */}
-                          <div className="flex flex-wrap gap-1">
-                            {project.techStack.map((t, idx) => (
-                              <span key={idx} className="text-[10px] font-medium bg-[#F8FAFC] border border-[#E5E7EB] px-2 py-0.5 rounded text-[#111827]">
-                                {t}
-                              </span>
-                            ))}
-                          </div>
-
-                          {/* Action footer counter elements */}
-                          <div className="pt-2.5 border-t border-[#E5E7EB] flex justify-between items-center text-[11px] text-[#6B7280]">
-                            <div className="flex space-x-3">
-                              <span className="flex items-center space-x-1 font-medium hover:text-rose-600 cursor-pointer transition-colors">
-                                <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500/5" />
-                                <span>{project.likes}</span>
-                              </span>
-                              <span className="flex items-center space-x-1 font-medium">
-                                <MessageSquare className="w-3.5 h-3.5 text-[#2563EB]" />
-                                <span>{project.reviews}</span>
-                              </span>
-                              <span className="flex items-center space-x-1 font-medium">
-                                <Eye className="w-3.5 h-3.5 text-[#6B7280]" />
-                                <span>{project.views}</span>
-                              </span>
+                          <div className="space-y-4">
+                            <div className="flex flex-wrap gap-1.5">
+                              {(project.techStack || []).slice(0, 3).map((t, idx) => (
+                                <span key={idx} className="text-[10px] font-bold bg-[#F8FAFC] border border-[#E5E7EB] px-2.5 py-1 rounded-lg text-[#6B7280] font-mono">
+                                  {t}
+                                </span>
+                              ))}
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <a href="#" className="hover:text-[#2563EB] transition-colors"><GitBranch className="w-3.5 h-3.5" /></a>
-                              <a href="#" className="hover:text-[#2563EB] transition-colors"><ExternalLink className="w-3.5 h-3.5" /></a>
+
+                            <div className="pt-4 border-t border-[#F1F5F9] flex justify-between items-center text-xs font-semibold text-[#6B7280]">
+                              <div className="flex space-x-4">
+                                <motion.span 
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={(e) => handleLikeButton(e, project._id)} 
+                                  className="flex items-center space-x-1.5 hover:text-[#EF4444] cursor-pointer transition-colors"
+                                >
+                                  <Heart className={`w-4 h-4 ${project.isLiked ? 'fill-[#EF4444] text-[#EF4444]' : ''}`} /> 
+                                  <span className={project.isLiked ? 'text-[#EF4444]' : ''}>{project.likes?.length || 0}</span>
+                                </motion.span>
+                                <span className="flex items-center space-x-1.5">
+                                  <MessageSquare className="w-4 h-4" /> 
+                                  <span>{project.reviewsCount || 0}</span>
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-3">
+                                {project.githubUrl && <GitBranch className="w-4 h-4 hover:text-[#111827] transition-colors" />}
+                                {project.liveUrl && <ExternalLink className="w-4 h-4 hover:text-[#111827] transition-colors" />}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
               </motion.div>
             )}
 
-            {/* PLACEHOLDER ABOUT TAB */}
-            {activeTab === 'about' && (
+            {/* about tab */}
+            {activeTab === "about" && (
               <motion.div
                 key="about-tab"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 space-y-4 shadow-xs"
+                className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 space-y-6 shadow-sm"
               >
-                <h3 className="text-base font-bold text-[#111827]">Biography / Overview</h3>
-                <p className="text-xs text-[#6B7280] leading-relaxed">
-                  {
-                    user.bio
-                  }
-                </p>
-                <div className="h-[1px] bg-[#E5E7EB] w-full my-2" />
-                <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider">Primary Framework Focus</h4>
-                <p className="text-xs text-[#6B7280]">React Server Ecosystem, Micro-frontends, Distributed backend coordination frameworks, Edge systems optimizations.</p>
+                <div className="space-y-3">
+                  <h3 className="text-base font-bold text-[#111827]">Biography</h3>
+                  <p className="text-sm text-[#6B7280] leading-relaxed whitespace-pre-wrap">
+                    {user.bio || "No biography details published by this user yet."}
+                  </p>
+                </div>
+                
+                <div className="pt-4 border-t border-[#F1F5F9]">
+                  <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider mb-3">Core Expertise</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {user.skills?.length > 0 ? user.skills.map((skill, idx) => (
+                       <span key={idx} className="bg-[#F8FAFC] border border-[#E5E7EB] text-[#111827] px-3 py-1.5 rounded-lg text-xs font-semibold">{skill}</span>
+                    )) : (
+                      <span className="text-sm text-[#6B7280] italic">No skills listed.</span>
+                    )}
+                  </div>
+                </div>
               </motion.div>
             )}
 
-            {/* PLACEHOLDER ACTIVITY TAB */}
-            {activeTab === 'activity' && (
+            {/* activity tab */}
+            {activeTab === "activity" && (
               <motion.div
                 key="activity-tab"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 space-y-4 shadow-xs"
+                className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 space-y-6 shadow-sm"
               >
-                <h3 className="text-base font-bold text-[#111827]">Recent Contribution Timeline</h3>
-                <div className="space-y-4">
+                <h3 className="text-base font-bold text-[#111827]">Recent Activity</h3>
+                <div className="space-y-6 pl-2 border-l border-[#F1F5F9] ml-2">
                   {placeholderActivity.map((act, idx) => (
-                    <div key={idx} className="flex gap-3 text-xs">
-                      <div className="w-2 h-2 rounded-full bg-[#2563EB] mt-1 shrink-0" />
+                    <div key={idx} className="relative text-sm pl-6">
+                      <div className="absolute -left-[25px] top-1 w-3 h-3 rounded-full bg-[#2563EB] border-4 border-[#FFFFFF] shadow-sm" />
                       <div>
                         <p className="text-[#111827] font-medium">{act.text}</p>
-                        <p className="text-[#6B7280] text-[10px] mt-0.5">{act.time}</p>
+                        <p className="text-[#6B7280] text-xs mt-1">{act.time}</p>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* PLACEHOLDER BOOKMARKS TAB */}
-            {activeTab === 'bookmarks' && (
-              <motion.div
-                key="bookmarks-tab"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-6 space-y-3 shadow-xs"
-              >
-                <h3 className="text-base font-bold text-[#111827]">Saved Curations</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {placeholderBookmarks.map((book, idx) => (
-                    <div key={idx} className="p-3 bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl flex justify-between items-start">
-                      <div>
-                        <span className="text-[9px] font-bold bg-[#E5E7EB] px-1.5 py-0.2 rounded text-[#6B7280] uppercase tracking-wide">{book.category}</span>
-                        <h4 className="text-xs font-bold text-[#111827] mt-1 line-clamp-1">{book.title}</h4>
-                        <p className="text-[10px] text-[#6B7280] mt-0.5">{book.author}</p>
-                      </div>
-                      <Bookmark className="w-3.5 h-3.5 text-[#2563EB] fill-[#2563EB]/10 shrink-0" />
                     </div>
                   ))}
                 </div>
@@ -446,71 +501,41 @@ export default function UserProfile() {
           </AnimatePresence>
         </div>
 
-        {/* RIGHT SIDEBAR COMPONENT */}
+        {/* right sidebar elements */}
         <div className="space-y-6">
-          {/* ABOUT ME / META INFO */}
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 space-y-4 shadow-xs">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Metadata Information</h3>
-            <div className="space-y-3 text-xs">
-              <div className="flex items-center gap-2.5 text-[#6B7280]">
-                <MapPin className="w-4 h-4 text-[#6B7280] shrink-0" />
-                <span className="font-medium text-[#111827]">{rightSidebarData.location}</span>
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-6 space-y-5 shadow-sm">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Profile Details</h3>
+            <div className="space-y-4 text-sm font-medium">
+              <div className="flex items-center gap-3 text-[#6B7280]">
+                <MapPin className="w-4 h-4 shrink-0" />
+                <span className="text-[#111827]">{rightSidebarData.location}</span>
               </div>
-              <div className="flex items-center gap-2.5 text-[#6B7280]">
-                <Globe className="w-4 h-4 text-[#6B7280] shrink-0" />
-                <a href={user.portfolioUrl || "#"} className="font-medium text-[#2563EB] hover:underline truncate">{user.portfolioUrl || "portfolio-link.dev"}</a>
+              <div className="flex items-center gap-3 text-[#6B7280]">
+                <Globe className="w-4 h-4 shrink-0" />
+                <a href={user.portfolioUrl || "#"} className="text-[#2563EB] hover:underline truncate">
+                  {user.portfolioUrl ? new URL(user.portfolioUrl).hostname : "No portfolio added"}
+                </a>
               </div>
-              <div className="flex items-center gap-2.5 text-[#6B7280]">
-                <Calendar className="w-4 h-4 text-[#6B7280] shrink-0" />
-                <span className="font-medium text-[#111827]">{rightSidebarData.joinedDate}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* LANGUAGES CHART DONUT MOCKUP */}
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 space-y-4 shadow-xs">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Ecosystem Metrics</h3>
-            <div className="flex items-center justify-between gap-4">
-              {/* Custom SVG Donut Display Mockup */}
-              <div className="relative w-20 h-20 shrink-0">
-                <svg viewBox="0 0 36 36" className="w-full h-full">
-                  <path className="text-[#E5E7EB]" strokeDasharray="100, 100" stroke="currentColor" strokeWidth="3.5" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path className="text-[#2563EB]" strokeDasharray="45, 100" stroke="currentColor" strokeWidth="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" />
-                  <path className="text-[#3B82F6]" strokeDasharray="30, 100" strokeDashoffset="-45" stroke="currentColor" strokeWidth="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" />
-                  <path className="text-[#10B981]" strokeDasharray="15, 100" strokeDashoffset="-75" stroke="currentColor" strokeWidth="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center flex-col">
-                  <span className="text-[10px] font-bold text-[#111827]">Core</span>
-                </div>
-              </div>
-              <div className="flex-1 space-y-1.5">
-                {rightSidebarData.languages.map((lang, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-[11px]">
-                    <div className="flex items-center space-x-1.5 min-w-0">
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: lang.color }} />
-                      <span className="text-[#6B7280] font-medium truncate">{lang.name}</span>
-                    </div>
-                    <span className="font-mono text-[#111827] font-semibold">{lang.value}%</span>
-                  </div>
-                ))}
+              <div className="flex items-center gap-3 text-[#6B7280]">
+                <Calendar className="w-4 h-4 shrink-0" />
+                <span className="text-[#111827]">{rightSidebarData.joinedDate}</span>
               </div>
             </div>
           </div>
 
-          {/* ACHIEVEMENTS MOCKUP CARDS */}
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-5 space-y-3 shadow-xs">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Achievements</h3>
-            <div className="space-y-2.5">
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-6 space-y-5 shadow-sm">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Platform Badges</h3>
+            <div className="space-y-3">
               {rightSidebarData.achievements.map((item, idx) => {
                 const IconComponent = item.icon;
                 return (
-                  <div key={idx} className="flex items-start gap-3 p-2 rounded-xl border border-[#E5E7EB]/40 hover:bg-[#F8FAFC] transition-colors">
-                    <div className={`p-2 rounded-lg shrink-0 ${item.color}`}>
-                      <IconComponent className="w-3.5 h-3.5" />
+                  <div key={idx} className="flex items-center gap-4 p-3 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] hover:bg-[#F1F5F9] transition-colors">
+                    <div className={`p-2.5 rounded-xl shrink-0 border ${item.color}`}>
+                      <IconComponent className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="text-xs font-bold text-[#111827]">{item.label}</h4>
-                      <p className="text-[10px] text-[#6B7280] truncate mt-0.5">{item.desc}</p>
+                      <h4 className="text-sm font-bold text-[#111827] tracking-tight">{item.label}</h4>
+                      <p className="text-xs text-[#6B7280] truncate mt-0.5">{item.desc}</p>
                     </div>
                   </div>
                 );

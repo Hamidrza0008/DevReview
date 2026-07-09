@@ -18,7 +18,7 @@ const getUserProfile = async (req, res) => {
         const projectIds = projects.map((proj) => proj._id);
         const totalReviews = await Review.countDocuments({
             project: {
-                $in:  projectIds 
+                $in: projectIds
             }
         })
 
@@ -46,12 +46,39 @@ const getAllUsers = async (req, res) => {
 
     try {
 
-        const allUsers = await Users.find({ _id: { $ne: req.user.id } }).select("name username bio profileImage skills githubUrl portfolioUrl");
+        const users = await Users.find({
+            _id: { $ne: req.user.id }
+        }).select("name username bio profileImage skills githubUrl portfolioUrl");
+
+        const usersWithStats = await Promise.all(
+            users.map(async (user) => {
+
+                const projects = await Projects.find({ owner: user._id });
+
+                const totalLikes = projects.reduce(
+                    (acc, curr) => acc + curr.likes.length,
+                    0
+                );
+
+                const projectIds = projects.map(project => project._id);
+
+                const totalReviews = await Review.countDocuments({
+                    project: { $in: projectIds }
+                });
+
+                return {
+                    ...user.toObject(),
+                    totalProjects: projects.length,
+                    totalLikes,
+                    totalReviews,
+                };
+            })
+        );
 
         return res.status(200).json({
             success: true,
-            allUsers,
-        })
+            users: usersWithStats
+        });
     } catch (error) {
         console.log(error);
     }

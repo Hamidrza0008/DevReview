@@ -1,269 +1,328 @@
-"use client"
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Plus, Heart, MessageSquare, ExternalLink, Edit3, GitBranch, 
-  Globe, Mail, CheckCircle2, Save, X, Eye, Star, MapPin, 
-  Calendar, Award, Bookmark, Layers, User, Activity, Zap, Sparkles
-} from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-import { updateProfile } from '@/services/authApis';
-import { getMyProjects } from '@/services/getMyProjectsApi';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Plus, Heart, MessageSquare, ExternalLink, Edit3, GitBranch,
+  Globe, Mail, CheckCircle2, Save, X, Eye, Star, MapPin,
+  Calendar, Award, Bookmark, Layers, User, Activity, Zap, Sparkles,
+  Loader2, AlertCircle, Code2, Briefcase
+} from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { updateProfile } from "@/services/authApis";
+import { getMyProjects } from "@/services/getMyProjectsApi";
 
 export default function MyProfile() {
   const router = useRouter();
+  const { user, fetchUser } = useAuth();
+  
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState('projects');
-  const { user, fetchUser } = useAuth();
+  const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("projects");
   const [myProjects, setMyProjects] = useState([]);
+  const [toast, setToast] = useState({ show: false, type: "", message: "" });
 
-  const getMyProject = async() => {
+  const [formData, setFormData] = useState({
+    name: "",
+    username: "",
+    bio: "",
+    skillsString: "",
+    profileImage: "",
+    githubUrl: "",
+    portfolioUrl: ""
+  });
+
+  // fetch projects on mount
+  const getMyProject = async () => {
     try {
       const res = await getMyProjects();
       setMyProjects(res?.projects || []);
     } catch (err) {
-      console.error("Error fetching projects:", err);
+      console.error(err);
     }
-  }
+  };
 
-  const [formData, setFormData] = useState({
-    name: '',
-    username: '',
-    bio: '',
-    skillsString: '',
-    profileImage: '',
-    githubUrl: '',
-    portfolioUrl: ''
-  });
-
+  // sync form data when user context updates
   useEffect(() => {
     getMyProject();
     if (user) {
       setFormData({
-        name: user.name || '',
-        username: user.username || '',
-        bio: user.bio || '',
-        skillsString: Array.isArray(user.skills) ? user.skills.join(', ') : '',
-        profileImage: user.profileImage || '',
-        githubUrl: user.githubUrl || user.GitBranchUrl || '', 
-        portfolioUrl: user.portfolioUrl || ''
+        name: user.name || "",
+        username: user.username || "",
+        bio: user.bio || "",
+        skillsString: Array.isArray(user.skills) ? user.skills.join(", ") : "",
+        profileImage: user.profileImage || "",
+        githubUrl: user.githubUrl || user.GitBranchUrl || "",
+        portfolioUrl: user.portfolioUrl || ""
       });
     }
   }, [user]);
 
+  // artificial delay for premium skeleton demonstration
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800);
+    const timer = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
+
+  // auto-dismiss toasts
+  useEffect(() => {
+    if (toast.show) {
+      const timer = setTimeout(() => setToast({ show: false, type: "", message: "" }), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast.show]);
 
   const stats = {
     projectsCount: myProjects?.length || user?.projects?.length || 0,
     reviews: 48,
     likes: myProjects.reduce((acc, curr) => acc + (curr.likesCount || 0), 0) || 342,
-    views: '2.8k'
+    views: "2.8k"
   };
 
   const rightSidebarData = {
     location: "Mumbai, India",
     joinedDate: "Joined March 2026",
     languages: [
-      { name: "TypeScript / JavaScript", value: 55, color: "#3178c6" },
-      { name: "React / Next.js", value: 30, color: "#0070f3" },
-      { name: "Node.js & Express", value: 10, color: "#339933" },
+      { name: "TypeScript / JavaScript", value: 55, color: "#2563EB" },
+      { name: "React / Next.js", value: 30, color: "#3B82F6" },
+      { name: "Node.js & Express", value: 10, color: "#22C55E" },
       { name: "Other stacks", value: 5, color: "#6B7280" }
     ],
     achievements: [
-      { label: "Elite Engineer", desc: "Top 5% contributors this month", icon: Award, color: "text-amber-500 bg-amber-500/10 border-amber-500/20" },
-      { label: "Review Catalyst", desc: "45+ clean code reviews approved", icon: Star, color: "text-blue-500 bg-blue-500/10 border-blue-500/20" },
-      { label: "Community Pick", desc: "Highly liked feature blueprints", icon: Heart, color: "text-rose-500 bg-rose-500/10 border-rose-500/20" },
-      { label: "Velocity Master", desc: "Rapid feature shipping patterns", icon: Zap, color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" }
+      { label: "Elite Engineer", desc: "Top 5% contributors this month", icon: Award, color: "text-[#2563EB] bg-[#2563EB]/10 border-[#2563EB]/20" },
+      { label: "Review Catalyst", desc: "45+ clean code reviews approved", icon: Star, color: "text-[#3B82F6] bg-[#3B82F6]/10 border-[#3B82F6]/20" },
+      { label: "Velocity Master", desc: "Rapid feature shipping patterns", icon: Zap, color: "text-[#22C55E] bg-[#22C55E]/10 border-[#22C55E]/20" }
     ]
   };
 
-  const placeholderBookmarks = [
-    { title: "Next.js 15 Deep Dive & Architecture", category: "Framework", author: "Vercel Core" },
-    { title: "Framer Motion Layout ID Orchestration", category: "UI/UX", author: "Matt Perry" }
-  ];
-
-  const placeholderActivity = [
-    { type: "commit", text: "Pushed 4 main branch updates to Production Ecosystem", time: "2 hours ago" },
-    { type: "review", text: "Approved pull request #231 architecture standard changes", time: "1 day ago" }
-  ];
-
-  if (loading || !user) {
-    return (
-      <div className="p-4 md:p-8 bg-[#FAFBFC] min-h-screen space-y-8 animate-pulse max-w-7xl mx-auto">
-        <div className="bg-white border border-slate-200/60 rounded-3xl p-8 h-64 shadow-xs"></div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="h-12 bg-white border border-slate-200/60 rounded-2xl w-2/3"></div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-72 bg-white border border-slate-200/60 rounded-3xl"></div>
-              ))}
-            </div>
-          </div>
-          <div className="h-96 bg-white border border-slate-200/60 rounded-3xl"></div>
-        </div>
-      </div>
-    );
-  }
+  const showToast = (type, message) => {
+    setToast({ show: true, type, message });
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = async(e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
+    
+    // clean up and format skills array
     const parsedSkills = formData.skillsString
-      .split(',')
+      .split(",")
       .map((skill) => skill.trim())
-      .filter((skill) => skill !== '');
+      .filter((skill) => skill !== "");
 
     const { skillsString, ...restOfData } = formData;
     const finalFormData = { ...restOfData, skills: parsedSkills };
 
+    // strip undefined values before sending payload
     Object.keys(finalFormData).forEach((key) => {
       if (finalFormData[key] === undefined) delete finalFormData[key];
     });
 
-    const res = await updateProfile(finalFormData);
-    if(res?.success){
-      setIsEditing(false);
-      fetchUser();
+    try {
+      const res = await updateProfile(finalFormData);
+      if (res?.success) {
+        setIsEditing(false);
+        fetchUser();
+        showToast("success", "Profile updated successfully.");
+      } else {
+        showToast("error", "Failed to update profile. Please try again.");
+      }
+    } catch (err) {
+      showToast("error", "An unexpected error occurred.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleCancel = () => {
+    // revert changes if aborted
     setFormData({
-      name: user.name || '',
-      username: user.username || '',
-      bio: user.bio || '',
-      skillsString: Array.isArray(user.skills) ? user.skills.join(', ') : '',
-      profileImage: user.profileImage || '',
-      githubUrl: user.githubUrl || user.GitBranchUrl || '',
-      portfolioUrl: user.portfolioUrl || ''
+      name: user.name || "",
+      username: user.username || "",
+      bio: user.bio || "",
+      skillsString: Array.isArray(user.skills) ? user.skills.join(", ") : "",
+      profileImage: user.profileImage || "",
+      githubUrl: user.githubUrl || user.GitBranchUrl || "",
+      portfolioUrl: user.portfolioUrl || ""
     });
     setIsEditing(false);
   };
 
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 15 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="p-4 md:p-8 bg-[#FAFBFC] min-h-screen text-slate-900 max-w-7xl mx-auto space-y-8 antialiased relative selection:bg-blue-600/10 selection:text-blue-600"
-    >
-      <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:32px_32px] opacity-70 pointer-events-none z-0" />
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-tr from-blue-600/5 to-indigo-600/5 rounded-full blur-[140px] pointer-events-none z-0" />
-      <div className="absolute bottom-20 right-0 w-[500px] h-[500px] bg-gradient-to-br from-indigo-500/5 to-cyan-500/5 rounded-full blur-[120px] pointer-events-none z-0" />
+  if (loading || !user) {
+    return (
+      <div className="p-4 md:p-8 bg-[#F8FAFC] min-h-screen space-y-8 max-w-7xl mx-auto">
+        <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[32px] p-8 h-64 shadow-sm animate-pulse">
+          <div className="flex gap-6 items-center h-full">
+            <div className="w-28 h-28 rounded-full bg-[#F1F5F9] border-4 border-[#FFFFFF]" />
+            <div className="space-y-4 flex-1">
+              <div className="h-8 bg-[#F1F5F9] rounded-lg w-1/3" />
+              <div className="h-4 bg-[#F1F5F9] rounded w-1/4" />
+              <div className="h-4 bg-[#F1F5F9] rounded w-1/2" />
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="h-12 bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl w-full max-w-md animate-pulse" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {[1, 2].map((i) => (
+                <div key={i} className="h-[420px] bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] shadow-sm animate-pulse" />
+              ))}
+            </div>
+          </div>
+          <div className="h-[600px] bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] shadow-sm animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
-      {/* ================= PREMIUM MODERN HEADER HERO ================= */}
-      <div className="bg-white border border-slate-200/70 rounded-3xl p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.02)] relative overflow-hidden z-10 backdrop-blur-md">
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-gradient-to-br from-blue-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="p-4 md:p-8 bg-[#F8FAFC] min-h-screen text-[#111827] max-w-7xl mx-auto space-y-8 antialiased relative selection:bg-[#2563EB]/20 selection:text-[#2563EB] pb-24"
+    >
+      {/* background textures */}
+      <div className="absolute inset-0 bg-[radial-gradient(#E5E7EB_1px,transparent_1px)] [background-size:24px_24px] opacity-50 pointer-events-none z-0" />
+      <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-gradient-to-tr from-[#2563EB]/5 to-[#3B82F6]/5 rounded-full blur-[140px] pointer-events-none z-0" />
+
+      {/* global toast notification */}
+      <AnimatePresence>
+        {toast.show && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: -20, x: "-50%" }}
+            className={`fixed top-6 left-1/2 z-[100] px-5 py-3 rounded-2xl shadow-lg border flex items-center gap-2 text-sm font-semibold backdrop-blur-md ${
+              toast.type === "success" 
+                ? "bg-[#22C55E]/10 border-[#22C55E]/20 text-[#111827]" 
+                : "bg-[#EF4444]/10 border-[#EF4444]/20 text-[#111827]"
+            }`}
+          >
+            {toast.type === "success" ? (
+              <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-[#EF4444]" />
+            )}
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* header profile card */}
+      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[32px] p-8 md:p-10 shadow-sm relative overflow-hidden z-10">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-[#2563EB]/5 to-transparent rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
 
         <AnimatePresence mode="wait">
           {!isEditing ? (
-            <motion.div 
+            <motion.div
               key="view"
-              initial={{ opacity: 0, scale: 0.99 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.99 }}
+              initial={{ opacity: 0, filter: "blur(4px)" }}
+              animate={{ opacity: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, filter: "blur(4px)" }}
               transition={{ duration: 0.3 }}
-              className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center relative z-10"
+              className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-center relative z-10"
             >
-              <div className="lg:col-span-2 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+              <div className="lg:col-span-2 flex flex-col sm:flex-row items-center sm:items-start gap-8 text-center sm:text-left">
+                {/* avatar */}
                 <div className="relative group shrink-0">
-                  <div className="absolute -inset-1.5 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-full blur opacity-25 group-hover:opacity-40 transition duration-500" />
-                  <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-4 border-white relative z-10 shadow-md">
-                    <img 
-                      src={user.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80"} 
-                      alt={user.name} 
+                  <div className="absolute -inset-2 bg-gradient-to-tr from-[#2563EB] to-[#3B82F6] rounded-full blur-md opacity-20 group-hover:opacity-40 transition duration-500" />
+                  <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-[#FFFFFF] relative z-10 shadow-md bg-[#F1F5F9]">
+                    <img
+                      src={user.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=F1F5F9&color=111827`}
+                      alt={user.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                     />
                   </div>
                 </div>
 
+                {/* bio & links */}
                 <div className="space-y-4 flex-1">
                   <div>
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-                      <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
+                      <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#111827] flex items-center gap-2">
                         {user.name}
-                        <CheckCircle2 className="w-5 h-5 text-blue-600 fill-blue-600/10 shrink-0" />
+                        <CheckCircle2 className="w-6 h-6 text-[#2563EB]" />
                       </h1>
-                      <span className="text-xs bg-slate-100 border border-slate-200 text-slate-600 font-mono px-2 py-0.5 rounded-md shadow-2xs">
+                      <span className="text-xs bg-[#F1F5F9] border border-[#E5E7EB] text-[#6B7280] font-mono px-2.5 py-1 rounded-lg">
                         @{user.username}
                       </span>
-                      <span className="text-[11px] font-bold bg-blue-50 text-blue-600 border border-blue-100 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" /> Senior Developer
-                      </span>
                     </div>
-                    
-                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-slate-500 mt-3 font-medium">
-                      <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-slate-400" /> {user.email}</span>
-                      <a href={user.githubUrl || user.GitBranchUrl || "#"} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-blue-600 transition-colors group">
-                        <GitBranch className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600" /> GitHub
-                      </a>
-                      <a href={user.portfolioUrl || "#"} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-blue-600 transition-colors group">
-                        <Globe className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600" /> System Ecosystem
-                      </a>
+
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-[#6B7280] mt-3 font-medium">
+                      <span className="flex items-center gap-1.5"><Mail className="w-4 h-4" /> {user.email}</span>
+                      {user.githubUrl && (
+                        <a href={user.githubUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-[#2563EB] transition-colors">
+                          <GitBranch className="w-4 h-4" /> GitHub
+                        </a>
+                      )}
+                      {user.portfolioUrl && (
+                        <a href={user.portfolioUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-[#2563EB] transition-colors">
+                          <Globe className="w-4 h-4" /> Portfolio
+                        </a>
+                      )}
                     </div>
                   </div>
 
-                  <p className="text-sm text-slate-600 font-normal leading-relaxed max-w-xl">
-                    {user.bio || "No system logs injected yet. Hit Edit Profile to craft a specialized bio outline."}
+                  <p className="text-sm md:text-base text-[#6B7280] font-normal leading-relaxed max-w-xl">
+                    {user.bio || "Craft a professional summary here to stand out to recruiters and collaborators. Highlight your core competencies and career trajectory."}
                   </p>
 
-                  <div className="pt-1">
-                    <div className="flex flex-wrap justify-center sm:justify-start gap-1.5">
-                      {user.skills?.map((skill, index) => (
-                        <span 
-                          key={index} 
-                          className="text-xs bg-white text-slate-800 border border-slate-200 px-2.5 py-1 rounded-xl font-medium shadow-3xs hover:border-blue-300 hover:bg-blue-50/30 transition-colors"
+                  {/* skills map */}
+                  <div className="pt-2 flex flex-wrap justify-center sm:justify-start gap-2">
+                    {user.skills?.length > 0 ? (
+                      user.skills.map((skill, index) => (
+                        <span
+                          key={index}
+                          className="text-xs bg-[#FFFFFF] text-[#111827] border border-[#E5E7EB] px-3 py-1.5 rounded-xl font-semibold shadow-sm hover:border-[#2563EB]/40 hover:bg-[#F8FAFC] transition-colors"
                         >
                           {skill}
                         </span>
-                      ))}
-                    </div>
+                      ))
+                    ) : (
+                      <span className="text-xs text-[#6B7280] italic">No skills listed yet. Add them in settings.</span>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* STATS AREA */}
-              <div className="flex flex-col gap-4 h-full justify-between lg:border-l lg:border-slate-100 lg:pl-8">
-                <div className="grid grid-cols-2 gap-3 w-full">
+              {/* metrics overview */}
+              <div className="flex flex-col gap-4 h-full justify-between lg:border-l lg:border-[#F1F5F9] lg:pl-10">
+                <div className="grid grid-cols-2 gap-4 w-full">
                   {[
                     { label: "Repositories", val: stats.projectsCount },
                     { label: "Code Reviews", val: stats.reviews },
-                    { label: "Appreciations", val: stats.likes },
+                    { label: "Likes", val: stats.likes },
                     { label: "Profile Views", val: stats.views }
                   ].map((st, idx) => (
-                    <div key={idx} className="bg-slate-50/50 border border-slate-200/60 rounded-2xl p-3.5 hover:bg-white hover:border-blue-200 transition-all duration-300 group shadow-3xs">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">{st.label}</span>
-                      <span className="text-xl font-extrabold mt-1 block text-slate-900 group-hover:text-blue-600 transition-colors">{st.val}</span>
+                    <div key={idx} className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-4 hover:border-[#2563EB]/30 transition-all duration-300 group shadow-sm">
+                      <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider block mb-1">{st.label}</span>
+                      <span className="text-2xl font-bold text-[#111827] group-hover:text-[#2563EB] transition-colors">{st.val}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="w-full pt-1">
-                  <motion.button 
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
+                <div className="w-full pt-2">
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setIsEditing(true)}
-                    className="w-full border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 py-2.5 rounded-xl font-bold flex items-center justify-center space-x-2 shadow-2xs text-xs tracking-wider transition-all"
+                    className="w-full border border-[#E5E7EB] text-[#111827] bg-[#FFFFFF] hover:bg-[#F8FAFC] py-3 rounded-2xl font-bold flex items-center justify-center space-x-2 shadow-sm text-sm transition-colors"
                   >
-                    <Edit3 className="w-3.5 h-3.5 text-blue-600" /> 
-                    <span>MODIFY DESIGN CONFIG</span>
+                    <Edit3 className="w-4 h-4 text-[#6B7280]" />
+                    <span>Edit Profile</span>
                   </motion.button>
                 </div>
               </div>
             </motion.div>
           ) : (
-            /* ================= EDIT CONFIG FORM ================= */
-            <motion.form 
+            /* inline edit form */
+            <motion.form
               key="edit"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -272,117 +331,129 @@ export default function MyProfile() {
               className="space-y-6 relative z-10"
             >
               <div className="flex flex-col lg:flex-row gap-8">
-                <div className="flex flex-col items-center space-y-4 shrink-0 bg-slate-50/80 border border-slate-200/80 p-5 rounded-2xl">
+                {/* visual settings */}
+                <div className="flex flex-col items-center space-y-5 shrink-0 bg-[#F8FAFC] border border-[#E5E7EB] p-6 rounded-[24px]">
                   <div className="relative">
-                    <img 
-                      src={formData.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80'} 
-                      alt="Preview" 
-                      className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md relative z-10"
+                    <img
+                      src={formData.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || 'U')}&background=E5E7EB&color=111827`}
+                      alt="Avatar Preview"
+                      className="w-28 h-28 rounded-full object-cover border-4 border-[#FFFFFF] shadow-md bg-[#FFFFFF]"
                     />
                   </div>
-                  <div className="w-full max-w-xs space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Avatar Asset CDN URL</label>
-                    <input 
-                      type="text" 
+                  <div className="w-full max-w-[200px] space-y-1.5">
+                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider">Avatar URL</label>
+                    <input
+                      type="text"
                       name="profileImage"
                       value={formData.profileImage}
                       onChange={handleInputChange}
-                      className="w-full text-xs px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 bg-white transition-all font-mono"
-                      placeholder="https://domain.com/avatar.jpg"
+                      className="w-full text-sm px-3 py-2.5 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all font-mono placeholder:text-[#6B7280]/50"
+                      placeholder="https://..."
                     />
                   </div>
                 </div>
 
+                {/* textual settings */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 flex-1">
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Public Core Name</label>
-                    <input 
-                      type="text" 
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider">Full Name</label>
+                    <input
+                      type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
                       required
-                      className="w-full text-sm px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 bg-white transition-all"
+                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all shadow-sm"
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Unique Node Handle</label>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider">Username</label>
                     <div className="relative">
-                      <span className="absolute left-3 top-3 text-sm text-slate-400 font-mono">@</span>
-                      <input 
-                        type="text" 
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-[#6B7280] font-mono">@</span>
+                      <input
+                        type="text"
                         name="username"
                         value={formData.username}
                         onChange={handleInputChange}
                         required
-                        className="w-full text-sm pl-7 pr-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 bg-white transition-all font-mono"
+                        className="w-full text-sm pl-8 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all font-mono shadow-sm"
                       />
                     </div>
                   </div>
 
-                  <div className="md:col-span-2 space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Bio Overview Outline</label>
-                    <textarea 
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider">Professional Bio</label>
+                    <textarea
                       name="bio"
                       value={formData.bio}
                       onChange={handleInputChange}
                       rows={3}
-                      className="w-full text-sm px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 bg-white resize-none transition-all"
+                      placeholder="Describe your expertise, current role, or professional goals..."
+                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] resize-none transition-all shadow-sm placeholder:text-[#6B7280]/60"
                     />
                   </div>
 
-                  <div className="md:col-span-2 space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Technology Badges (Comma Separated)</label>
-                    <input 
-                      type="text" 
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider">Tech Stack (Comma Separated)</label>
+                    <input
+                      type="text"
                       name="skillsString"
                       value={formData.skillsString}
                       onChange={handleInputChange}
-                      placeholder="React, Next.js, TypeScript, TailwindCSS"
-                      className="w-full text-sm px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 bg-white transition-all"
+                      placeholder="React, Next.js, Node.js, System Design"
+                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all shadow-sm"
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">GitHub Branch Target Link</label>
-                    <input 
-                      type="url" 
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider">GitHub URL</label>
+                    <input
+                      type="url"
                       name="githubUrl"
                       value={formData.githubUrl}
                       onChange={handleInputChange}
-                      className="w-full text-sm px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 bg-white transition-all font-mono"
+                      placeholder="https://github.com/..."
+                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all font-mono shadow-sm"
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Live System Core Link</label>
-                    <input 
-                      type="url" 
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider">Portfolio URL</label>
+                    <input
+                      type="url"
                       name="portfolioUrl"
                       value={formData.portfolioUrl}
                       onChange={handleInputChange}
-                      className="w-full text-sm px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 bg-white transition-all font-mono"
+                      placeholder="https://..."
+                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all font-mono shadow-sm"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-end items-center gap-3 pt-4 border-t border-slate-100">
-                <button 
+              {/* form controls */}
+              <div className="flex flex-col sm:flex-row justify-end items-center gap-3 pt-6 border-t border-[#F1F5F9]">
+                <button
                   type="button"
                   onClick={handleCancel}
-                  className="w-full sm:w-auto border border-slate-200 text-slate-500 bg-white hover:bg-slate-50 px-4 py-2.5 rounded-xl font-bold flex items-center justify-center space-x-1.5 text-xs tracking-wider transition-colors"
+                  disabled={isSaving}
+                  className="w-full sm:w-auto border border-[#E5E7EB] text-[#6B7280] bg-[#FFFFFF] hover:bg-[#F8FAFC] hover:text-[#111827] px-6 py-2.5 rounded-xl font-semibold flex items-center justify-center space-x-2 text-sm transition-colors disabled:opacity-50"
                 >
-                  <X className="w-3.5 h-3.5" />
-                  <span>ABORT CHANGES</span>
+                  <X className="w-4 h-4" />
+                  <span>Cancel</span>
                 </button>
-                <button 
+                <button
                   type="submit"
-                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center justify-center space-x-1.5 text-xs tracking-wider shadow-md hover:shadow-blue-600/10 transition-all"
+                  disabled={isSaving}
+                  className="w-full sm:w-auto bg-[#2563EB] hover:bg-[#1D4ED8] text-[#FFFFFF] px-8 py-2.5 rounded-xl font-semibold flex items-center justify-center space-x-2 text-sm shadow-sm transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>COMMIT CHANGES</span>
+                  {isSaving ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
+                  <span>{isSaving ? "Saving..." : "Save Changes"}</span>
                 </button>
               </div>
             </motion.form>
@@ -390,13 +461,12 @@ export default function MyProfile() {
         </AnimatePresence>
       </div>
 
-      {/* ================= TABS DESIGN ================= */}
-      <div className="border-b border-slate-200 flex items-center space-x-6 z-10 relative overflow-x-auto scrollbar-none">
+      {/* primary navigation tabs */}
+      <div className="border-b border-[#E5E7EB] flex items-center space-x-8 z-10 relative overflow-x-auto no-scrollbar pt-4">
         {[
-          { id: 'projects', label: 'Engineering Showcase', icon: Layers },
-          { id: 'about', label: 'Systems Overview', icon: User },
-          { id: 'activity', label: 'Telemetry Log', icon: Activity },
-          { id: 'bookmarks', label: 'Saved Repos', icon: Bookmark }
+          { id: "projects", label: "Projects", icon: Layers },
+          { id: "about", label: "Resume / Bio", icon: Briefcase },
+          { id: "bookmarks", label: "Bookmarks", icon: Bookmark }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -404,16 +474,16 @@ export default function MyProfile() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 pb-3.5 text-xs uppercase tracking-wider font-bold border-b-2 transition-all relative whitespace-nowrap outline-none ${
-                isActive 
-                  ? 'border-blue-600 text-blue-600' 
-                  : 'border-transparent text-slate-400 hover:text-slate-800'
+              className={`flex items-center gap-2 pb-4 text-sm font-semibold border-b-2 transition-all relative whitespace-nowrap outline-none ${
+                isActive
+                  ? "border-[#2563EB] text-[#2563EB]"
+                  : "border-transparent text-[#6B7280] hover:text-[#111827]"
               }`}
             >
               <Icon className="w-4 h-4" />
               {tab.label}
-              {tab.id === 'projects' && (
-                <span className={`text-[10px] font-mono px-2 py-0.5 rounded-md ml-1 font-bold ${isActive ? 'bg-blue-600/10 text-blue-600' : 'bg-slate-100 text-slate-500'}`}>
+              {tab.id === "projects" && (
+                <span className={`text-xs px-2 py-0.5 rounded-md ml-1 font-bold ${isActive ? "bg-[#2563EB]/10 text-[#2563EB]" : "bg-[#F1F5F9] text-[#6B7280]"}`}>
                   {myProjects.length}
                 </span>
               )}
@@ -422,262 +492,213 @@ export default function MyProfile() {
         })}
       </div>
 
-      {/* ================= MAIN SPLIT GRID ================= */}
+      {/* main content split */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 z-10 relative">
         
-        {/* LEFT COMPONENT */}
+        {/* left column content */}
         <div className="lg:col-span-2 space-y-6">
           <AnimatePresence mode="wait">
-            {activeTab === 'projects' && (
+            
+            {/* projects tab view */}
+            {activeTab === "projects" && (
               <motion.div
                 key="projects"
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-5"
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-6"
               >
                 <div className="flex justify-between items-center">
-                  <h2 className="text-sm uppercase tracking-wider font-extrabold text-slate-400">Production Deployments</h2>
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl font-bold flex items-center space-x-1.5 shadow-sm hover:shadow-blue-600/10 text-xs tracking-wider transition-all"
+                  <h2 className="text-lg font-bold text-[#111827]">Your Uploads</h2>
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => router.push('/upload')}
+                    className="bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#2563EB]/40 text-[#111827] px-4 py-2 rounded-xl font-semibold flex items-center space-x-1.5 shadow-sm text-sm transition-all"
                   >
-                    <Plus className="w-3.5 h-3.5" /> <span>INITIALIZE REPO</span>
+                    <Plus className="w-4 h-4 text-[#2563EB]" /> <span>New Project</span>
                   </motion.button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {myProjects.map((project, i) => (
-                    <motion.div
-                      key={i}
-                      whileHover={{ y: -6 }}
-                      transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                      onClick={() => router.push(`/projects/${project._id || project.id}`)}
-                      className="bg-white border border-slate-200/80 rounded-3xl flex flex-col justify-between overflow-hidden group shadow-[0_4px_20px_rgb(0,0,0,0.01)] hover:border-blue-600/30 hover:shadow-[0_12px_30px_rgba(37,99,235,0.04)] cursor-pointer transition-all duration-300"
+                {myProjects.length === 0 ? (
+                  /* premium empty state integrating resume/professional intent */
+                  <div className="bg-[#FFFFFF] border border-[#E5E7EB] border-dashed rounded-[24px] p-12 text-center flex flex-col items-center justify-center shadow-sm">
+                    <div className="w-16 h-16 bg-[#F1F5F9] rounded-2xl flex items-center justify-center mb-4">
+                      <Code2 className="w-8 h-8 text-[#6B7280]" />
+                    </div>
+                    <h3 className="text-lg font-bold text-[#111827] mb-2">No projects uploaded yet</h3>
+                    <p className="text-[#6B7280] max-w-md mx-auto text-sm leading-relaxed mb-6">
+                      Upload your first repository to build a compelling, ATS-friendly portfolio. Showcasing real code is the best way to stand out to recruiters and peers.
+                    </p>
+                    <button 
+                      onClick={() => router.push('/upload')}
+                      className="bg-[#2563EB] text-[#FFFFFF] px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#1D4ED8] transition-colors shadow-sm"
                     >
-                      {/* BROWSER WORKSPACE HEADER MOCKUP */}
-                      <div className="h-40 bg-slate-50 border-b border-slate-100 relative flex flex-col overflow-hidden select-none">
-                        <div className="flex items-center justify-between px-4 py-2.5 bg-white border-b border-slate-100 shrink-0 z-20">
-                          <div className="flex items-center space-x-1.5">
-                            <span className="w-2.5 h-2.5 rounded-full bg-slate-200 group-hover:bg-rose-400 transition-colors" />
-                            <span className="w-2.5 h-2.5 rounded-full bg-slate-200 group-hover:bg-amber-400 transition-colors" />
-                            <span className="w-2.5 h-2.5 rounded-full bg-slate-200 group-hover:bg-emerald-400 transition-colors" />
-                          </div>
-                          <div className="bg-slate-50 rounded-md text-[10px] px-3 py-0.5 border border-slate-200/70 w-40 text-center text-slate-400 font-mono truncate">
-                            localhost:3000
-                          </div>
-                          <Bookmark className="w-3.5 h-3.5 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors" />
-                        </div>
-
-                        {/* HOVER INTERFACE FOR CONTENT IMAGES */}
-                        <div className="p-4 flex-1 flex flex-col justify-center items-center relative overflow-hidden bg-slate-50/50">
+                      Upload First Project
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {myProjects.map((project) => (
+                      <motion.div
+                        key={project._id || project.id}
+                        whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                        onClick={() => router.push(`/projects/${project._id || project.id}`)}
+                        className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] flex flex-col justify-between overflow-hidden group shadow-sm hover:shadow-xl hover:shadow-[#2563EB]/5 hover:border-[#2563EB]/30 cursor-pointer transition-all duration-300"
+                      >
+                        {/* thumbnail area */}
+                        <div className="h-44 bg-[#F1F5F9] border-b border-[#E5E7EB] relative flex flex-col overflow-hidden">
                           {project.thumbnail ? (
-                            <div className="absolute inset-0 bg-white transition-transform duration-700 ease-out group-hover:scale-105">
-                              <img className='w-full h-full object-cover' src={project.thumbnail} alt={project.title} />
-                            </div>
+                            <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" src={project.thumbnail} alt={project.title} />
                           ) : (
-                            <div className="font-mono text-[10px] text-slate-400 bg-white border border-slate-200/60 p-3.5 rounded-xl shadow-3xs max-w-[85%] truncate transition-all duration-300 group-hover:border-blue-200 group-hover:text-blue-600">
-                              {"⚙️ system_core.init({ edge: true });"}
+                            <div className="flex items-center justify-center h-full text-[#6B7280]">
+                              <Code2 className="w-8 h-8 opacity-40" />
                             </div>
                           )}
-
-                          {/* Simplified clean minimal solid text overlay */}
-                          <div className="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 z-10">
-                            <motion.span 
-                              initial={{ scale: 0.95 }}
-                              whileHover={{ scale: 1.05 }}
-                              className="bg-white text-slate-900 px-4 py-1.5 rounded-lg text-xs font-bold tracking-widest shadow-md border border-white/20"
-                            >
-                              OPEN
-                            </motion.span>
+                          <div className="absolute inset-0 bg-[#111827]/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                            <span className="bg-[#FFFFFF] text-[#111827] px-4 py-2 rounded-xl text-xs font-bold shadow-md">
+                              View Details
+                            </span>
                           </div>
                         </div>
-                      </div>
 
-                      {/* WORKSPACE META DETAILS */}
-                      <div className="p-5 flex-1 flex flex-col justify-between space-y-4 bg-white">
-                        <div className="space-y-1.5">
-                          <h3 className="font-extrabold text-base text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1 tracking-tight">
-                            {project.title}
-                          </h3>
-                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed font-medium">
-                            {project.description || "No customized configuration layout variables description provided for this microservice stack."}
-                          </p>
-                        </div>
-
-                        <div className="space-y-3.5 pt-1">
-                          <div className="flex flex-wrap gap-1">
-                            {(project.techStack || ["Next.js", "TailwindCSS"]).map((t, idx) => (
-                              <span key={idx} className="text-[10px] font-bold bg-slate-50 border border-slate-200/80 px-2 py-0.5 rounded-md text-slate-600 font-mono">
-                                {t}
-                              </span>
-                            ))}
+                        {/* project details */}
+                        <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                          <div className="space-y-1.5">
+                            <h3 className="font-bold text-lg text-[#111827] group-hover:text-[#2563EB] transition-colors line-clamp-1 tracking-tight">
+                              {project.title}
+                            </h3>
+                            <p className="text-sm text-[#6B7280] line-clamp-2 leading-relaxed">
+                              {project.description || "No detailed description provided for this repository."}
+                            </p>
                           </div>
 
-                          <div className="pt-3 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-400 font-semibold">
-                            <div className="flex space-x-3">
-                              <span className="flex items-center space-x-1 hover:text-rose-600 cursor-pointer transition-colors group/heart">
-                                <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500/5 group-hover/heart:fill-rose-500 transition-all" /> 
-                                <span className="text-slate-500">{project.likesCount || 0}</span>
-                              </span>
-                              <span className="flex items-center space-x-1 text-slate-500">
-                                <MessageSquare className="w-3.5 h-3.5 text-blue-500" /> 
-                                <span>12</span>
-                              </span>
-                              <span className="flex items-center space-x-1 text-slate-400">
-                                <Eye className="w-3.5 h-3.5" /> 
-                                <span>140</span>
-                              </span>
+                          <div className="space-y-4">
+                            <div className="flex flex-wrap gap-1.5">
+                              {(project.techStack || ["React", "Node.js"]).slice(0, 3).map((t, idx) => (
+                                <span key={idx} className="text-[10px] font-bold bg-[#F8FAFC] border border-[#E5E7EB] px-2.5 py-1 rounded-lg text-[#6B7280] font-mono">
+                                  {t}
+                                </span>
+                              ))}
                             </div>
-                            <div className="flex items-center space-x-2.5 text-slate-400" onClick={(e) => e.stopPropagation()}>
-                              <a href="#" className="hover:text-blue-600 transition-colors"><GitBranch className="w-3.5 h-3.5" /></a>
-                              <a href="#" className="hover:text-blue-600 transition-colors"><ExternalLink className="w-3.5 h-3.5" /></a>
+
+                            <div className="pt-4 border-t border-[#F1F5F9] flex justify-between items-center text-xs font-semibold text-[#6B7280]">
+                              <div className="flex space-x-4">
+                                <span className="flex items-center space-x-1.5">
+                                  <Heart className="w-4 h-4 text-[#EF4444]" /> 
+                                  <span>{project.likesCount || 0}</span>
+                                </span>
+                                <span className="flex items-center space-x-1.5">
+                                  <MessageSquare className="w-4 h-4 text-[#2563EB]" /> 
+                                  <span>12</span>
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-3">
+                                {project.githubUrl && <GitBranch className="w-4 h-4 hover:text-[#111827] transition-colors" />}
+                                {project.liveUrl && <ExternalLink className="w-4 h-4 hover:text-[#111827] transition-colors" />}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             )}
 
-            {/* SYSTEMS OVERVIEW TAB */}
-            {activeTab === 'about' && (
+            {/* resume / bio tab view */}
+            {activeTab === "about" && (
               <motion.div
                 key="about"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-white border border-slate-200/80 rounded-3xl p-6 space-y-4 shadow-2xs"
+                className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 space-y-6 shadow-sm"
               >
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Operational Overview Logs</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  {user.bio || "No specific detailed structural architecture logged."}
+                <div className="flex items-center gap-3 border-b border-[#F1F5F9] pb-4">
+                  <Briefcase className="w-5 h-5 text-[#2563EB]" />
+                  <h3 className="text-base font-bold text-[#111827]">Professional Summary</h3>
+                </div>
+                <p className="text-sm text-[#6B7280] leading-relaxed whitespace-pre-wrap">
+                  {user.bio || "Crafting an ATS-optimized professional summary will increase your visibility on the platform. Head to 'Edit Profile' to add your career background, current objectives, and core strengths."}
                 </p>
-                <div className="h-[1px] bg-slate-100 w-full my-2" />
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Primary System Core Paradigms</h4>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">React Server Execution Trees, Complex Layout Orchestration, Fullstack Network Bridge Formulations, Vercel Middleware Edge Optimizations.</p>
-              </motion.div>
-            )}
-
-            {/* TELEMETRY ACTIVITY TAB */}
-            {activeTab === 'activity' && (
-              <motion.div
-                key="activity"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="bg-white border border-slate-200/80 rounded-3xl p-6 space-y-4 shadow-2xs"
-              >
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Live System Pipeline Telemetry</h3>
-                <div className="space-y-4 relative pl-4 border-l border-slate-100 ml-2">
-                  {placeholderActivity.map((act, idx) => (
-                    <div key={idx} className="relative text-xs">
-                      <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-blue-600 border-2 border-white ring-4 ring-blue-50" />
-                      <div>
-                        <p className="text-slate-800 font-semibold">{act.text}</p>
-                        <p className="text-slate-400 text-[10px] font-medium mt-0.5">{act.time}</p>
-                      </div>
-                    </div>
-                  ))}
+                
+                <div className="pt-4">
+                  <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider mb-3">Core Competencies</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {user.skills?.length > 0 ? user.skills.map((skill, idx) => (
+                       <span key={idx} className="bg-[#F8FAFC] border border-[#E5E7EB] text-[#111827] px-3 py-1.5 rounded-lg text-xs font-semibold">{skill}</span>
+                    )) : (
+                      <span className="text-sm text-[#6B7280] italic">No competencies listed.</span>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             )}
 
-            {/* SAVED REPOS BOOKMARKS TAB */}
-            {activeTab === 'bookmarks' && (
+            {/* bookmarks tab view */}
+            {activeTab === "bookmarks" && (
               <motion.div
                 key="bookmarks"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-white border border-slate-200/80 rounded-3xl p-6 space-y-4 shadow-2xs"
+                className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-8 text-center shadow-sm"
               >
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Curated System Blueprints</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {placeholderBookmarks.map((book, idx) => (
-                    <div key={idx} className="p-4 bg-slate-50/50 border border-slate-200/70 rounded-2xl flex justify-between items-start hover:bg-white hover:border-blue-200 transition-all shadow-3xs">
-                      <div className="space-y-1">
-                        <span className="text-[9px] font-bold bg-slate-200/60 px-2 py-0.5 rounded-md text-slate-500 font-mono tracking-wide">{book.category}</span>
-                        <h4 className="text-xs font-extrabold text-slate-900 line-clamp-1 pt-1 tracking-tight">{book.title}</h4>
-                        <p className="text-[10px] text-slate-400 font-medium">{book.author}</p>
-                      </div>
-                      <Bookmark className="w-4 h-4 text-blue-600 fill-blue-600/10 shrink-0" />
-                    </div>
-                  ))}
-                </div>
+                 <div className="w-16 h-16 bg-[#F1F5F9] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Bookmark className="w-8 h-8 text-[#6B7280]" />
+                  </div>
+                  <h3 className="text-lg font-bold text-[#111827] mb-2">No Bookmarks Found</h3>
+                  <p className="text-[#6B7280] max-w-sm mx-auto text-sm leading-relaxed mb-6">
+                    Save top-tier projects while browsing to keep a curated list of architectural references and design inspiration.
+                  </p>
+                  <button 
+                    onClick={() => router.push('/')}
+                    className="bg-[#F8FAFC] border border-[#E5E7EB] text-[#111827] px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#F1F5F9] transition-colors shadow-sm"
+                  >
+                    Explore Projects
+                  </button>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* RIGHT SIDEBAR COLUMN */}
+        {/* right sidebar statistics */}
         <div className="space-y-6">
-          {/* META INFO */}
-          <div className="bg-white border border-slate-200/70 rounded-3xl p-5 space-y-4 shadow-[0_4px_20px_rgb(0,0,0,0.01)]">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Node Properties</h3>
-            <div className="space-y-3.5 text-xs font-semibold">
-              <div className="flex items-center gap-3 text-slate-500">
-                <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                <span className="text-slate-800">{rightSidebarData.location}</span>
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-6 space-y-5 shadow-sm">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Profile Details</h3>
+            <div className="space-y-4 text-sm font-medium">
+              <div className="flex items-center gap-3 text-[#6B7280]">
+                <MapPin className="w-4 h-4 shrink-0" />
+                <span className="text-[#111827]">{rightSidebarData.location}</span>
               </div>
-              <div className="flex items-center gap-3 text-slate-500">
-                <Globe className="w-4 h-4 text-slate-400 shrink-0" />
-                <a href={user.portfolioUrl || "#"} className="text-blue-600 hover:underline truncate">{user.portfolioUrl || "core-engine.dev"}</a>
+              <div className="flex items-center gap-3 text-[#6B7280]">
+                <Globe className="w-4 h-4 shrink-0" />
+                <a href={user.portfolioUrl || "#"} className="text-[#2563EB] hover:underline truncate">
+                  {user.portfolioUrl ? new URL(user.portfolioUrl).hostname : "Add portfolio link"}
+                </a>
               </div>
-              <div className="flex items-center gap-3 text-slate-500">
-                <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-                <span className="text-slate-800">{rightSidebarData.joinedDate}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* LANGUAGES CHART MOCKUP */}
-          <div className="bg-white border border-slate-200/70 rounded-3xl p-5 space-y-4 shadow-[0_4px_20px_rgb(0,0,0,0.01)]">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ecosystem Allocation</h3>
-            <div className="flex items-center justify-between gap-5">
-              <div className="relative w-20 h-20 shrink-0">
-                <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
-                  <path className="text-slate-100" strokeDasharray="100, 100" stroke="currentColor" strokeWidth="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path className="text-blue-600" strokeDasharray="55, 100" stroke="currentColor" strokeWidth="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" />
-                  <path className="text-cyan-500" strokeDasharray="30, 100" strokeDashoffset="-55" stroke="currentColor" strokeWidth="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" />
-                  <path className="text-emerald-500" strokeDasharray="10, 100" strokeDashoffset="-85" stroke="currentColor" strokeWidth="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-slate-800 tracking-tight">Stack</span>
-                </div>
-              </div>
-              <div className="flex-1 space-y-2">
-                {rightSidebarData.languages.map((lang, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-[11px] font-semibold">
-                    <div className="flex items-center space-x-2 min-w-0">
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: lang.color }} />
-                      <span className="text-slate-500 truncate">{lang.name}</span>
-                    </div>
-                    <span className="font-mono text-slate-800">{lang.value}%</span>
-                  </div>
-                ))}
+              <div className="flex items-center gap-3 text-[#6B7280]">
+                <Calendar className="w-4 h-4 shrink-0" />
+                <span className="text-[#111827]">{rightSidebarData.joinedDate}</span>
               </div>
             </div>
           </div>
 
-          {/* ACHIEVEMENTS CARDS */}
-          <div className="bg-white border border-slate-200/70 rounded-3xl p-5 space-y-3 shadow-[0_4px_20px_rgb(0,0,0,0.01)]">
-            <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">System Achievements</h3>
-            <div className="space-y-2.5">
+          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-6 space-y-5 shadow-sm">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Platform Badges</h3>
+            <div className="space-y-3">
               {rightSidebarData.achievements.map((item, idx) => {
                 const IconComponent = item.icon;
                 return (
-                  <div key={idx} className="flex items-center gap-3.5 p-2 rounded-2xl border border-slate-100 bg-slate-50/20 hover:bg-slate-50 transition-colors duration-200">
-                    <div className={`p-2 rounded-xl shrink-0 border ${item.color}`}>
+                  <div key={idx} className="flex items-center gap-4 p-3 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] hover:bg-[#F1F5F9] transition-colors">
+                    <div className={`p-2.5 rounded-xl shrink-0 border ${item.color}`}>
                       <IconComponent className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="text-xs font-extrabold text-slate-900 tracking-tight">{item.label}</h4>
-                      <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">{item.desc}</p>
+                      <h4 className="text-sm font-bold text-[#111827] tracking-tight">{item.label}</h4>
+                      <p className="text-xs text-[#6B7280] truncate mt-0.5">{item.desc}</p>
                     </div>
                   </div>
                 );
