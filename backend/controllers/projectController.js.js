@@ -1,6 +1,6 @@
 const Projects = require("../models/Projects");
 const Reviews = require("../models/Review");
-const User = require("../models/Users")
+const Users = require("../models/Users")
 const mongoose = require("mongoose");
 
 
@@ -377,4 +377,33 @@ const toggleLikes = async (req, res) => {
         });
     }
 }
-module.exports = { createProjects, getMyProjects, getProjectById, getExploreProjects, updateProject, deleteProject, getProjectForEdit, toggleLikes };
+
+const getProjectByUsername = async(req , res) => {
+    try {
+        const {username} = req.params;
+        const user = await Users.findOne({username}).select("-password");
+        if(!user){
+            return res.status(404).json({
+                success:false,
+                message:"User Not Found",
+            })
+        }
+
+        const projects = await Projects.find({owner:user._id});
+
+        
+        return res.status(200).json({
+            success:true,
+            message:"Projects Recieved",
+            projects
+        })
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+}
+module.exports = { createProjects, getMyProjects, getProjectById, getExploreProjects, updateProject, deleteProject, getProjectForEdit, toggleLikes , getProjectByUsername };

@@ -7,6 +7,7 @@ const userRoutes = require("./routes/user.routes")
 const cookieParser = require("cookie-parser");
 const projectRoutes = require("./routes/projectRoutes")
 const statsRoute = require("./routes/stats.routes");
+const userProjectRoute = require("./routes/userProject.routes")
 
 
 
@@ -31,7 +32,7 @@ app.get("/", (req, res) => {
 })
 
 app.use("/api/projects", projectRoutes);
-
+app.use("/api/user/projects" , userProjectRoute);
 
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

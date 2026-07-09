@@ -4,12 +4,13 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Plus, Heart, MessageSquare, ExternalLink, GitBranch, 
-  Globe, Mail, CheckCircle2, Eye, Star, MapPin, 
-  Calendar, Award, Bookmark, Layers, User, Activity, Zap 
+import {
+  Plus, Heart, MessageSquare, ExternalLink, GitBranch,
+  Globe, Mail, CheckCircle2, Eye, Star, MapPin,
+  Calendar, Award, Bookmark, Layers, User, Activity, Zap
 } from 'lucide-react';
 import { getUserProfile } from '@/services/usersApi';
+import { getProjectByUsername } from '@/services/getProjectsByUsernameApi';
 
 export default function UserProfile() {
   const { username } = useParams();
@@ -17,25 +18,45 @@ export default function UserProfile() {
 
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('projects');
+  const [projects, setProjects] = useState([]);
+  const [stats, setStats] = useState({
+    totalLikes: 0,
+    totalProjects: 0,
+    totalReviews: 0,
+  });
+
 
   useEffect(() => {
+    getProjects(username);
     getUser(username);
   }, [username]);
 
   const getUser = async (username) => {
     if (username) {
       const res = await getUserProfile(username);
-      setUser(res.user);
+      setUser(res);
+      setStats({
+        totalLikes: res.totalLikes,
+        totalProjects: res.totalProjects,
+        totalReviews: res.totalReviews,
+      });
     }
   };
+  console.log(user)
+  console.log(stats)
+  const getProjects = async () => {
+    const res = await getProjectByUsername(username);
+    console.log(res);
+    setProjects(res.projects)
+  }
 
   // Beautiful UI placeholders and dummy data inside constants (DO NOT TOUCH BACKEND)
-  const stats = {
-    projectsCount: 14,
-    reviews: 48,
-    likes: 342,
-    views: '2.8k'
-  };
+  // const stats = {
+  //   projectsCount: 14,
+  //   reviews: 48,
+  //   likes: 342,
+  //   views: '2.8k'
+  // };
 
   const rightSidebarData = {
     location: "San Francisco, CA",
@@ -64,12 +85,7 @@ export default function UserProfile() {
     { type: "review", text: "Approved pull request #231 in DevReview Dashboard", time: "1 day ago" }
   ];
 
-  const projects = [
-    { title: "DevReview Dashboard", desc: "Premium SaaS dashboard engineered for internal engineering metrics.", likes: 42, reviews: 14, views: 890, status: "Published", tech: ["Next.js", "Tailwind"], hasImage: true },
-    { title: "E-Commerce Core", desc: "High-performance headless checkout core microservices ecosystem.", likes: 128, reviews: 34, views: 2450, status: "Published", tech: ["Go", "Redis"], hasImage: false },
-    { title: "CodeSnippet CLI", desc: "Instantly save, sync, and share terminal configurations via CLI tool.", likes: 19, reviews: 3, views: 180, status: "Draft", tech: ["TypeScript", "Node"], hasImage: false },
-    { title: "AI Prompt Engine", desc: "Vector database wrapper for caching frequent LLM responses.", likes: 88, reviews: 21, views: 1210, status: "Published", tech: ["Python", "FastAPI"], hasImage: true }
-  ];
+
 
   if (!user) {
     return (
@@ -91,9 +107,9 @@ export default function UserProfile() {
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       className="p-4 md:p-8 bg-[#F8FAFC] min-h-screen text-[#111827] max-w-7xl mx-auto space-y-8 antialiased relative selection:bg-[#2563EB]/10 selection:text-[#2563EB]"
     >
       {/* BACKGROUND ELEMENTS */}
@@ -108,17 +124,17 @@ export default function UserProfile() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start relative z-10">
           <div className="lg:col-span-2 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
             <div className="relative group shrink-0">
-              <motion.div 
+              <motion.div
                 className="absolute -inset-1 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] rounded-full blur-md opacity-30 group-hover:opacity-50 transition duration-300"
                 animate={{ rotate: [0, 360] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               />
               <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-4 border-[#FFFFFF] relative z-10 shadow-md">
-                <motion.img 
+                <motion.img
                   whileHover={{ scale: 1.08 }}
                   transition={{ duration: 0.3 }}
-                  src={user.profileImage || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80"} 
-                  alt={user.name} 
+                  src={user.profileImage || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80"}
+                  alt={user.name}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -140,7 +156,7 @@ export default function UserProfile() {
                     Creator Profile
                   </span>
                 </div>
-                
+
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-[#6B7280] mt-2.5 font-medium">
                   <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-[#6B7280]" /> {user.email}</span>
                   <a href={user.githubUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-[#2563EB] transition-colors group">
@@ -159,8 +175,8 @@ export default function UserProfile() {
               <div className="pt-1">
                 <div className="flex flex-wrap justify-center sm:justify-start gap-1.5">
                   {user.skills?.map((skill, index) => (
-                    <span 
-                      key={index} 
+                    <span
+                      key={index}
                       className="text-xs bg-[#F8FAFC] text-[#111827] border border-[#E5E7EB] px-2.5 py-1 rounded-lg font-medium shadow-2xs"
                     >
                       {skill}
@@ -176,15 +192,15 @@ export default function UserProfile() {
             <div className="grid grid-cols-2 gap-3 w-full">
               <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-3 text-center sm:text-left">
                 <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider block">Projects</span>
-                <span className="text-xl font-bold mt-1 block text-[#111827]">{stats.projectsCount}</span>
+                <span className="text-xl font-bold mt-1 block text-[#111827]">{stats.totalProjects}</span>
               </div>
               <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-3 text-center sm:text-left">
                 <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider block">Reviews</span>
-                <span className="text-xl font-bold mt-1 block text-[#111827]">{stats.reviews}</span>
+                <span className="text-xl font-bold mt-1 block text-[#111827]">{stats.totalReviews}</span>
               </div>
               <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-3 text-center sm:text-left">
                 <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider block">Likes</span>
-                <span className="text-xl font-bold mt-1 block text-[#111827]">{stats.likes}</span>
+                <span className="text-xl font-bold mt-1 block text-[#111827]">{stats.totalLikes}</span>
               </div>
               <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-3 text-center sm:text-left">
                 <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider block">Profile Views</span>
@@ -193,7 +209,7 @@ export default function UserProfile() {
             </div>
 
             <div className="w-full pt-2">
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.01, backgroundColor: '#2563EB' }}
                 whileTap={{ scale: 0.99 }}
                 className="w-full text-white bg-[#3B82F6] py-2.5 rounded-xl font-semibold flex items-center justify-center space-x-2 shadow-2xs text-xs tracking-wide transition-all"
@@ -219,11 +235,10 @@ export default function UserProfile() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 transition-all relative whitespace-nowrap outline-none ${
-                isActive 
-                  ? 'border-[#2563EB] text-[#2563EB]' 
+              className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 transition-all relative whitespace-nowrap outline-none ${isActive
+                  ? 'border-[#2563EB] text-[#2563EB]'
                   : 'border-transparent text-[#6B7280] hover:text-[#111827]'
-              }`}
+                }`}
             >
               <Icon className="w-4 h-4" />
               {tab.label}
@@ -239,7 +254,7 @@ export default function UserProfile() {
 
       {/* ================= MAIN CONTENT GRID (LEFT TAB CONTENT + RIGHT SIDEBAR) ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 z-10 relative">
-        
+
         {/* LEFT COMPONENT COLUMN */}
         <div className="lg:col-span-2 space-y-6">
           <AnimatePresence mode="wait">
@@ -254,7 +269,7 @@ export default function UserProfile() {
               >
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-bold text-[#111827]">Engineering Repositories</h2>
-                  <motion.button 
+                  <motion.button
                     whileHover={{ scale: 1.02, backgroundColor: '#1D4ED8' }}
                     whileTap={{ scale: 0.98 }}
                     className="bg-[#2563EB] text-white px-3.5 py-2 rounded-xl font-semibold flex items-center space-x-1.5 shadow-sm text-xs transition-all"
@@ -288,9 +303,9 @@ export default function UserProfile() {
                         </div>
                         {/* Mockup Body Rendering */}
                         <div className="p-4 flex-1 flex flex-col justify-center items-center relative">
-                          {project.hasImage ? (
+                          {project.thumbnail ? (
                             <div className="absolute inset-0 bg-gradient-to-br from-[#2563EB]/5 to-[#3B82F6]/5 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                              <Layers className="w-8 h-8 text-[#2563EB]/20" />
+                              <img src={project.thumbnail} alt="" />
                             </div>
                           ) : (
                             <div className="font-mono text-[10px] text-[#6B7280] bg-[#FFFFFF] border border-[#E5E7EB] p-3 rounded-lg shadow-2xs max-w-[80%] truncate">
@@ -307,24 +322,23 @@ export default function UserProfile() {
                             <h3 className="font-bold text-sm text-[#111827] group-hover:text-[#2563EB] transition-colors line-clamp-1">
                               {project.title}
                             </h3>
-                            <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${
-                              project.status === 'Published' 
-                                ? 'bg-[#22C55E]/10 text-[#22C55E] border-[#22C55E]/20' 
+                            <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${project.status === 'Published'
+                                ? 'bg-[#22C55E]/10 text-[#22C55E] border-[#22C55E]/20'
                                 : 'bg-[#6B7280]/10 text-[#6B7280] border-[#E5E7EB]'
-                            }`}>
+                              }`}>
                               {project.status}
                             </span>
                           </div>
 
                           <p className="text-xs text-[#6B7280] line-clamp-2 leading-relaxed">
-                            {project.desc}
+                            {project.description}
                           </p>
                         </div>
 
                         <div className="space-y-3 pt-1">
                           {/* Tech badges */}
                           <div className="flex flex-wrap gap-1">
-                            {project.tech.map((t, idx) => (
+                            {project.techStack.map((t, idx) => (
                               <span key={idx} className="text-[10px] font-medium bg-[#F8FAFC] border border-[#E5E7EB] px-2 py-0.5 rounded text-[#111827]">
                                 {t}
                               </span>
@@ -335,15 +349,15 @@ export default function UserProfile() {
                           <div className="pt-2.5 border-t border-[#E5E7EB] flex justify-between items-center text-[11px] text-[#6B7280]">
                             <div className="flex space-x-3">
                               <span className="flex items-center space-x-1 font-medium hover:text-rose-600 cursor-pointer transition-colors">
-                                <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500/5" /> 
+                                <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500/5" />
                                 <span>{project.likes}</span>
                               </span>
                               <span className="flex items-center space-x-1 font-medium">
-                                <MessageSquare className="w-3.5 h-3.5 text-[#2563EB]" /> 
+                                <MessageSquare className="w-3.5 h-3.5 text-[#2563EB]" />
                                 <span>{project.reviews}</span>
                               </span>
                               <span className="flex items-center space-x-1 font-medium">
-                                <Eye className="w-3.5 h-3.5 text-[#6B7280]" /> 
+                                <Eye className="w-3.5 h-3.5 text-[#6B7280]" />
                                 <span>{project.views}</span>
                               </span>
                             </div>
@@ -371,7 +385,9 @@ export default function UserProfile() {
               >
                 <h3 className="text-base font-bold text-[#111827]">Biography / Overview</h3>
                 <p className="text-xs text-[#6B7280] leading-relaxed">
-                  Highly strategic developer focused on creating clean interactive experiences. Proven track record in orchestrating design libraries, performance-critical server components, and dynamic system frameworks.
+                  {
+                    user.bio
+                  }
                 </p>
                 <div className="h-[1px] bg-[#E5E7EB] w-full my-2" />
                 <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider">Primary Framework Focus</h4>
