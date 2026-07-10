@@ -28,8 +28,7 @@ export const getReviews = async (id) => {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}/review`, {
             method: "GET",
             credentials: "include",
-        })
-
+        });
         return await response.json();
     } catch (error) {
         console.log(error);
@@ -76,3 +75,16 @@ export const editReview = async (id, reviewRating, reviewComment) => {
         };
     }
 }
+
+export const getMyReviews = async () => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/my-reviews`, {
+            method: "GET",
+            credentials: "include"
+        })
+
+        return await response.json()
+    } catch (error) {
+        console.log(error);
+    }
+} 

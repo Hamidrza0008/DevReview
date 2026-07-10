@@ -261,4 +261,73 @@ const editReview = async (req, res) => {
         });
     }
 }
-module.exports = { addReviews, getReviews, deleteReview, getReviewForEdit, editReview }
+
+const getCurrentUserReview = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // 1. User ke saare projects
+        const projects = await Projects.find({
+            owner: userId,
+        }).select("_id title likes");
+
+        const projectIds = projects.map(project => project._id);
+
+        // 2. User ne diye hue reviews
+        const givenReviews = await Reviews.find({
+            user: userId,
+        })
+            .populate("project", "title thumbnail slug")
+            .sort({ createdAt: -1 });
+
+        // 3. User ke projects pe aaye reviews
+        const receivedReviews = await Reviews.find({
+            project: {
+                $in: projectIds,
+            },
+        })
+            .populate("user", "username name profileImage")
+            .populate("project", "title thumbnail")
+            .sort({ createdAt: -1 });
+
+        // 4. Likes Details
+        const projectLikes = projects.map(project => ({
+            projectId: project._id,
+            title: project.title,
+            likesCount: project.likes.length,
+            likes: project.likes,
+        }));
+
+        // 5. Total Likes
+        const totalLikes = projects.reduce((total, project) => {
+            return total + project.likes.length;
+        }, 0);
+
+        return res.status(200).json({
+            success: true,
+
+            stats: {
+                totalProjects: projects.length,
+                totalLikes,
+                totalGivenReviews: givenReviews.length,
+                totalReceivedReviews: receivedReviews.length,
+            },
+
+            givenReviews,
+
+            receivedReviews,
+
+            projectLikes,
+        });
+
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
+    }
+};
+
+module.exports = { addReviews, getReviews, deleteReview, getReviewForEdit, editReview , getCurrentUserReview };
