@@ -16,8 +16,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-    origin: "http://localhost:3000",
-    credentials: true
+    origin: [
+        "http://localhost:3000",
+        "https://dev-reiview.vercel.app"
+    ],
+    credentials: true,
 }));
 app.use(express.json());
 app.use(cookieParser());
@@ -35,8 +38,8 @@ app.get("/", (req, res) => {
 })
 
 app.use("/api/projects", projectRoutes);
-app.use("/api/user/projects" , userProjectRoute);
-app.use("/api/upload" , uploadRoute);
+app.use("/api/user/projects", userProjectRoute);
+app.use("/api/upload", uploadRoute);
 
 
 

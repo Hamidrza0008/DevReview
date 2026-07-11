@@ -121,52 +121,60 @@ const verifyOTP = async (req, res) => {
 
 
 const login = async (req, res) => {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    const user = await Users.findOne({ email });
+        const user = await Users.findOne({ email });
 
-    if (!user) {
-        return res.status(400).json({
-            message: "User not found"
-        });
-    }
+        if (!user) {
+            return res.status(400).json({
+                message: "User not found"
+            });
+        }
 
-    if (!user.isVerified) {
-        return res.status(400).json({
-            message: "Please verify your email first"
-        });
-    }
+        if (!user.isVerified) {
+            return res.status(400).json({
+                message: "Please verify your email first"
+            });
+        }
 
-    const isMatched = await bcrypt.compare(password, user.password);
+        const isMatched = await bcrypt.compare(password, user.password);
 
-    if (!isMatched) {
-        return res.status(400).json({
-            message: "Invalid credentials"
-        });
-    }
+        if (!isMatched) {
+            return res.status(400).json({
+                message: "Invalid credentials"
+            });
+        }
 
-    const token = generateToken(user._id);
+        const token = generateToken(user._id);
 
-    res.cookie(
-        "token",
-        token,
-        {
+        res.cookie("token", token, {
             httpOnly: true,
-            secure: false,
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        }
-    )
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        return res.status(200).json({
+            message: "Login successful",
+            success: true,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                username: user.username,
+                role: user.role,
+                profileImage: user.profileImage,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
 
-    return res.status(200).json({
-        message: "Login successful",
-        success: true,
-        user: {
-            id: user._id,
-            name: user.name,
-            email: user.email
-        }
-    })
+    }
+
 }
 
 const forgotPassword = async (req, res) => {
@@ -184,6 +192,11 @@ const forgotPassword = async (req, res) => {
         const otp = crypto.randomInt(100000, 999999).toString();
         const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
+        await OTP.deleteMany({
+            email,
+            type: "RESET_PASSWORD",
+        });
+
         await OTP.create({
             email,
             otp,
@@ -199,6 +212,10 @@ const forgotPassword = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
 
 }
@@ -232,7 +249,7 @@ const resetPassword = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(newpassword, 10);
 
-        await User.findOneAndUpdate(
+        await Users.findOneAndUpdate(
             { email },
             { password: hashedPassword }
         )
@@ -248,6 +265,10 @@ const resetPassword = async (req, res) => {
         })
     } catch (error) {
         console.log(error)
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
 
 }
@@ -281,9 +302,9 @@ const logout = async (req, res) => {
     try {
         res.clearCookie("token", {
             httpOnly: true,
-            secure: false, // production me true (https)
-            sameSite: "strict",
-        })
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        });
 
         return res.status(200).json({
             success: true,
@@ -334,7 +355,7 @@ const updateMe = async (req, res) => {
 
         return res.status(200).json({
             message: "User Updated Successfully",
-            success: "true",
+            success: true,
             user: updateUser
         })
     } catch (error) {
