@@ -34,6 +34,47 @@ export default function Sidebar() {
     // { name: "Settings", icon: Settings, path: "/settings" },
   ];
 
+  const isMenuActive = (item) => {
+  switch (item.name) {
+    case "Dashboard":
+      return pathname === "/dashboard";
+
+    case "Explore Projects":
+      return (
+        pathname === "/projects/explore" ||
+        pathname === "/projects/create" ||
+        pathname.startsWith("/projects")
+      );
+
+    case "My Projects":
+      return (
+        pathname === "/projects/my" ||
+        pathname.startsWith("/projects/my/")
+      );
+
+    case "Users":
+      return (
+        pathname === "/users/explore" ||
+        pathname.startsWith("/users")
+      );
+
+    case "Profile":
+      return pathname.startsWith("/profile");
+
+    case "Saved Projects":
+      return pathname.startsWith("/projects/saved");
+
+    case "Reviews Received":
+      return pathname.startsWith("/review");
+
+    case "Community":
+      return pathname.startsWith("/community");
+
+    default:
+      return pathname === item.path;
+  }
+};
+
   
 
   return (
@@ -55,7 +96,7 @@ export default function Sidebar() {
         <nav className="p-4 space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.path;
+           const isActive = isMenuActive(item);
 
             return (
               <button
