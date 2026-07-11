@@ -33,24 +33,20 @@ export default function Sidebar() {
     { name: "Profile", icon: User, path: "/profile/my" },
     // { name: "Settings", icon: Settings, path: "/settings" },
   ];
-
-  const isMenuActive = (item) => {
+const isMenuActive = (item) => {
   switch (item.name) {
     case "Dashboard":
       return pathname === "/dashboard";
 
     case "Explore Projects":
       return (
+        pathname === "/projects" ||
         pathname === "/projects/explore" ||
-        pathname === "/projects/create" ||
-        pathname.startsWith("/projects")
+        pathname === "/projects/create"
       );
 
     case "My Projects":
-      return (
-        pathname === "/projects/my" ||
-        pathname.startsWith("/projects/my/")
-      );
+      return pathname === "/projects/my";
 
     case "Users":
       return (
@@ -74,9 +70,6 @@ export default function Sidebar() {
       return pathname === item.path;
   }
 };
-
-  
-
   return (
     <aside className="w-64 bg-white border-r border-[#E5E7EB] fixed top-0 bottom-0 left-0 z-40 flex flex-col justify-between hidden md:flex">
       <div>

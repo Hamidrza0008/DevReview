@@ -99,7 +99,7 @@ export default function MyProjects() {
       </div>
 
       {/* CONTROLS SEARCH MOCK BAR SEARCH FOR ALIGNMENT */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center z-10 relative max-w-xl">
+      {/* <div className="flex flex-col sm:flex-row gap-3 items-center z-10 relative max-w-xl">
         <div className="relative flex-1 w-full group">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6B7280]" />
           <input
@@ -113,7 +113,7 @@ export default function MyProjects() {
           <SlidersHorizontal className="w-3.5 h-3.5" />
           <span>Sort</span>
         </button>
-      </div>
+      </div> */}
 
       {/* NO PROJECTS STATE */}
       {projects.length === 0 && (
