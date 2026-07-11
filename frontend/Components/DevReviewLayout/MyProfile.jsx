@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -24,9 +24,14 @@ export default function MyProfile() {
   const [myProjects, setMyProjects] = useState([]);
   const [toast, setToast] = useState({ show: false, type: "", message: "" });
 
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
+
   const [formData, setFormData] = useState({
     name: "",
     username: "",
+    role: "",
     bio: "",
     skillsString: "",
     profileImage: "",
@@ -51,12 +56,15 @@ export default function MyProfile() {
       setFormData({
         name: user.name || "",
         username: user.username || "",
+        role: user.role || "",
         bio: user.bio || "",
         skillsString: Array.isArray(user.skills) ? user.skills.join(", ") : "",
         profileImage: user.profileImage || "",
         githubUrl: user.githubUrl || user.GitBranchUrl || "",
         portfolioUrl: user.portfolioUrl || ""
       });
+      setSelectedImage(null);
+      setImagePreview(null);
     }
   }, [user]);
 
@@ -106,51 +114,90 @@ export default function MyProfile() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     setIsSaving(true);
-    
-    // clean up and format skills array
-    const parsedSkills = formData.skillsString
-      .split(",")
-      .map((skill) => skill.trim())
-      .filter((skill) => skill !== "");
-
-    const { skillsString, ...restOfData } = formData;
-    const finalFormData = { ...restOfData, skills: parsedSkills };
-
-    // strip undefined values before sending payload
-    Object.keys(finalFormData).forEach((key) => {
-      if (finalFormData[key] === undefined) delete finalFormData[key];
-    });
 
     try {
+      let finalImageUrl = formData.profileImage;
+
+      // 1. Upload image if a new one was selected
+      if (selectedImage) {
+        const uploadFormData = new FormData();
+        uploadFormData.append("image", selectedImage);
+
+        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
+          method: "POST",
+          body: uploadFormData,
+          credentials: "include",
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error("Failed to upload profile image.");
+        }
+
+        const data = await uploadResponse.json();
+        finalImageUrl = data.imageUrl;
+      }
+      
+      // 2. Prepare remaining profile data
+      const parsedSkills = formData.skillsString
+        .split(",")
+        .map((skill) => skill.trim())
+        .filter((skill) => skill !== "");
+
+      const { skillsString, profileImage, ...restOfData } = formData;
+      const finalFormData = { 
+        ...restOfData, 
+        skills: parsedSkills,
+        profileImage: finalImageUrl 
+      };
+
+      // Strip undefined values before sending payload
+      Object.keys(finalFormData).forEach((key) => {
+        if (finalFormData[key] === undefined) delete finalFormData[key];
+      });
+
+      // 3. Update profile
       const res = await updateProfile(finalFormData);
       if (res?.success) {
         setIsEditing(false);
+        setSelectedImage(null);
+        setImagePreview(null);
         fetchUser();
         showToast("success", "Profile updated successfully.");
       } else {
         showToast("error", "Failed to update profile. Please try again.");
       }
     } catch (err) {
-      showToast("error", "An unexpected error occurred.");
+      showToast("error", err.message || "An unexpected error occurred.");
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleCancel = () => {
-    // revert changes if aborted
+    // Revert changes if aborted
     setFormData({
       name: user.name || "",
       username: user.username || "",
+      role: user.role || "",
       bio: user.bio || "",
       skillsString: Array.isArray(user.skills) ? user.skills.join(", ") : "",
       profileImage: user.profileImage || "",
       githubUrl: user.githubUrl || user.GitBranchUrl || "",
       portfolioUrl: user.portfolioUrl || ""
     });
+    setSelectedImage(null);
+    setImagePreview(null);
     setIsEditing(false);
   };
 
@@ -255,6 +302,14 @@ export default function MyProfile() {
                       </span>
                     </div>
 
+                    {user.role && (
+                      <div className="mt-2.5 flex justify-center sm:justify-start">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#2563EB]/10 border border-[#2563EB]/30 text-[#2563EB] text-sm font-medium shadow-sm">
+                          {user.role}
+                        </span>
+                      </div>
+                    )}
+
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-[#6B7280] mt-3 font-medium">
                       <span className="flex items-center gap-1.5"><Mail className="w-4 h-4" /> {user.email}</span>
                       {user.githubUrl && (
@@ -333,23 +388,31 @@ export default function MyProfile() {
               <div className="flex flex-col lg:flex-row gap-8">
                 {/* visual settings */}
                 <div className="flex flex-col items-center space-y-5 shrink-0 bg-[#F8FAFC] border border-[#E5E7EB] p-6 rounded-[24px]">
-                  <div className="relative">
-                    <img
-                      src={formData.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || 'U')}&background=E5E7EB&color=111827`}
-                      alt="Avatar Preview"
-                      className="w-28 h-28 rounded-full object-cover border-4 border-[#FFFFFF] shadow-md bg-[#FFFFFF]"
-                    />
-                  </div>
-                  <div className="w-full max-w-[200px] space-y-1.5">
-                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider">Avatar URL</label>
-                    <input
-                      type="text"
-                      name="profileImage"
-                      value={formData.profileImage}
-                      onChange={handleInputChange}
-                      className="w-full text-sm px-3 py-2.5 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all font-mono placeholder:text-[#6B7280]/50"
-                      placeholder="https://..."
-                    />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                      <img
+                        src={imagePreview || formData.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || 'U')}&background=E5E7EB&color=111827`}
+                        alt="Avatar Preview"
+                        className="w-28 h-28 rounded-full object-cover border-4 border-[#FFFFFF] shadow-md bg-[#FFFFFF] group-hover:opacity-80 transition-opacity"
+                      />
+                      <div className="absolute inset-0 rounded-full flex items-center justify-center bg-[#111827]/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Edit3 className="w-6 h-6 text-[#FFFFFF]" />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#2563EB]/40 text-[#111827] px-4 py-2 rounded-xl font-semibold flex items-center space-x-1.5 shadow-sm text-xs transition-all"
+                    >
+                      <Plus className="w-4 h-4 text-[#2563EB]" /> <span>Upload Avatar</span>
+                    </button>
                   </div>
                 </div>
 
@@ -391,6 +454,18 @@ export default function MyProfile() {
                       rows={3}
                       placeholder="Describe your expertise, current role, or professional goals..."
                       className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] resize-none transition-all shadow-sm placeholder:text-[#6B7280]/60"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider">Professional Role</label>
+                    <input
+                      type="text"
+                      name="role"
+                      value={formData.role}
+                      onChange={handleInputChange}
+                      placeholder="e.g. Full Stack Developer, UI/UX Designer"
+                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all shadow-sm"
                     />
                   </div>
 
@@ -618,7 +693,7 @@ export default function MyProfile() {
               >
                 <div className="flex items-center gap-3 border-b border-[#F1F5F9] pb-4">
                   <Briefcase className="w-5 h-5 text-[#2563EB]" />
-                  <h3 className="text-base font-bold text-[#111827]">Professional Summary</h3>
+                  <h3 className="text-base font-bold text-[#111827]">{user.role ? user.role : "Professional Summary"}</h3>
                 </div>
                 <p className="text-sm text-[#6B7280] leading-relaxed whitespace-pre-wrap">
                   {user.bio || "Crafting an ATS-optimized professional summary will increase your visibility on the platform. Head to 'Edit Profile' to add your career background, current objectives, and core strengths."}

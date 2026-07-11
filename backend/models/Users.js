@@ -19,6 +19,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    role: {
+        type: String,
+        trim: true,
+        default: "",
+    },
     profileImage: {
         type: String,
         default: ""

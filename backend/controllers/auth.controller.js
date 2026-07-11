@@ -306,6 +306,7 @@ const updateMe = async (req, res) => {
         const allowedFields = [
             "name",
             "username",
+            "role",
             "bio",
             "skills",
             "profileImage",
@@ -345,4 +346,4 @@ const updateMe = async (req, res) => {
 }
 
 
-module.exports = { signUp, login, verifyOTP, forgotPassword, resetPassword, getMe, logout , updateMe }
+module.exports = { signUp, login, verifyOTP, forgotPassword, resetPassword, getMe, logout, updateMe }
