@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
             setUser(null);
         } finally {
             setLoading(false);
-            setInitialized(true); // 🔥 important
+            setInitialized(true); 
         }
     };
 
