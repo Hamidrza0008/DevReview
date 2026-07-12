@@ -12,17 +12,19 @@ export const AuthProvider = ({ children }) => {
     const router = useRouter();
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true);
-const fetchUser = async () => {
-    try {
-        const res = await getMe();
-        setUser(res.user);
-    } catch (error) {
-        setUser(null);
-    } finally {
-        setLoading(false);
-        setInitialized(true); // 🔥 important
-    }
-};
+    const fetchUser = async () => {
+        try {
+            const res = await getMe();
+            setUser(res.user);
+            console.log("GET ME", res);
+
+        } catch (error) {
+            setUser(null);
+        } finally {
+            setLoading(false);
+            setInitialized(true); // 🔥 important
+        }
+    };
 
     useEffect(() => {
         fetchUser()
@@ -41,7 +43,7 @@ const fetchUser = async () => {
         }
     }
 
-    return <AuthContext.Provider value={{ user, setUser, loading, logout , initialized , fetchUser }}>
+    return <AuthContext.Provider value={{ user, setUser, loading, logout, initialized, fetchUser }}>
         {children}
     </AuthContext.Provider>
 }

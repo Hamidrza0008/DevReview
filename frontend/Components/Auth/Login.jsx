@@ -67,7 +67,7 @@ export default function Login() {
 
       console.log(res);
       if (res.success) {
-        fetchUser();
+        await fetchUser();
         router.push("/dashboard");
       }
     } catch (error) {
