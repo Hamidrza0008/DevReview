@@ -44,6 +44,7 @@ export default function MyProfile() {
     try {
       const res = await getMyProjects();
       setMyProjects(res?.projects || []);
+      console.log(res)
     } catch (err) {
       console.error(err);
     }
@@ -84,7 +85,7 @@ export default function MyProfile() {
 
   const stats = {
     projectsCount: myProjects?.length || user?.projects?.length || 0,
-    reviews: 48,
+    reviews: myProjects.reduce((acc , curr) => acc + (curr.reviewsCount || 0) , 0) || 0,
     likes: myProjects.reduce((acc, curr) => acc + (curr.likesCount || 0), 0) || 342,
     views: "2.8k"
   };
@@ -606,7 +607,7 @@ export default function MyProfile() {
                       Upload your first repository to build a compelling, ATS-friendly portfolio. Showcasing real code is the best way to stand out to recruiters and peers.
                     </p>
                     <button 
-                      onClick={() => router.push('/upload')}
+                      onClick={() => router.push('/projects/create')}
                       className="bg-[#2563EB] text-[#FFFFFF] px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#1D4ED8] transition-colors shadow-sm"
                     >
                       Upload First Project
@@ -665,7 +666,7 @@ export default function MyProfile() {
                                 </span>
                                 <span className="flex items-center space-x-1.5">
                                   <MessageSquare className="w-4 h-4 text-[#2563EB]" /> 
-                                  <span>12</span>
+                                  <span>{project.reviewsCount || 0}</span>
                                 </span>
                               </div>
                               <div className="flex items-center space-x-3">
