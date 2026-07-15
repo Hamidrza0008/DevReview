@@ -68,7 +68,7 @@ const getMyProjects = async (req, res) => {
         //     };
         // });
 
-         const updatedProject = await Promise.all(
+         const updatedProjects = await Promise.all(
             projects.map(async (proj) => {
 
                 const reviews = await Reviews.find({
