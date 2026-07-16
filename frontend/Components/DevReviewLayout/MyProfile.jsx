@@ -278,10 +278,11 @@ export default function MyProfile() {
               className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-center relative z-10"
             >
               <div className="lg:col-span-2 flex flex-col sm:flex-row items-center sm:items-start gap-8 text-center sm:text-left">
+                
                 {/* avatar */}
                 <div className="relative group shrink-0">
-                  <div className="absolute -inset-2 bg-gradient-to-tr from-[#2563EB] to-[#3B82F6] rounded-full blur-md opacity-20 group-hover:opacity-40 transition duration-500" />
-                  <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-[#FFFFFF] relative z-10 shadow-md bg-[#F1F5F9]">
+                  <div className="absolute -inset-2 bg-gradient-to-tr from-[#2563EB] to-[#3B82F6] rounded-full blur-md opacity-30 group-hover:opacity-50 transition duration-500" />
+                  <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-[#FFFFFF] relative z-10 shadow-lg bg-[#F1F5F9]">
                     <img
                       src={user.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=F1F5F9&color=111827`}
                       alt={user.name}
@@ -290,59 +291,65 @@ export default function MyProfile() {
                   </div>
                 </div>
 
-                {/* bio & links */}
+                {/* bio & links (Enhanced UI) */}
                 <div className="space-y-4 flex-1">
                   <div>
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
                       <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#111827] flex items-center gap-2">
                         {user.name}
-                        <CheckCircle2 className="w-6 h-6 text-[#2563EB]" />
+                        <CheckCircle2 className="w-7 h-7 text-[#2563EB] drop-shadow-sm" />
                       </h1>
-                      <span className="text-xs bg-[#F1F5F9] border border-[#E5E7EB] text-[#6B7280] font-mono px-2.5 py-1 rounded-lg">
+                      <span className="text-sm bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/20 font-bold px-3 py-1 rounded-full shadow-sm">
                         @{user.username}
                       </span>
                     </div>
 
                     {user.role && (
-                      <div className="mt-2.5 flex justify-center sm:justify-start">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#2563EB]/10 border border-[#2563EB]/30 text-[#2563EB] text-sm font-medium shadow-sm">
+                      <div className="mt-3 flex justify-center sm:justify-start">
+                        <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#2563EB] text-[#FFFFFF] text-sm font-bold shadow-md shadow-[#2563EB]/20">
                           {user.role}
                         </span>
                       </div>
                     )}
 
-                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-[#6B7280] mt-3 font-medium">
-                      <span className="flex items-center gap-1.5"><Mail className="w-4 h-4" /> {user.email}</span>
+                    {/* Links - Now as sleek pills */}
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-sm mt-4">
+                      <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F1F5F9] text-[#111827] rounded-lg border border-[#E5E7EB] font-semibold">
+                        <Mail className="w-4 h-4 text-[#6B7280]" /> {user.email}
+                      </span>
                       {user.githubUrl && (
-                        <a href={user.githubUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-[#2563EB] transition-colors">
-                          <GitBranch className="w-4 h-4" /> GitHub
+                        <a href={user.githubUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F1F5F9] hover:bg-[#2563EB]/10 text-[#6B7280] hover:text-[#2563EB] rounded-lg border border-[#E5E7EB] hover:border-[#2563EB]/30 transition-all font-semibold group">
+                          <GitBranch className="w-4 h-4 group-hover:scale-110 transition-transform" /> GitHub
                         </a>
                       )}
                       {user.portfolioUrl && (
-                        <a href={user.portfolioUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-[#2563EB] transition-colors">
-                          <Globe className="w-4 h-4" /> Portfolio
+                        <a href={user.portfolioUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F1F5F9] hover:bg-[#22C55E]/10 text-[#6B7280] hover:text-[#22C55E] rounded-lg border border-[#E5E7EB] hover:border-[#22C55E]/30 transition-all font-semibold group">
+                          <Globe className="w-4 h-4 group-hover:scale-110 transition-transform" /> Portfolio
                         </a>
                       )}
                     </div>
                   </div>
 
-                  <p className="text-sm md:text-base text-[#6B7280] font-normal leading-relaxed max-w-xl">
-                    {user.bio || "Craft a professional summary here to stand out to recruiters and collaborators. Highlight your core competencies and career trajectory."}
-                  </p>
+                  {/* Bio - Enhanced readability with subtle background */}
+                  <div className="bg-[#F8FAFC] border border-[#E5E7EB] p-4 rounded-2xl">
+                    <p className="text-[15px] text-[#374151] font-medium leading-relaxed">
+                      {user.bio || "Craft a professional summary here to stand out to recruiters and collaborators. Highlight your core competencies and career trajectory."}
+                    </p>
+                  </div>
 
-                  {/* skills map */}
-                  <div className="pt-2 flex flex-wrap justify-center sm:justify-start gap-2">
+                  {/* Skills map - Premium tags */}
+                  <div className="pt-1 flex flex-wrap justify-center sm:justify-start gap-2">
                     {user.skills?.length > 0 ? (
                       user.skills.map((skill, index) => (
                         <span
                           key={index}
-                          className="text-xs bg-[#FFFFFF] text-[#111827] border border-[#E5E7EB] px-3 py-1.5 rounded-xl font-semibold shadow-sm hover:border-[#2563EB]/40 hover:bg-[#F8FAFC] transition-colors"
+                          className="text-xs bg-[#FFFFFF] text-[#2563EB] border border-[#3B82F6]/30 px-3 py-1.5 rounded-lg font-bold shadow-sm hover:bg-[#2563EB] hover:text-[#FFFFFF] transition-colors cursor-default"
                         >
                           {skill}
                         </span>
                       ))
                     ) : (
-                      <span className="text-xs text-[#6B7280] italic">No skills listed yet. Add them in settings.</span>
+                      <span className="text-xs text-[#6B7280] italic px-1">No skills listed yet. Add them in settings.</span>
                     )}
                   </div>
                 </div>
@@ -357,7 +364,7 @@ export default function MyProfile() {
                     { label: "Likes", val: stats.likes },
                     { label: "Profile Views", val: stats.views }
                   ].map((st, idx) => (
-                    <div key={idx} className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-4 hover:border-[#2563EB]/30 transition-all duration-300 group shadow-sm">
+                    <div key={idx} className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-4 hover:border-[#2563EB]/30 transition-all duration-300 group shadow-sm text-center lg:text-left">
                       <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider block mb-1">{st.label}</span>
                       <span className="text-2xl font-bold text-[#111827] group-hover:text-[#2563EB] transition-colors">{st.val}</span>
                     </div>
@@ -368,9 +375,9 @@ export default function MyProfile() {
                   <motion.button
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setIsEditing(true)}
-                    className="w-full border border-[#E5E7EB] text-[#111827] bg-[#FFFFFF] hover:bg-[#F8FAFC] py-3 rounded-2xl font-bold flex items-center justify-center space-x-2 shadow-sm text-sm transition-colors"
+                    className="w-full border border-[#E5E7EB] text-[#111827] bg-[#FFFFFF] hover:bg-[#F8FAFC] hover:border-[#2563EB]/40 hover:text-[#2563EB] py-3 rounded-2xl font-bold flex items-center justify-center space-x-2 shadow-sm text-sm transition-all"
                   >
-                    <Edit3 className="w-4 h-4 text-[#6B7280]" />
+                    <Edit3 className="w-4 h-4" />
                     <span>Edit Profile</span>
                   </motion.button>
                 </div>
@@ -427,7 +434,7 @@ export default function MyProfile() {
                       value={formData.name}
                       onChange={handleInputChange}
                       required
-                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all shadow-sm"
+                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all shadow-sm font-medium"
                     />
                   </div>
 
@@ -441,7 +448,7 @@ export default function MyProfile() {
                         value={formData.username}
                         onChange={handleInputChange}
                         required
-                        className="w-full text-sm pl-8 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all font-mono shadow-sm"
+                        className="w-full text-sm pl-8 pr-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all font-mono font-medium shadow-sm"
                       />
                     </div>
                   </div>
@@ -454,7 +461,7 @@ export default function MyProfile() {
                       onChange={handleInputChange}
                       rows={3}
                       placeholder="Describe your expertise, current role, or professional goals..."
-                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] resize-none transition-all shadow-sm placeholder:text-[#6B7280]/60"
+                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] resize-none transition-all shadow-sm placeholder:text-[#6B7280]/60 font-medium"
                     />
                   </div>
 
@@ -466,7 +473,7 @@ export default function MyProfile() {
                       value={formData.role}
                       onChange={handleInputChange}
                       placeholder="e.g. Full Stack Developer, UI/UX Designer"
-                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all shadow-sm"
+                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all shadow-sm font-medium"
                     />
                   </div>
 
@@ -478,7 +485,7 @@ export default function MyProfile() {
                       value={formData.skillsString}
                       onChange={handleInputChange}
                       placeholder="React, Next.js, Node.js, System Design"
-                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all shadow-sm"
+                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all shadow-sm font-medium"
                     />
                   </div>
 
@@ -490,7 +497,7 @@ export default function MyProfile() {
                       value={formData.githubUrl}
                       onChange={handleInputChange}
                       placeholder="https://github.com/..."
-                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all font-mono shadow-sm"
+                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all font-mono font-medium shadow-sm"
                     />
                   </div>
 
@@ -502,7 +509,7 @@ export default function MyProfile() {
                       value={formData.portfolioUrl}
                       onChange={handleInputChange}
                       placeholder="https://..."
-                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all font-mono shadow-sm"
+                      className="w-full text-sm px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#2563EB] bg-[#FFFFFF] transition-all font-mono font-medium shadow-sm"
                     />
                   </div>
                 </div>
@@ -522,7 +529,7 @@ export default function MyProfile() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="w-full sm:w-auto bg-[#2563EB] hover:bg-[#1D4ED8] text-[#FFFFFF] px-8 py-2.5 rounded-xl font-semibold flex items-center justify-center space-x-2 text-sm shadow-sm transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto bg-[#2563EB] hover:bg-[#1D4ED8] text-[#FFFFFF] px-8 py-2.5 rounded-xl font-bold flex items-center justify-center space-x-2 text-sm shadow-sm shadow-[#2563EB]/30 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isSaving ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -550,7 +557,7 @@ export default function MyProfile() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 pb-4 text-sm font-semibold border-b-2 transition-all relative whitespace-nowrap outline-none ${
+              className={`flex items-center gap-2 pb-4 text-sm font-bold border-b-2 transition-all relative whitespace-nowrap outline-none ${
                 isActive
                   ? "border-[#2563EB] text-[#2563EB]"
                   : "border-transparent text-[#6B7280] hover:text-[#111827]"
@@ -590,7 +597,7 @@ export default function MyProfile() {
                   <motion.button
                     whileTap={{ scale: 0.97 }}
                     onClick={() => router.push('/projects/create')}
-                    className="bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#2563EB]/40 text-[#111827] px-4 py-2 rounded-xl font-semibold flex items-center space-x-1.5 shadow-sm text-sm transition-all"
+                    className="bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#2563EB]/40 hover:text-[#2563EB] text-[#111827] px-4 py-2 rounded-xl font-bold flex items-center space-x-1.5 shadow-sm text-sm transition-all"
                   >
                     <Plus className="w-4 h-4 text-[#2563EB]" /> <span>New Project</span>
                   </motion.button>
@@ -603,12 +610,12 @@ export default function MyProfile() {
                       <Code2 className="w-8 h-8 text-[#6B7280]" />
                     </div>
                     <h3 className="text-lg font-bold text-[#111827] mb-2">No projects uploaded yet</h3>
-                    <p className="text-[#6B7280] max-w-md mx-auto text-sm leading-relaxed mb-6">
+                    <p className="text-[#6B7280] max-w-md mx-auto text-sm leading-relaxed mb-6 font-medium">
                       Upload your first repository to build a compelling, ATS-friendly portfolio. Showcasing real code is the best way to stand out to recruiters and peers.
                     </p>
                     <button 
                       onClick={() => router.push('/projects/create')}
-                      className="bg-[#2563EB] text-[#FFFFFF] px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#1D4ED8] transition-colors shadow-sm"
+                      className="bg-[#2563EB] text-[#FFFFFF] px-6 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-[#2563EB]/30 hover:bg-[#1D4ED8] transition-colors"
                     >
                       Upload First Project
                     </button>
@@ -644,7 +651,7 @@ export default function MyProfile() {
                             <h3 className="font-bold text-lg text-[#111827] group-hover:text-[#2563EB] transition-colors line-clamp-1 tracking-tight">
                               {project.title}
                             </h3>
-                            <p className="text-sm text-[#6B7280] line-clamp-2 leading-relaxed">
+                            <p className="text-sm text-[#6B7280] font-medium line-clamp-2 leading-relaxed">
                               {project.description || "No detailed description provided for this repository."}
                             </p>
                           </div>
@@ -658,7 +665,7 @@ export default function MyProfile() {
                               ))}
                             </div>
 
-                            <div className="pt-4 border-t border-[#F1F5F9] flex justify-between items-center text-xs font-semibold text-[#6B7280]">
+                            <div className="pt-4 border-t border-[#F1F5F9] flex justify-between items-center text-xs font-bold text-[#6B7280]">
                               <div className="flex space-x-4">
                                 <span className="flex items-center space-x-1.5">
                                   <Heart className="w-4 h-4 text-[#EF4444]" /> 
@@ -696,15 +703,15 @@ export default function MyProfile() {
                   <Briefcase className="w-5 h-5 text-[#2563EB]" />
                   <h3 className="text-base font-bold text-[#111827]">{user.role ? user.role : "Professional Summary"}</h3>
                 </div>
-                <p className="text-sm text-[#6B7280] leading-relaxed whitespace-pre-wrap">
+                <p className="text-[15px] text-[#374151] font-medium leading-relaxed whitespace-pre-wrap">
                   {user.bio || "Crafting an ATS-optimized professional summary will increase your visibility on the platform. Head to 'Edit Profile' to add your career background, current objectives, and core strengths."}
                 </p>
                 
                 <div className="pt-4">
-                  <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider mb-3">Core Competencies</h4>
+                  <h4 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-3">Core Competencies</h4>
                   <div className="flex flex-wrap gap-2">
                     {user.skills?.length > 0 ? user.skills.map((skill, idx) => (
-                       <span key={idx} className="bg-[#F8FAFC] border border-[#E5E7EB] text-[#111827] px-3 py-1.5 rounded-lg text-xs font-semibold">{skill}</span>
+                       <span key={idx} className="bg-[#F8FAFC] border border-[#E5E7EB] text-[#111827] px-3 py-1.5 rounded-lg text-xs font-bold">{skill}</span>
                     )) : (
                       <span className="text-sm text-[#6B7280] italic">No competencies listed.</span>
                     )}
@@ -726,12 +733,12 @@ export default function MyProfile() {
                     <Bookmark className="w-8 h-8 text-[#6B7280]" />
                   </div>
                   <h3 className="text-lg font-bold text-[#111827] mb-2">No Bookmarks Found</h3>
-                  <p className="text-[#6B7280] max-w-sm mx-auto text-sm leading-relaxed mb-6">
+                  <p className="text-[#6B7280] font-medium max-w-sm mx-auto text-sm leading-relaxed mb-6">
                     Save top-tier projects while browsing to keep a curated list of architectural references and design inspiration.
                   </p>
                   <button 
                     onClick={() => router.push('/')}
-                    className="bg-[#F8FAFC] border border-[#E5E7EB] text-[#111827] px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#F1F5F9] transition-colors shadow-sm"
+                    className="bg-[#F8FAFC] border border-[#E5E7EB] text-[#111827] px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#F1F5F9] hover:border-[#2563EB]/30 transition-colors shadow-sm"
                   >
                     Explore Projects
                   </button>
@@ -744,19 +751,19 @@ export default function MyProfile() {
         <div className="space-y-6">
           <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-6 space-y-5 shadow-sm">
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Profile Details</h3>
-            <div className="space-y-4 text-sm font-medium">
+            <div className="space-y-4 text-sm font-semibold">
               <div className="flex items-center gap-3 text-[#6B7280]">
-                <MapPin className="w-4 h-4 shrink-0" />
+                <MapPin className="w-4 h-4 shrink-0 text-[#2563EB]" />
                 <span className="text-[#111827]">{rightSidebarData.location}</span>
               </div>
               <div className="flex items-center gap-3 text-[#6B7280]">
-                <Globe className="w-4 h-4 shrink-0" />
+                <Globe className="w-4 h-4 shrink-0 text-[#2563EB]" />
                 <a href={user.portfolioUrl || "#"} className="text-[#2563EB] hover:underline truncate">
                   {user.portfolioUrl ? new URL(user.portfolioUrl).hostname : "Add portfolio link"}
                 </a>
               </div>
               <div className="flex items-center gap-3 text-[#6B7280]">
-                <Calendar className="w-4 h-4 shrink-0" />
+                <Calendar className="w-4 h-4 shrink-0 text-[#2563EB]" />
                 <span className="text-[#111827]">{rightSidebarData.joinedDate}</span>
               </div>
             </div>
@@ -768,13 +775,13 @@ export default function MyProfile() {
               {rightSidebarData.achievements.map((item, idx) => {
                 const IconComponent = item.icon;
                 return (
-                  <div key={idx} className="flex items-center gap-4 p-3 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] hover:bg-[#F1F5F9] transition-colors">
+                  <div key={idx} className="flex items-center gap-4 p-3 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] hover:bg-[#F1F5F9] hover:border-[#E5E7EB] transition-colors cursor-default">
                     <div className={`p-2.5 rounded-xl shrink-0 border ${item.color}`}>
                       <IconComponent className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
                       <h4 className="text-sm font-bold text-[#111827] tracking-tight">{item.label}</h4>
-                      <p className="text-xs text-[#6B7280] truncate mt-0.5">{item.desc}</p>
+                      <p className="text-xs text-[#6B7280] font-medium truncate mt-0.5">{item.desc}</p>
                     </div>
                   </div>
                 );
