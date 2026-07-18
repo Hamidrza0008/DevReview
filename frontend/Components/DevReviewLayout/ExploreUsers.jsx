@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Search, 
+  Search, Star,
   GitBranch, 
   Globe, 
   BadgeCheck, 
@@ -156,6 +156,38 @@ export default function ExploreUsers() {
           0% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
+        .animate-gradient-x {
+          background-size: 200% 200%;
+          animation: gradient-x 4s ease infinite;
+        }
+        @keyframes gradient-x {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .card-glow::before {
+          content: "";
+          position: absolute;
+          inset: -1px;
+          border-radius: 24px;
+          padding: 1px;
+          background: linear-gradient(135deg, #1D4ED8, #2563EB, #3B82F6);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          opacity: 0;
+          transition: opacity 0.35s ease;
+          pointer-events: none;
+        }
+        .card-glow:hover::before {
+          opacity: 1;
+        }
+        @keyframes float-ping {
+          0% { transform: scale(1); opacity: 0.6; }
+          75%, 100% { transform: scale(2.4); opacity: 0; }
+        }
+        .verified-ping {
+          animation: float-ping 2.4s cubic-bezier(0,0,0.2,1) infinite;
+        }
       `}</style>
 
       {/* --- CONTINUOUS BACKGROUND LIGHTS & ANIMATIONS --- */}
@@ -176,7 +208,7 @@ export default function ExploreUsers() {
         <motion.div
           animate={{ x: [-50, 50, -50], y: [50, -50, 50], scale: [1, 1.2, 1] }}
           transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -bottom-[20%] left-[10%] w-[600px] h-[600px] bg-[#2563EB]/15 rounded-full blur-[120px]"
+          className="absolute -bottom-[20%] left-[10%] w-[600px] h-[600px] bg-[#1D4ED8]/15 rounded-full blur-[120px]"
         />
         {/* Minimal Dotted Background Overlay */}
         <div
@@ -222,14 +254,23 @@ export default function ExploreUsers() {
             animate="show"
           >
             <motion.div variants={heroTextVariants} className="flex justify-center lg:justify-start">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#FFFFFF] border border-[#2563EB]/20 text-[#2563EB] mb-2 shadow-sm shadow-[#2563EB]/10">
-                <Sparkles className="w-3.5 h-3.5" /> Developer Discovery Engine
-              </div>
+              <motion.div
+                whileHover={{ scale: 1.04 }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#FFFFFF] border border-[#2563EB]/20 text-[#2563EB] mb-2 shadow-sm shadow-[#2563EB]/10"
+              >
+                <motion.span
+                  animate={{ rotate: [0, 15, -15, 0] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                </motion.span>
+                Developer Discovery Engine
+              </motion.div>
             </motion.div>
 
             <motion.h1 variants={heroTextVariants} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#111827] leading-[1.1]">
               Connect with <br className="hidden md:inline" />
-              <span className="text-[#2563EB]">
+              <span className="bg-gradient-to-r from-[#1D4ED8] via-[#2563EB] to-[#3B82F6] bg-clip-text text-transparent animate-gradient-x">
                 Elite Developers.
               </span>
             </motion.h1>
@@ -240,59 +281,110 @@ export default function ExploreUsers() {
 
             <motion.div variants={heroTextVariants} className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 mt-6">
               {PLATFORM_STATS.map((stat, idx) => (
-                <div key={idx} className="bg-[#FFFFFF]/90 backdrop-blur-sm border border-[#E5E7EB] rounded-2xl p-4 shadow-sm hover:border-[#3B82F6]/50 hover:shadow-lg hover:shadow-[#2563EB]/10 transition-all duration-300 flex flex-col items-center lg:items-start text-center lg:text-left group">
+                <motion.div
+                  key={idx}
+                  whileHover={{ y: -5, scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 18 }}
+                  className="bg-[#FFFFFF]/90 backdrop-blur-sm border border-[#E5E7EB] rounded-2xl p-4 shadow-sm hover:border-[#3B82F6]/60 hover:shadow-xl hover:shadow-[#2563EB]/15 transition-all duration-300 flex flex-col items-center lg:items-start text-center lg:text-left group cursor-default"
+                >
                   <div className="flex items-center gap-1.5 mb-2">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280] group-hover:text-[#2563EB] transition-colors">
                       {stat.label}
                     </span>
-                    <div className="text-[#2563EB] bg-[#2563EB]/5 rounded p-1 group-hover:scale-110 transition-transform">
+                    <div className="text-[#2563EB] bg-[#2563EB]/5 rounded p-1 group-hover:scale-125 group-hover:bg-[#2563EB]/10 transition-transform">
                       <stat.icon className="w-3 h-3" />
                     </div>
                   </div>
-                  <div className="text-xl font-extrabold tracking-tight text-[#111827]">
+                  <div className="text-xl font-extrabold tracking-tight text-[#111827] group-hover:text-[#2563EB] transition-colors">
                     {stat.value}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </motion.div>
           </motion.div>
 
           {/* Animated Hero Illustration */}
           <div className="lg:col-span-5 relative hidden lg:flex items-center justify-center select-none perspective-1000">
+            <div className="absolute w-[420px] h-[420px] bg-gradient-to-tr from-[#2563EB]/20 via-[#3B82F6]/15 to-[#1D4ED8]/10 rounded-full blur-3xl -z-10 animate-pulse" />
+
+            {/* Floating rating chip */}
+            <motion.div
+              animate={{ y: [-6, 6, -6] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-6 -left-6 z-20 bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl shadow-xl shadow-[#2563EB]/10 px-4 py-2.5 flex items-center gap-2"
+            >
+              <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+              <span className="text-sm font-extrabold text-[#111827]">4.9</span>
+              <span className="text-[10px] font-semibold text-[#6B7280]">rating</span>
+            </motion.div>
+
+            {/* Floating commits chip */}
+            <motion.div
+              animate={{ y: [6, -6, 6] }}
+              transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-10 -right-4 z-20 bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl shadow-xl shadow-[#2563EB]/10 px-4 py-2.5 flex items-center gap-2"
+            >
+              <GitBranch className="w-4 h-4 text-[#2563EB]" />
+              <span className="text-sm font-extrabold text-[#111827]">2.4K</span>
+              <span className="text-[10px] font-semibold text-[#6B7280]">commits</span>
+            </motion.div>
+
             <motion.div
               animate={{ y: [-10, 10, -10] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              whileHover={{ scale: 1.02 }}
               className="w-full max-w-[420px] bg-[#FFFFFF] border border-[#E5E7EB] rounded-[32px] shadow-2xl shadow-[#2563EB]/15 overflow-hidden relative z-10"
             >
-              <div className="h-40 bg-gradient-to-b from-[#3B82F6] to-[#2563EB] relative flex flex-col items-center justify-end pb-8">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,theme(colors.white/20)_0,transparent_100%)] opacity-50" />
+              <div className="h-32 bg-gradient-to-br from-[#1D4ED8] via-[#2563EB] to-[#3B82F6] relative flex flex-col items-center justify-end pb-8 overflow-hidden">
+                <motion.div
+                  animate={{ opacity: [0.3, 0.6, 0.3] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                  className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,theme(colors.white/30)_0,transparent_100%)]"
+                />
+                <div
+                  className="absolute inset-0 opacity-[0.15]"
+                  style={{ backgroundImage: `radial-gradient(#FFFFFF 1.5px, transparent 1.5px)`, backgroundSize: "18px 18px" }}
+                />
                 
-                <div className="absolute -bottom-8 w-16 h-16 rounded-full bg-[#FFFFFF] border-4 border-[#FFFFFF] shadow-lg flex items-center justify-center text-[#2563EB] z-10">
+                <div className="absolute -bottom-8 w-16 h-16 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#2563EB] border-4 border-[#FFFFFF] shadow-lg flex items-center justify-center text-[#FFFFFF] z-10">
                   <Code2 className="w-6 h-6" />
                   <div className="absolute bottom-0 right-0 bg-[#FFFFFF] rounded-full p-[2px]">
-                    <BadgeCheck className="w-4 h-4 text-[#22C55E]" />
+                    <span className="relative inline-flex">
+                      <BadgeCheck className="w-4 h-4 text-[#2563EB] relative z-10" />
+                      <span className="verified-ping absolute inset-0 rounded-full bg-[#2563EB]/50" />
+                    </span>
                   </div>
                 </div>
               </div>
               
               <div className="px-8 pb-8 pt-12 relative flex flex-col items-center bg-[#FFFFFF]">
-                <div className="h-3 w-32 bg-[#F1F5F9] rounded-full mb-6" />
-                
-                <div className="w-full grid grid-cols-3 gap-4 mb-8">
-                  <div className="h-10 bg-[#F8FAFC] border border-[#F1F5F9] rounded-xl flex flex-col items-center justify-center gap-1.5 shadow-sm">
-                    <div className="h-2 w-10 bg-[#E5E7EB] rounded-full" />
-                  </div>
-                  <div className="h-10 bg-[#F8FAFC] border border-[#F1F5F9] rounded-xl flex flex-col items-center justify-center gap-1.5 shadow-sm">
-                    <div className="h-2 w-10 bg-[#E5E7EB] rounded-full" />
-                  </div>
-                  <div className="h-10 bg-[#F8FAFC] border border-[#F1F5F9] rounded-xl flex flex-col items-center justify-center gap-1.5 shadow-sm">
-                    <div className="h-2 w-10 bg-[#E5E7EB] rounded-full" />
-                  </div>
+                <h4 className="text-base font-extrabold text-[#111827] tracking-tight">Hamid Rza</h4>
+                <p className="text-xs font-semibold text-[#2563EB] mt-0.5 mb-5">Full Stack Engineer</p>
+
+                <div className="w-full grid grid-cols-3 gap-3 mb-6">
+                  {[
+                    { label: "Repos", val: "18" },
+                    { label: "Reviews", val: "56" },
+                    { label: "Likes", val: "132" }
+                  ].map((s, i) => (
+                    <motion.div
+                      key={i}
+                      whileHover={{ y: -3 }}
+                      className="bg-[#F8FAFC] border border-[#F1F5F9] rounded-xl py-2.5 flex flex-col items-center justify-center gap-0.5 shadow-sm hover:border-[#2563EB]/30 hover:bg-[#EFF6FF] transition-colors"
+                    >
+                      <span className="text-sm font-extrabold text-[#111827]">{s.val}</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-[#94A3B8]">{s.label}</span>
+                    </motion.div>
+                  ))}
                 </div>
-                
-                <div className="w-full h-10 bg-[#2563EB] rounded-xl flex items-center justify-center shadow-md">
-                  <div className="h-2 w-16 bg-[#FFFFFF]/60 rounded-full" />
-                </div>
+
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="w-full h-11 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] rounded-xl flex items-center justify-center gap-2 shadow-md shadow-[#2563EB]/25 text-white text-xs font-bold"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Follow Developer</span>
+                </motion.div>
               </div>
             </motion.div>
           </div>
@@ -315,10 +407,14 @@ export default function ExploreUsers() {
             </div>
 
             <div className="flex gap-3 w-full sm:w-auto shrink-0">
-              <button className="flex items-center gap-2 bg-[#FFFFFF]/90 backdrop-blur-md border border-[#E5E7EB] hover:bg-[#F8FAFC] hover:border-[#2563EB]/40 hover:text-[#2563EB] text-sm font-bold px-6 py-4 rounded-2xl text-[#4B5563] shadow-sm transition-all cursor-pointer">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="flex items-center gap-2 bg-[#FFFFFF]/90 backdrop-blur-md border border-[#E5E7EB] hover:bg-[#F8FAFC] hover:border-[#2563EB]/40 hover:text-[#2563EB] text-sm font-bold px-6 py-4 rounded-2xl text-[#4B5563] shadow-sm transition-all cursor-pointer"
+              >
                 <SlidersHorizontal className="w-4 h-4" />
                 <span>Filters</span>
-              </button>
+              </motion.button>
               <div className="relative">
                 <select 
                   value={sortBy}
@@ -344,8 +440,10 @@ export default function ExploreUsers() {
           {CATEGORIES.map((category) => {
             const isActive = selectedFilter === category;
             return (
-              <button
+              <motion.button
                 key={category}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setSelectedFilter(category)}
                 className={`relative text-xs px-5 py-2.5 rounded-xl font-bold tracking-wide transition-all duration-300 outline-none border cursor-pointer ${
                   isActive
@@ -357,11 +455,11 @@ export default function ExploreUsers() {
                   <motion.span
                     layoutId="categoryPillUsers"
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    className="absolute inset-0 bg-[#2563EB] rounded-xl -z-10"
+                    className="absolute inset-0 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] rounded-xl -z-10"
                   />
                 )}
                 {category}
-              </button>
+              </motion.button>
             );
           })}
         </section>
@@ -398,12 +496,14 @@ export default function ExploreUsers() {
                 <AlertCircle className="w-10 h-10 text-[#EF4444] mb-4" />
                 <h3 className="text-lg font-bold text-[#991B1B]">Connection Issue</h3>
                 <p className="text-sm text-[#B91C1C] mt-2 mb-6">{error}</p>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={() => window.location.reload()}
                   className="px-6 py-2.5 bg-[#EF4444] text-[#FFFFFF] text-sm font-bold rounded-xl hover:bg-[#DC2626] transition-colors shadow-md cursor-pointer"
                 >
                   Try Again
-                </button>
+                </motion.button>
               </motion.div>
             )}
 
@@ -417,24 +517,24 @@ export default function ExploreUsers() {
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
               >
                 {Array.from({ length: 8 }).map((_, idx) => (
-                  <div key={idx} className="bg-[#FFFFFF]/90 backdrop-blur-sm border border-[#E5E7EB] rounded-[28px] h-[480px] shadow-sm flex flex-col overflow-hidden animate-pulse">
-                    <div className="h-20 bg-[#F1F5F9] w-full" />
+                  <div key={idx} className="bg-[#FFFFFF]/90 backdrop-blur-sm border border-[#E5E7EB] rounded-[28px] h-[480px] shadow-sm flex flex-col overflow-hidden">
+                    <Shimmer className="h-20 w-full rounded-none" />
                     <div className="px-6 flex-1 flex flex-col relative">
-                      <div className="w-20 h-20 rounded-full bg-[#E5E7EB] border-4 border-[#FFFFFF] -mt-10 mb-4 mx-auto" />
-                      <div className="w-2/3 h-6 bg-[#F1F5F9] rounded-md mb-2 mx-auto" />
-                      <div className="w-1/3 h-4 bg-[#F1F5F9] rounded-md mb-6 mx-auto" />
-                      <div className="w-full h-4 bg-[#F1F5F9] rounded-md mb-2" />
-                      <div className="w-4/5 h-4 bg-[#F1F5F9] rounded-md mb-6 mx-auto" />
+                      <Shimmer className="w-20 h-20 rounded-full border-4 border-[#FFFFFF] -mt-10 mb-4 mx-auto" />
+                      <Shimmer className="w-2/3 h-6 mb-2 mx-auto" />
+                      <Shimmer className="w-1/3 h-4 mb-6 mx-auto" />
+                      <Shimmer className="w-full h-4 mb-2" />
+                      <Shimmer className="w-4/5 h-4 mb-6 mx-auto" />
                       <div className="grid grid-cols-3 gap-2 mb-4">
-                        <div className="h-16 bg-[#F1F5F9] rounded-xl" />
-                        <div className="h-16 bg-[#F1F5F9] rounded-xl" />
-                        <div className="h-16 bg-[#F1F5F9] rounded-xl" />
+                        <Shimmer className="h-16 rounded-xl" />
+                        <Shimmer className="h-16 rounded-xl" />
+                        <Shimmer className="h-16 rounded-xl" />
                       </div>
                     </div>
                     <div className="p-6 pt-0 mt-auto">
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="h-11 bg-[#F1F5F9] rounded-xl" />
-                        <div className="h-11 bg-[#F1F5F9] rounded-xl" />
+                        <Shimmer className="h-11 rounded-xl" />
+                        <Shimmer className="h-11 rounded-xl" />
                       </div>
                     </div>
                   </div>
@@ -458,12 +558,14 @@ export default function ExploreUsers() {
                 <p className="text-[#6B7280] text-sm max-w-sm mx-auto mb-8 font-medium">
                   We couldn't find anyone matching your exact criteria. Try adjusting your search query or filters.
                 </p>
-                <button 
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={() => { setSearchQuery(""); setSelectedFilter("All"); }}
-                  className="px-6 py-3 bg-[#2563EB] text-[#FFFFFF] text-sm font-bold rounded-xl hover:bg-[#1D4ED8] transition-colors shadow-md cursor-pointer"
+                  className="px-6 py-3 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-[#FFFFFF] text-sm font-bold rounded-xl hover:from-[#1D4ED8] hover:to-[#2563EB] transition-all shadow-md cursor-pointer"
                 >
                   Clear all filters
-                </button>
+                </motion.button>
               </motion.div>
             )}
 
@@ -485,16 +587,22 @@ export default function ExploreUsers() {
                     <motion.div
                       key={dev._id}
                       variants={itemVariants}
-                      whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                      whileHover={{ y: -8, transition: { duration: 0.2 } }}
                       // STRICT FORMATTING: flex-col with explicit height and mt-auto guarantees alignment
-                      className="group bg-[#FFFFFF]/95 backdrop-blur-sm border border-[#E5E7EB] hover:border-[#3B82F6]/50 rounded-[24px] flex flex-col transition-all duration-300 relative shadow-sm hover:shadow-2xl hover:shadow-[#2563EB]/15 h-[480px] overflow-hidden"
+                      className="card-glow group bg-[#FFFFFF]/95 backdrop-blur-sm border border-[#E5E7EB] hover:border-transparent rounded-[24px] flex flex-col transition-all duration-300 relative shadow-sm hover:shadow-2xl hover:shadow-[#2563EB]/20 h-[480px] overflow-hidden"
                     >
                       {/* Top Banner */}
-                      <div className="h-20 bg-gradient-to-b from-[#2563EB] to-[#3B82F6] relative overflow-hidden transition-colors" />
+                      <div className="h-20 bg-gradient-to-b from-[#2563EB] to-[#3B82F6] relative overflow-hidden transition-colors">
+                        <motion.div
+                          animate={{ opacity: [0.15, 0.4, 0.15] }}
+                          transition={{ duration: 3, repeat: Infinity }}
+                          className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,theme(colors.white/30)_0,transparent_100%)]"
+                        />
+                      </div>
 
                       <div className="px-5 flex-1 flex flex-col relative z-10">
                         {/* Avatar */}
-                        <div className="relative mx-auto w-20 h-20 rounded-full overflow-hidden border-[5px] border-[#FFFFFF] shadow-md -mt-10 mb-3 bg-[#FFFFFF]">
+                        <div className="relative mx-auto w-20 h-20 rounded-full overflow-hidden border-[5px] border-[#FFFFFF] shadow-md -mt-10 mb-3 bg-[#FFFFFF] group-hover:shadow-lg group-hover:shadow-[#2563EB]/20 transition-shadow">
                           <img
                             src={dev.profileImage || defaultAvatar}
                             alt={`${dev.name}'s profile`}
@@ -515,7 +623,7 @@ export default function ExploreUsers() {
                               {dev.name || "Anonymous Developer"}
                             </h3>
                             {(dev.isVerified !== false) && (
-                              <BadgeCheck className="w-4 h-4 text-[#2563EB]" />
+                              <BadgeCheck className="w-4 h-4 text-[#2563EB] group-hover:scale-125 transition-transform" />
                             )}
                           </div>
                           
@@ -528,7 +636,7 @@ export default function ExploreUsers() {
                                   href={dev.githubUrl} 
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="text-[#6B7280] hover:text-[#111827] transition-colors cursor-pointer"
+                                  className="text-[#6B7280] hover:text-[#111827] hover:scale-125 transition-all inline-block cursor-pointer"
                                 >
                                   <GitBranch className="w-3.5 h-3.5" />
                                 </a>
@@ -538,7 +646,7 @@ export default function ExploreUsers() {
                                   href={dev.portfolioUrl} 
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="text-[#6B7280] hover:text-[#2563EB] transition-colors cursor-pointer"
+                                  className="text-[#6B7280] hover:text-[#2563EB] hover:scale-125 transition-all inline-block cursor-pointer"
                                 >
                                   <Globe className="w-3.5 h-3.5" />
                                 </a>
@@ -553,7 +661,7 @@ export default function ExploreUsers() {
                         </p>
 
                         {/* Stats Grid */}
-                        <div className="grid grid-cols-3 gap-1 bg-[#F8FAFC] rounded-xl p-3 text-center mb-5 border border-[#F1F5F9] group-hover:border-[#2563EB]/20 transition-colors">
+                        <div className="grid grid-cols-3 gap-1 bg-[#F8FAFC] rounded-xl p-3 text-center mb-5 border border-[#F1F5F9] group-hover:border-[#2563EB]/25 group-hover:bg-[#EFF6FF]/60 transition-colors">
                           <div className="space-y-1">
                             <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider block">Repos</span>
                             <span className="text-sm font-extrabold text-[#111827] group-hover:text-[#2563EB] transition-colors">{dev.totalProjects || 0}</span>
@@ -575,7 +683,7 @@ export default function ExploreUsers() {
                               {devSkills.slice(0, 3).map((skill) => (
                                 <span
                                   key={skill}
-                                  className="px-3 py-1 rounded-full bg-[#FFFFFF] text-[#2563EB] text-[11px] font-bold border border-[#E5E7EB] group-hover:border-[#2563EB]/30 transition-colors"
+                                  className="px-3 py-1 rounded-full bg-[#FFFFFF] text-[#2563EB] text-[11px] font-bold border border-[#E5E7EB] group-hover:border-[#2563EB]/40 group-hover:bg-[#EFF6FF] transition-colors"
                                 >
                                   {skill}
                                 </span>
@@ -595,34 +703,51 @@ export default function ExploreUsers() {
                         <div className="mt-auto pb-5 pt-2">
                           <div className="grid grid-cols-2 gap-3">
                             <motion.button
+                              whileHover={{ scale: 1.03 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => toggleFollow(dev._id)}
                               className={`w-full py-2.5 px-2 rounded-xl text-[13px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm ${
                                 isFollowing
-                                  ? "bg-[#22C55E] text-[#FFFFFF] hover:bg-[#16A34A]"
-                                  : "bg-[#2563EB] text-[#FFFFFF] hover:bg-[#1D4ED8]"
+                                  ? "bg-[#1D4ED8] text-[#FFFFFF] hover:bg-[#1E40AF] shadow-[#1D4ED8]/25"
+                                  : "bg-gradient-to-r from-[#2563EB] to-[#3B82F6] text-[#FFFFFF] hover:from-[#1D4ED8] hover:to-[#2563EB] shadow-[#2563EB]/25"
                               }`}
                             >
-                              {isFollowing ? (
-                                <>
-                                  <UserCheck className="w-4 h-4" />
-                                  <span>Following</span>
-                                </>
-                              ) : (
-                                <>
-                                  <UserPlus className="w-4 h-4" />
-                                  <span>Follow</span>
-                                </>
-                              )}
+                              <AnimatePresence mode="wait" initial={false}>
+                                {isFollowing ? (
+                                  <motion.span
+                                    key="following"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    className="flex items-center gap-1.5"
+                                  >
+                                    <UserCheck className="w-4 h-4" />
+                                    <span>Following</span>
+                                  </motion.span>
+                                ) : (
+                                  <motion.span
+                                    key="follow"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    className="flex items-center gap-1.5"
+                                  >
+                                    <UserPlus className="w-4 h-4" />
+                                    <span>Follow</span>
+                                  </motion.span>
+                                )}
+                              </AnimatePresence>
                             </motion.button>
 
-                            <button 
+                            <motion.button
+                              whileHover={{ scale: 1.03 }}
+                              whileTap={{ scale: 0.95 }}
                               onClick={() => router.push(`/users/${dev.username}`)} 
-                              className="w-full py-2.5 px-2 bg-[#FFFFFF] border border-[#E5E7EB] text-[#111827] text-[13px] font-bold rounded-xl hover:bg-[#F8FAFC] flex items-center justify-center gap-1.5 transition-all group/btn shadow-sm cursor-pointer"
+                              className="w-full py-2.5 px-2 bg-[#FFFFFF] border border-[#E5E7EB] text-[#111827] text-[13px] font-bold rounded-xl hover:bg-[#F8FAFC] hover:border-[#2563EB]/30 flex items-center justify-center gap-1.5 transition-all group/btn shadow-sm cursor-pointer"
                             >
                               <span>Profile</span>
-                              <ArrowRight className="w-3.5 h-3.5 text-[#6B7280] group-hover/btn:text-[#111827] group-hover/btn:translate-x-1 transition-transform" />
-                            </button>
+                              <ArrowRight className="w-3.5 h-3.5 text-[#6B7280] group-hover/btn:text-[#2563EB] group-hover/btn:translate-x-1 transition-transform" />
+                            </motion.button>
                           </div>
                         </div>
 

@@ -117,7 +117,7 @@ export default function UserProfile() {
     languages: [
       { name: "TypeScript", value: 45, color: "#2563EB" },
       { name: "React / Next.js", value: 30, color: "#3B82F6" },
-      { name: "Node.js", value: 15, color: "#22C55E" },
+      { name: "Node.js", value: 15, color: "#1D4ED8" },
       { name: "Other", value: 10, color: "#6B7280" }
     ],
     achievements: [
@@ -145,9 +145,20 @@ export default function UserProfile() {
   if (loading || error) {
     return (
       <div className="p-4 md:p-8 bg-[#F8FAFC] min-h-screen max-w-7xl mx-auto space-y-8">
+        <style jsx global>{`
+          .shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e5e7eb 37%, #f1f5f9 63%);
+            background-size: 400% 100%;
+            animation: shimmer 1.4s ease-in-out infinite;
+          }
+          @keyframes shimmer {
+            0% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+        `}</style>
         <button
           onClick={() => router.back()}
-          className="relative z-10 flex items-center gap-2 text-sm font-semibold text-[#6B7280] hover:text-[#111827] transition-colors w-fit"
+          className="relative z-10 flex items-center gap-2 text-sm font-semibold text-[#6B7280] hover:text-[#2563EB] transition-colors w-fit cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -155,40 +166,42 @@ export default function UserProfile() {
 
         {error ? (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 10, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             className="bg-[#FEF2F2] border border-[#F87171] rounded-[24px] p-8 text-center max-w-2xl mx-auto mt-20 shadow-sm"
           >
             <AlertCircle className="w-10 h-10 text-[#EF4444] mx-auto mb-4" />
             <h3 className="text-lg font-bold text-[#991B1B] mb-2">{error}</h3>
             <p className="text-sm text-[#B91C1C] mb-6">The profile you are looking for might have been removed or is temporarily unavailable.</p>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => router.push('/')}
-              className="bg-[#EF4444] text-[#FFFFFF] px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#DC2626] transition-colors"
+              className="bg-[#EF4444] text-[#FFFFFF] px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#DC2626] transition-colors cursor-pointer"
             >
               Return Home
-            </button>
+            </motion.button>
           </motion.div>
         ) : (
-          <div className="animate-pulse space-y-8">
+          <div className="space-y-8">
             <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[32px] p-8 h-64 shadow-sm flex items-center gap-8">
-              <div className="w-28 h-28 rounded-full bg-[#F1F5F9]" />
+              <div className="w-28 h-28 rounded-full shimmer" />
               <div className="space-y-4 flex-1">
-                <div className="h-8 bg-[#F1F5F9] rounded-lg w-1/4" />
-                <div className="h-4 bg-[#F1F5F9] rounded w-1/3" />
-                <div className="h-4 bg-[#F1F5F9] rounded w-1/2" />
+                <div className="h-8 shimmer rounded-lg w-1/4" />
+                <div className="h-4 shimmer rounded w-1/3" />
+                <div className="h-4 shimmer rounded w-1/2" />
               </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-6">
-                <div className="h-12 bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl w-full max-w-sm" />
+                <div className="h-12 shimmer rounded-2xl w-full max-w-sm" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="h-[380px] bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] shadow-sm" />
+                    <div key={i} className="h-[380px] shimmer rounded-[24px]" />
                   ))}
                 </div>
               </div>
-              <div className="h-[600px] bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] shadow-sm" />
+              <div className="h-[600px] shimmer rounded-[24px]" />
             </div>
           </div>
         )}
@@ -202,32 +215,69 @@ export default function UserProfile() {
       animate={{ opacity: 1 }}
       className="p-4 md:p-8 bg-[#F8FAFC] min-h-screen text-[#111827] max-w-7xl mx-auto space-y-8 antialiased relative selection:bg-[#2563EB]/20 selection:text-[#2563EB] pb-24"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(#E5E7EB_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none z-0" />
-      <div className="absolute top-20 left-1/3 w-[500px] h-[500px] bg-gradient-to-tr from-[#2563EB]/5 to-[#3B82F6]/5 rounded-full blur-[120px] pointer-events-none z-0" />
+      <style jsx global>{`
+        @keyframes float-ping {
+          0% { transform: scale(1); opacity: 0.6; }
+          75%, 100% { transform: scale(2.2); opacity: 0; }
+        }
+        .verified-ping {
+          animation: float-ping 2.4s cubic-bezier(0,0,0.2,1) infinite;
+        }
+        @keyframes bar-fill {
+          from { width: 0%; }
+        }
+      `}</style>
 
-      <button
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(#E5E7EB_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
+        <motion.div
+          animate={{ x: [0, 60, 0], y: [0, -40, 0], scale: [1, 1.15, 1] }}
+          transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-20 left-1/3 w-[500px] h-[500px] bg-gradient-to-tr from-[#2563EB]/10 to-[#3B82F6]/10 rounded-full blur-[120px]"
+        />
+        <motion.div
+          animate={{ x: [0, -60, 0], y: [0, 60, 0], scale: [1, 1.2, 1] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-0 right-0 w-[450px] h-[450px] bg-gradient-to-bl from-[#1D4ED8]/10 to-transparent rounded-full blur-[120px]"
+        />
+      </div>
+
+      <motion.button
+        whileHover={{ x: -3 }}
         onClick={() => router.back()}
-        className="relative z-10 flex items-center gap-2 text-sm font-semibold text-[#6B7280] hover:text-[#111827] transition-colors w-fit"
+        className="relative z-10 flex items-center gap-2 text-sm font-semibold text-[#6B7280] hover:text-[#2563EB] transition-colors w-fit cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" />
         Back
-      </button>
+      </motion.button>
 
-      <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[32px] p-8 md:p-10 shadow-sm relative overflow-hidden z-10">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-[#2563EB]/5 to-[#3B82F6]/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+      <div className="bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#2563EB]/20 rounded-[32px] p-8 md:p-10 shadow-sm hover:shadow-xl hover:shadow-[#2563EB]/5 transition-all duration-500 relative overflow-hidden z-10">
+        <motion.div
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 4, repeat: Infinity }}
+          className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-[#2563EB]/5 to-[#3B82F6]/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-center relative z-10">
           <div className="lg:col-span-2 flex flex-col sm:flex-row items-center sm:items-start gap-8 text-center sm:text-left">
 
             <div className="relative group shrink-0">
-              <div className="absolute -inset-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] rounded-full blur-md opacity-20 group-hover:opacity-40 transition duration-500" />
-              <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-[#FFFFFF] relative z-10 shadow-md bg-[#F1F5F9]">
+              <div className="absolute -inset-2 bg-gradient-to-r from-[#2563EB] to-[#3B82F6] rounded-full blur-md opacity-20 group-hover:opacity-50 transition duration-500" />
+              <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-[#FFFFFF] relative z-10 shadow-md bg-[#F1F5F9] group-hover:shadow-lg group-hover:shadow-[#2563EB]/20 transition-shadow duration-500">
                 <img
                   src={user.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=F1F5F9&color=111827`}
                   alt={user.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                 />
               </div>
+              {(user.isVerified !== false) && (
+                <span className="absolute bottom-1 right-1 z-20 inline-flex">
+                  <span className="verified-ping absolute inset-0 rounded-full bg-[#2563EB]/50" />
+                  <span className="relative bg-[#FFFFFF] rounded-full p-[2px] shadow-sm">
+                    <CheckCircle2 className="w-5 h-5 text-[#2563EB]" />
+                  </span>
+                </span>
+              )}
             </div>
 
             <div className="space-y-4 flex-1">
@@ -235,9 +285,6 @@ export default function UserProfile() {
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
                   <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#111827] flex items-center gap-2">
                     {user.name}
-                    {(user.isVerified !== false) && (
-                      <CheckCircle2 className="w-6 h-6 text-[#2563EB]" />
-                    )}
                   </h1>
                   <span className="text-xs bg-[#F1F5F9] border border-[#E5E7EB] text-[#6B7280] font-mono px-2.5 py-1 rounded-lg">
                     @{user.username}
@@ -265,12 +312,13 @@ export default function UserProfile() {
 
               <div className="pt-2 flex flex-wrap justify-center sm:justify-start gap-2">
                 {user.skills?.map((skill, index) => (
-                  <span
+                  <motion.span
                     key={index}
-                    className="text-xs bg-[#FFFFFF] text-[#111827] border border-[#E5E7EB] px-3 py-1.5 rounded-xl font-semibold shadow-sm"
+                    whileHover={{ y: -2, scale: 1.05 }}
+                    className="text-xs bg-[#FFFFFF] text-[#111827] border border-[#E5E7EB] hover:border-[#2563EB]/40 hover:bg-[#EFF6FF] hover:text-[#2563EB] px-3 py-1.5 rounded-xl font-semibold shadow-sm transition-colors cursor-default"
                   >
                     {skill}
-                  </span>
+                  </motion.span>
                 ))}
               </div>
             </div>
@@ -284,17 +332,23 @@ export default function UserProfile() {
                 { label: "Likes", val: stats.totalLikes },
                 { label: "Views", val: stats.profileView }
               ].map((st, idx) => (
-                <div key={idx} className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-4 hover:border-[#2563EB]/30 transition-all duration-300 group shadow-sm">
+                <motion.div
+                  key={idx}
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 18 }}
+                  className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-2xl p-4 hover:border-[#2563EB]/40 hover:bg-[#EFF6FF]/50 hover:shadow-md hover:shadow-[#2563EB]/10 transition-all duration-300 group shadow-sm cursor-default"
+                >
                   <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider block mb-1">{st.label}</span>
                   <span className="text-2xl font-bold text-[#111827] group-hover:text-[#2563EB] transition-colors">{st.val}</span>
-                </div>
+                </motion.div>
               ))}
             </div>
 
             <div className="w-full pt-2">
               <motion.button
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-[#FFFFFF] py-3 rounded-2xl font-bold flex items-center justify-center space-x-2 shadow-sm text-sm transition-colors"
+                className="w-full bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:from-[#1D4ED8] hover:to-[#2563EB] text-[#FFFFFF] py-3 rounded-2xl font-bold flex items-center justify-center space-x-2 shadow-md shadow-[#2563EB]/25 text-sm transition-all cursor-pointer"
               >
                 <span>Follow Developer</span>
               </motion.button>
@@ -315,9 +369,9 @@ export default function UserProfile() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 pb-4 text-sm font-semibold border-b-2 transition-all relative whitespace-nowrap outline-none ${isActive
-                  ? "border-[#2563EB] text-[#2563EB]"
-                  : "border-transparent text-[#6B7280] hover:text-[#111827]"
+              className={`flex items-center gap-2 pb-4 text-sm font-semibold transition-all relative whitespace-nowrap outline-none cursor-pointer ${isActive
+                  ? "text-[#2563EB]"
+                  : "text-[#6B7280] hover:text-[#111827]"
                 }`}
             >
               <Icon className="w-4 h-4" />
@@ -326,6 +380,13 @@ export default function UserProfile() {
                 <span className={`text-xs px-2 py-0.5 rounded-md ml-1 font-bold ${isActive ? "bg-[#2563EB]/10 text-[#2563EB]" : "bg-[#F1F5F9] text-[#6B7280]"}`}>
                   {projects.length}
                 </span>
+              )}
+              {isActive && (
+                <motion.span
+                  layoutId="userProfileTabUnderline"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  className="absolute left-0 right-0 -bottom-[1px] h-[2px] bg-gradient-to-r from-[#2563EB] to-[#3B82F6] rounded-full"
+                />
               )}
             </button>
           );
@@ -353,7 +414,7 @@ export default function UserProfile() {
                 {projects.length === 0 ? (
                   <div className="bg-[#FFFFFF] border border-[#E5E7EB] border-dashed rounded-[24px] p-12 text-center flex flex-col items-center justify-center shadow-sm">
                     <div className="w-16 h-16 bg-[#F1F5F9] rounded-2xl flex items-center justify-center mb-4">
-                      <Code2 className="w-8 h-8 text-[#6B7280]" />
+                      <Code2 className="w-8 h-8 text-[#2563EB]/60" />
                     </div>
                     <h3 className="text-lg font-bold text-[#111827] mb-2">No projects available</h3>
                     <p className="text-[#6B7280] max-w-md mx-auto text-sm leading-relaxed">
@@ -371,16 +432,16 @@ export default function UserProfile() {
                       <motion.div
                         key={project._id}
                         variants={itemVariants}
-                        whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                        whileHover={{ y: -6, transition: { duration: 0.2 } }}
                         onClick={() => router.push(`/projects/${project._id}`)}
-                        className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] flex flex-col justify-between overflow-hidden group shadow-sm hover:shadow-xl hover:shadow-[#2563EB]/5 hover:border-[#2563EB]/30 cursor-pointer transition-all duration-300"
+                        className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] flex flex-col justify-between overflow-hidden group shadow-sm hover:shadow-2xl hover:shadow-[#2563EB]/10 hover:border-[#2563EB]/40 cursor-pointer transition-all duration-300"
                       >
                         <div className="h-44 bg-[#F8FAFC] border-b border-[#E5E7EB] relative flex flex-col overflow-hidden">
                           <div className="flex items-center justify-between px-4 py-2.5 bg-[#FFFFFF] border-b border-[#E5E7EB] shrink-0 z-10">
                             <div className="flex items-center space-x-1.5">
                               <span className="w-2.5 h-2.5 rounded-full bg-[#E5E7EB] group-hover:bg-[#EF4444] transition-colors" />
                               <span className="w-2.5 h-2.5 rounded-full bg-[#E5E7EB] group-hover:bg-[#F59E0B] transition-colors" />
-                              <span className="w-2.5 h-2.5 rounded-full bg-[#E5E7EB] group-hover:bg-[#10B981] transition-colors" />
+                              <span className="w-2.5 h-2.5 rounded-full bg-[#E5E7EB] group-hover:bg-[#2563EB] transition-colors" />
                             </div>
                             <div className="bg-[#F8FAFC] rounded-md text-[10px] px-4 py-1 border border-[#E5E7EB] w-40 text-center text-[#6B7280] font-mono truncate">
                               {project.title.toLowerCase().replace(/\s+/g, '-')}.io
@@ -394,8 +455,8 @@ export default function UserProfile() {
                             ) : (
                               <Code2 className="w-8 h-8 text-[#6B7280] opacity-40" />
                             )}
-                            <div className="absolute inset-0 bg-[#111827]/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
-                              <span className="bg-[#FFFFFF] text-[#111827] px-4 py-2 rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5">
+                            <div className="absolute inset-0 bg-[#2563EB]/30 opacity-0 group-hover:opacity-100 backdrop-blur-[2px] flex items-center justify-center transition-all duration-300">
+                              <span className="bg-[#FFFFFF] text-[#111827] px-4 py-2 rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300">
                                 View App <ArrowUpRight className="w-3.5 h-3.5 text-[#2563EB]" />
                               </span>
                             </div>
@@ -415,7 +476,7 @@ export default function UserProfile() {
                           <div className="space-y-4">
                             <div className="flex flex-wrap gap-1.5">
                               {(project.techStack || []).slice(0, 3).map((t, idx) => (
-                                <span key={idx} className="text-[10px] font-bold bg-[#F8FAFC] border border-[#E5E7EB] px-2.5 py-1 rounded-lg text-[#6B7280] font-mono">
+                                <span key={idx} className="text-[10px] font-bold bg-[#F8FAFC] border border-[#E5E7EB] group-hover:border-[#2563EB]/20 group-hover:bg-[#EFF6FF] group-hover:text-[#2563EB] px-2.5 py-1 rounded-lg text-[#6B7280] font-mono transition-colors">
                                   {t}
                                 </span>
                               ))}
@@ -424,7 +485,7 @@ export default function UserProfile() {
                             <div className="pt-4 border-t border-[#F1F5F9] flex justify-between items-center text-xs font-semibold text-[#6B7280]">
                               <div className="flex space-x-4">
                                 <motion.span
-                                  whileTap={{ scale: 0.9 }}
+                                  whileTap={{ scale: 0.85 }}
                                   onClick={(e) => handleLikeButton(e, project._id)}
                                   className={`flex items-center space-x-1.5 cursor-pointer transition-colors ${project.isLiked || (project.likes && project.likes.includes(authUser?._id)) ? "text-[#EF4444]" : "text-[#6B7280] hover:text-[#EF4444]"
                                     }`}
@@ -444,8 +505,8 @@ export default function UserProfile() {
                                 </span>
                               </div>
                               <div className="flex items-center space-x-3">
-                                {project.githubUrl && <GitBranch className="w-4 h-4 hover:text-[#111827] transition-colors" />}
-                                {project.liveUrl && <ExternalLink className="w-4 h-4 hover:text-[#111827] transition-colors" />}
+                                {project.githubUrl && <GitBranch className="w-4 h-4 hover:text-[#2563EB] transition-colors" />}
+                                {project.liveUrl && <ExternalLink className="w-4 h-4 hover:text-[#2563EB] transition-colors" />}
                               </div>
                             </div>
                           </div>
@@ -476,7 +537,13 @@ export default function UserProfile() {
                   <h4 className="text-xs font-bold text-[#111827] uppercase tracking-wider mb-3">Core Expertise</h4>
                   <div className="flex flex-wrap gap-2">
                     {user.skills?.length > 0 ? user.skills.map((skill, idx) => (
-                      <span key={idx} className="bg-[#F8FAFC] border border-[#E5E7EB] text-[#111827] px-3 py-1.5 rounded-lg text-xs font-semibold">{skill}</span>
+                      <motion.span
+                        key={idx}
+                        whileHover={{ y: -2, scale: 1.05 }}
+                        className="bg-[#F8FAFC] border border-[#E5E7EB] hover:border-[#2563EB]/40 hover:bg-[#EFF6FF] hover:text-[#2563EB] text-[#111827] px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-default"
+                      >
+                        {skill}
+                      </motion.span>
                     )) : (
                       <span className="text-sm text-[#6B7280] italic">No skills listed.</span>
                     )}
@@ -496,13 +563,22 @@ export default function UserProfile() {
                 <h3 className="text-base font-bold text-[#111827]">Recent Activity</h3>
                 <div className="space-y-6 pl-2 border-l border-[#F1F5F9] ml-2">
                   {placeholderActivity.map((act, idx) => (
-                    <div key={idx} className="relative text-sm pl-6">
-                      <div className="absolute -left-[25px] top-1 w-3 h-3 rounded-full bg-[#2563EB] border-4 border-[#FFFFFF] shadow-sm" />
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.08 }}
+                      className="relative text-sm pl-6"
+                    >
+                      <span className="absolute -left-[25px] top-1 inline-flex">
+                        <span className="absolute inset-0 rounded-full bg-[#2563EB]/40 animate-ping" />
+                        <span className="relative w-3 h-3 rounded-full bg-[#2563EB] border-4 border-[#FFFFFF] shadow-sm block" />
+                      </span>
                       <div>
                         <p className="text-[#111827] font-medium">{act.text}</p>
                         <p className="text-[#6B7280] text-xs mt-1">{act.time}</p>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </motion.div>
@@ -511,33 +587,69 @@ export default function UserProfile() {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-6 space-y-5 shadow-sm">
+          <motion.div
+            whileHover={{ y: -3 }}
+            className="bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#2563EB]/20 rounded-[24px] p-6 space-y-5 shadow-sm hover:shadow-md transition-all duration-300"
+          >
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Profile Details</h3>
             <div className="space-y-4 text-sm font-medium">
               <div className="flex items-center gap-3 text-[#6B7280]">
-                <MapPin className="w-4 h-4 shrink-0" />
+                <MapPin className="w-4 h-4 shrink-0 text-[#2563EB]" />
                 <span className="text-[#111827]">{rightSidebarData.location}</span>
               </div>
               <div className="flex items-center gap-3 text-[#6B7280]">
-                <Globe className="w-4 h-4 shrink-0" />
+                <Globe className="w-4 h-4 shrink-0 text-[#2563EB]" />
                 <a href={user.portfolioUrl || "#"} className="text-[#2563EB] hover:underline truncate">
                   {user.portfolioUrl ? new URL(user.portfolioUrl).hostname : "No portfolio added"}
                 </a>
               </div>
               <div className="flex items-center gap-3 text-[#6B7280]">
-                <Calendar className="w-4 h-4 shrink-0" />
+                <Calendar className="w-4 h-4 shrink-0 text-[#2563EB]" />
                 <span className="text-[#111827]">{rightSidebarData.joinedDate}</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[24px] p-6 space-y-5 shadow-sm">
+          <motion.div
+            whileHover={{ y: -3 }}
+            className="bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#2563EB]/20 rounded-[24px] p-6 space-y-5 shadow-sm hover:shadow-md transition-all duration-300"
+          >
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Language Breakdown</h3>
+            <div className="space-y-3">
+              {rightSidebarData.languages.map((lang, idx) => (
+                <div key={idx} className="space-y-1.5">
+                  <div className="flex justify-between text-xs font-semibold">
+                    <span className="text-[#111827]">{lang.name}</span>
+                    <span className="text-[#6B7280]">{lang.value}%</span>
+                  </div>
+                  <div className="h-2 w-full bg-[#F1F5F9] rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${lang.value}%` }}
+                      transition={{ duration: 1, delay: idx * 0.12, ease: "easeOut" }}
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: lang.color }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            whileHover={{ y: -3 }}
+            className="bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#2563EB]/20 rounded-[24px] p-6 space-y-5 shadow-sm hover:shadow-md transition-all duration-300"
+          >
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">Platform Badges</h3>
             <div className="space-y-3">
               {rightSidebarData.achievements.map((item, idx) => {
                 const IconComponent = item.icon;
                 return (
-                  <div key={idx} className="flex items-center gap-4 p-3 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] hover:bg-[#F1F5F9] transition-colors">
+                  <motion.div
+                    key={idx}
+                    whileHover={{ x: 3 }}
+                    className="flex items-center gap-4 p-3 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] hover:bg-[#F1F5F9] transition-colors"
+                  >
                     <div className={`p-2.5 rounded-xl shrink-0 border ${item.color}`}>
                       <IconComponent className="w-4 h-4" />
                     </div>
@@ -545,11 +657,11 @@ export default function UserProfile() {
                       <h4 className="text-sm font-bold text-[#111827] tracking-tight">{item.label}</h4>
                       <p className="text-xs text-[#6B7280] truncate mt-0.5">{item.desc}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
-          </div>
+          </motion.div>
         </div>
 
       </div>
