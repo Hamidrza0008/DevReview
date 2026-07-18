@@ -158,30 +158,32 @@ export default function ExploreUsers() {
         }
       `}</style>
 
-      {/* --- CONTINUOUS BACKGROUND LIGHTS / ANIMATIONS --- */}
-      {/* Top Left Main Glow */}
-      <motion.div
-        animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0], opacity: [0.3, 0.5, 0.3] }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        className="fixed top-[-10%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-[#2563EB]/15 to-[#3B82F6]/5 rounded-full blur-[120px] pointer-events-none z-0"
-      />
-      {/* Center Right Ambient Glow (Stays visible on scroll) */}
-      <motion.div
-        animate={{ scale: [1, 1.3, 1], rotate: [0, -90, 0], opacity: [0.2, 0.4, 0.2] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-        className="fixed top-[40%] right-[-15%] w-[700px] h-[700px] bg-gradient-to-tl from-[#3B82F6]/10 to-[#2563EB]/5 rounded-full blur-[140px] pointer-events-none z-0"
-      />
-      {/* Bottom Left Deep Glow */}
-      <motion.div
-        animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.3, 0.2] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        className="fixed bottom-[-10%] left-[10%] w-[500px] h-[500px] bg-[#2563EB]/5 rounded-full blur-[100px] pointer-events-none z-0"
-      />
-      {/* Subtle Grid Pattern */}
-      <div
-        className="fixed inset-0 opacity-[0.4] pointer-events-none z-0"
-        style={{ backgroundImage: `radial-gradient(#E5E7EB 1px, transparent 1px)`, backgroundSize: "28px 28px" }}
-      />
+      {/* --- CONTINUOUS BACKGROUND LIGHTS & ANIMATIONS --- */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Top Left Animated Blob */}
+        <motion.div
+          animate={{ x: [0, 100, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-[10%] -left-[5%] w-[500px] h-[500px] bg-[#2563EB]/20 rounded-full blur-[100px]"
+        />
+        {/* Center Right Animated Blob */}
+        <motion.div
+          animate={{ x: [0, -100, 0], y: [0, 100, 0], scale: [1, 1.3, 1] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[30%] -right-[10%] w-[600px] h-[600px] bg-[#3B82F6]/20 rounded-full blur-[120px]"
+        />
+        {/* Bottom Left Animated Blob */}
+        <motion.div
+          animate={{ x: [-50, 50, -50], y: [50, -50, 50], scale: [1, 1.2, 1] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -bottom-[20%] left-[10%] w-[600px] h-[600px] bg-[#2563EB]/15 rounded-full blur-[120px]"
+        />
+        {/* Minimal Dotted Background Overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.3]"
+          style={{ backgroundImage: `radial-gradient(#94A3B8 1px, transparent 1px)`, backgroundSize: "28px 28px" }}
+        />
+      </div>
 
       {/* Floating Sticky Search Bar */}
       <AnimatePresence>
@@ -220,7 +222,7 @@ export default function ExploreUsers() {
             animate="show"
           >
             <motion.div variants={heroTextVariants} className="flex justify-center lg:justify-start">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#2563EB]/5 text-[#2563EB] border border-[#2563EB]/10 mb-2 shadow-sm">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#FFFFFF] border border-[#2563EB]/20 text-[#2563EB] mb-2 shadow-sm shadow-[#2563EB]/10">
                 <Sparkles className="w-3.5 h-3.5" /> Developer Discovery Engine
               </div>
             </motion.div>
@@ -238,12 +240,12 @@ export default function ExploreUsers() {
 
             <motion.div variants={heroTextVariants} className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 mt-6">
               {PLATFORM_STATS.map((stat, idx) => (
-                <div key={idx} className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-4 shadow-sm hover:border-[#3B82F6]/30 hover:shadow-md transition-all duration-300 flex flex-col items-center lg:items-start text-center lg:text-left">
+                <div key={idx} className="bg-[#FFFFFF]/90 backdrop-blur-sm border border-[#E5E7EB] rounded-2xl p-4 shadow-sm hover:border-[#3B82F6]/50 hover:shadow-lg hover:shadow-[#2563EB]/10 transition-all duration-300 flex flex-col items-center lg:items-start text-center lg:text-left group">
                   <div className="flex items-center gap-1.5 mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280] group-hover:text-[#2563EB] transition-colors">
                       {stat.label}
                     </span>
-                    <div className="text-[#2563EB] bg-[#2563EB]/5 rounded p-1">
+                    <div className="text-[#2563EB] bg-[#2563EB]/5 rounded p-1 group-hover:scale-110 transition-transform">
                       <stat.icon className="w-3 h-3" />
                     </div>
                   </div>
@@ -255,18 +257,16 @@ export default function ExploreUsers() {
             </motion.div>
           </motion.div>
 
-          {/* Hero Illustration (Matched to image_d2491d.jpg) */}
+          {/* Animated Hero Illustration */}
           <div className="lg:col-span-5 relative hidden lg:flex items-center justify-center select-none perspective-1000">
             <motion.div
-              animate={{ y: [-8, 8, -8] }}
+              animate={{ y: [-10, 10, -10] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="w-full max-w-[420px] bg-[#FFFFFF] border border-[#E5E7EB] rounded-[32px] shadow-2xl shadow-[#2563EB]/10 overflow-hidden relative z-10"
+              className="w-full max-w-[420px] bg-[#FFFFFF] border border-[#E5E7EB] rounded-[32px] shadow-2xl shadow-[#2563EB]/15 overflow-hidden relative z-10"
             >
-              {/* Blue Header Area */}
               <div className="h-40 bg-gradient-to-b from-[#3B82F6] to-[#2563EB] relative flex flex-col items-center justify-end pb-8">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,theme(colors.white/20)_0,transparent_100%)] opacity-50" />
                 
-                {/* Floating Avatar Icon */}
                 <div className="absolute -bottom-8 w-16 h-16 rounded-full bg-[#FFFFFF] border-4 border-[#FFFFFF] shadow-lg flex items-center justify-center text-[#2563EB] z-10">
                   <Code2 className="w-6 h-6" />
                   <div className="absolute bottom-0 right-0 bg-[#FFFFFF] rounded-full p-[2px]">
@@ -279,13 +279,13 @@ export default function ExploreUsers() {
                 <div className="h-3 w-32 bg-[#F1F5F9] rounded-full mb-6" />
                 
                 <div className="w-full grid grid-cols-3 gap-4 mb-8">
-                  <div className="h-10 bg-[#F8FAFC] border border-[#F1F5F9] rounded-xl flex flex-col items-center justify-center gap-1.5">
+                  <div className="h-10 bg-[#F8FAFC] border border-[#F1F5F9] rounded-xl flex flex-col items-center justify-center gap-1.5 shadow-sm">
                     <div className="h-2 w-10 bg-[#E5E7EB] rounded-full" />
                   </div>
-                  <div className="h-10 bg-[#F8FAFC] border border-[#F1F5F9] rounded-xl flex flex-col items-center justify-center gap-1.5">
+                  <div className="h-10 bg-[#F8FAFC] border border-[#F1F5F9] rounded-xl flex flex-col items-center justify-center gap-1.5 shadow-sm">
                     <div className="h-2 w-10 bg-[#E5E7EB] rounded-full" />
                   </div>
-                  <div className="h-10 bg-[#F8FAFC] border border-[#F1F5F9] rounded-xl flex flex-col items-center justify-center gap-1.5">
+                  <div className="h-10 bg-[#F8FAFC] border border-[#F1F5F9] rounded-xl flex flex-col items-center justify-center gap-1.5 shadow-sm">
                     <div className="h-2 w-10 bg-[#E5E7EB] rounded-full" />
                   </div>
                 </div>
@@ -310,12 +310,12 @@ export default function ExploreUsers() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search developers, username or skills..."
-                className="w-full pl-14 pr-4 py-4 bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl text-base font-semibold text-[#111827] placeholder-[#94A3B8] shadow-sm focus:outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/15 transition-all"
+                className="w-full pl-14 pr-4 py-4 bg-[#FFFFFF]/90 backdrop-blur-md border border-[#E5E7EB] rounded-2xl text-base font-semibold text-[#111827] placeholder-[#94A3B8] shadow-sm hover:shadow-md focus:outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/15 transition-all"
               />
             </div>
 
             <div className="flex gap-3 w-full sm:w-auto shrink-0">
-              <button className="flex items-center gap-2 bg-[#FFFFFF] border border-[#E5E7EB] hover:bg-[#F8FAFC] hover:border-[#2563EB]/40 hover:text-[#2563EB] active:bg-[#F1F5F9] text-sm font-bold px-6 py-4 rounded-2xl text-[#4B5563] shadow-sm transition-all cursor-pointer">
+              <button className="flex items-center gap-2 bg-[#FFFFFF]/90 backdrop-blur-md border border-[#E5E7EB] hover:bg-[#F8FAFC] hover:border-[#2563EB]/40 hover:text-[#2563EB] text-sm font-bold px-6 py-4 rounded-2xl text-[#4B5563] shadow-sm transition-all cursor-pointer">
                 <SlidersHorizontal className="w-4 h-4" />
                 <span>Filters</span>
               </button>
@@ -323,7 +323,7 @@ export default function ExploreUsers() {
                 <select 
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-[#FFFFFF] border border-[#E5E7EB] text-sm font-bold pl-5 pr-10 py-4 rounded-2xl text-[#4B5563] shadow-sm focus:outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/15 hover:border-[#2563EB]/40 transition-all cursor-pointer appearance-none min-w-[140px]"
+                  className="bg-[#FFFFFF]/90 backdrop-blur-md border border-[#E5E7EB] text-sm font-bold pl-5 pr-10 py-4 rounded-2xl text-[#4B5563] shadow-sm focus:outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/15 hover:border-[#2563EB]/40 transition-all cursor-pointer appearance-none min-w-[140px]"
                 >
                   <option value="Trending">Trending</option>
                   <option value="Newest">Newest</option>
@@ -350,7 +350,7 @@ export default function ExploreUsers() {
                 className={`relative text-xs px-5 py-2.5 rounded-xl font-bold tracking-wide transition-all duration-300 outline-none border cursor-pointer ${
                   isActive
                     ? "text-[#FFFFFF] border-transparent shadow-md shadow-[#2563EB]/25"
-                    : "bg-[#FFFFFF] border-[#E5E7EB] text-[#6B7280] hover:bg-[#F8FAFC] hover:text-[#2563EB] hover:border-[#2563EB]/30"
+                    : "bg-[#FFFFFF]/80 backdrop-blur-sm border-[#E5E7EB] text-[#6B7280] hover:bg-[#FFFFFF] hover:text-[#2563EB] hover:border-[#2563EB]/30"
                 }`}
               >
                 {isActive && (
@@ -377,7 +377,7 @@ export default function ExploreUsers() {
                 key={filteredDevelopers.length}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-xs text-[#2563EB] font-bold bg-[#2563EB]/10 border border-[#2563EB]/20 px-3.5 py-1.5 rounded-xl"
+                className="text-xs text-[#2563EB] font-bold bg-[#2563EB]/10 border border-[#2563EB]/20 px-3.5 py-1.5 rounded-xl shadow-sm"
               >
                 {filteredDevelopers.length} developers
               </motion.span>
@@ -393,7 +393,7 @@ export default function ExploreUsers() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="bg-[#FEF2F2] border border-[#F87171] rounded-3xl p-8 flex flex-col items-center justify-center text-center max-w-lg mx-auto mt-10 shadow-sm"
+                className="bg-[#FEF2F2]/90 backdrop-blur-sm border border-[#F87171] rounded-3xl p-8 flex flex-col items-center justify-center text-center max-w-lg mx-auto mt-10 shadow-sm"
               >
                 <AlertCircle className="w-10 h-10 text-[#EF4444] mb-4" />
                 <h3 className="text-lg font-bold text-[#991B1B]">Connection Issue</h3>
@@ -417,7 +417,7 @@ export default function ExploreUsers() {
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
               >
                 {Array.from({ length: 8 }).map((_, idx) => (
-                  <div key={idx} className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-[28px] h-[480px] shadow-sm flex flex-col overflow-hidden animate-pulse">
+                  <div key={idx} className="bg-[#FFFFFF]/90 backdrop-blur-sm border border-[#E5E7EB] rounded-[28px] h-[480px] shadow-sm flex flex-col overflow-hidden animate-pulse">
                     <div className="h-20 bg-[#F1F5F9] w-full" />
                     <div className="px-6 flex-1 flex flex-col relative">
                       <div className="w-20 h-20 rounded-full bg-[#E5E7EB] border-4 border-[#FFFFFF] -mt-10 mb-4 mx-auto" />
@@ -449,7 +449,7 @@ export default function ExploreUsers() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="text-center py-24 bg-[#FFFFFF]/80 backdrop-blur-sm rounded-[32px] border border-dashed border-[#E5E7EB] shadow-sm max-w-2xl mx-auto mt-8"
+                className="text-center py-24 bg-[#FFFFFF]/80 backdrop-blur-md rounded-[32px] border border-dashed border-[#E5E7EB] shadow-sm max-w-2xl mx-auto mt-8"
               >
                 <div className="w-16 h-16 bg-[#F8FAFC] rounded-2xl flex items-center justify-center mx-auto mb-5 border border-[#E5E7EB]">
                   <Search className="w-7 h-7 text-[#2563EB]" />
@@ -486,15 +486,15 @@ export default function ExploreUsers() {
                       key={dev._id}
                       variants={itemVariants}
                       whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                      // Fixed height & flex-col structure ensures buttons are always at the bottom
-                      className="group bg-[#FFFFFF] border border-[#E5E7EB] hover:border-[#3B82F6]/50 rounded-[24px] flex flex-col transition-all duration-300 relative shadow-sm hover:shadow-xl hover:shadow-[#2563EB]/10 h-[480px] overflow-hidden"
+                      // STRICT FORMATTING: flex-col with explicit height and mt-auto guarantees alignment
+                      className="group bg-[#FFFFFF]/95 backdrop-blur-sm border border-[#E5E7EB] hover:border-[#3B82F6]/50 rounded-[24px] flex flex-col transition-all duration-300 relative shadow-sm hover:shadow-2xl hover:shadow-[#2563EB]/15 h-[480px] overflow-hidden"
                     >
-                      {/* Top Banner Matched to image_d2495b.jpg */}
+                      {/* Top Banner */}
                       <div className="h-20 bg-gradient-to-b from-[#2563EB] to-[#3B82F6] relative overflow-hidden transition-colors" />
 
                       <div className="px-5 flex-1 flex flex-col relative z-10">
-                        {/* Avatar Overlapping Header */}
-                        <div className="relative mx-auto w-20 h-20 rounded-full overflow-hidden border-[5px] border-[#FFFFFF] shadow-sm -mt-10 mb-3 bg-[#FFFFFF]">
+                        {/* Avatar */}
+                        <div className="relative mx-auto w-20 h-20 rounded-full overflow-hidden border-[5px] border-[#FFFFFF] shadow-md -mt-10 mb-3 bg-[#FFFFFF]">
                           <img
                             src={dev.profileImage || defaultAvatar}
                             alt={`${dev.name}'s profile`}
@@ -505,7 +505,7 @@ export default function ExploreUsers() {
                           />
                         </div>
 
-                        {/* Centered Name & Verification */}
+                        {/* Centered Name & Username */}
                         <div className="text-center space-y-0.5 mb-3">
                           <div className="flex items-center justify-center gap-1.5">
                             <h3 
@@ -522,7 +522,7 @@ export default function ExploreUsers() {
                           <div className="flex items-center justify-center gap-3">
                             <span className="text-xs font-semibold text-[#6B7280]">@{dev.username || "user"}</span>
                             {/* Hover Social Links */}
-                            <div className="flex items-center gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
                               {dev.githubUrl && (
                                 <a 
                                   href={dev.githubUrl} 
@@ -547,28 +547,28 @@ export default function ExploreUsers() {
                           </div>
                         </div>
                         
-                        {/* Bio - Fixed height to avoid pushing content unevenly */}
+                        {/* Bio */}
                         <p className="text-[13px] text-[#6B7280] font-medium leading-relaxed line-clamp-2 min-h-[40px] mb-5 text-center px-2">
                           {dev.bio || "Software engineer passionate about building scalable, production-ready applications."}
                         </p>
 
-                        {/* Stats Grid Matched to Screenshot */}
-                        <div className="grid grid-cols-3 gap-1 bg-[#F8FAFC] rounded-xl p-3 text-center mb-5 border border-[#F1F5F9]">
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-3 gap-1 bg-[#F8FAFC] rounded-xl p-3 text-center mb-5 border border-[#F1F5F9] group-hover:border-[#2563EB]/20 transition-colors">
                           <div className="space-y-1">
                             <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider block">Repos</span>
-                            <span className="text-sm font-extrabold text-[#111827]">{dev.totalProjects || 0}</span>
+                            <span className="text-sm font-extrabold text-[#111827] group-hover:text-[#2563EB] transition-colors">{dev.totalProjects || 0}</span>
                           </div>
-                          <div className="space-y-1 border-l border-r border-[#E5E7EB]">
+                          <div className="space-y-1 border-l border-r border-[#E5E7EB] group-hover:border-[#2563EB]/20 transition-colors">
                             <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider block">Reviews</span>
-                            <span className="text-sm font-extrabold text-[#111827]">{dev.totalReviews || 0}</span>
+                            <span className="text-sm font-extrabold text-[#111827] group-hover:text-[#2563EB] transition-colors">{dev.totalReviews || 0}</span>
                           </div>
                           <div className="space-y-1">
                             <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider block">Likes</span>
-                            <span className="text-sm font-extrabold text-[#111827]">{dev.totalLikes || 0}</span>
+                            <span className="text-sm font-extrabold text-[#111827] group-hover:text-[#2563EB] transition-colors">{dev.totalLikes || 0}</span>
                           </div>
                         </div>
 
-                        {/* Skills - Wraps properly */}
+                        {/* Skills */}
                         <div className="flex flex-wrap justify-center gap-1.5 pb-2">
                           {devSkills.length > 0 ? (
                             <>
@@ -591,7 +591,7 @@ export default function ExploreUsers() {
                           )}
                         </div>
 
-                        {/* mt-auto pushes this entire block to the strict bottom of the card, fixing alignment issues */}
+                        {/* Button Actions - ALWAYS sticks to bottom due to mt-auto */}
                         <div className="mt-auto pb-5 pt-2">
                           <div className="grid grid-cols-2 gap-3">
                             <motion.button
