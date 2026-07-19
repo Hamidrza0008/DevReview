@@ -54,11 +54,11 @@ export default function SidebarSkeleton() {
       variants={sidebarVariants}
       initial="hidden"
       animate="visible"
-      className="w-64 bg-white border-r border-[#E5E7EB] fixed top-0 bottom-0 left-0 z-40 flex flex-col justify-between hidden md:flex"
+      className="w-64 bg-page border-r border-line fixed top-0 bottom-0 left-0 z-40 flex-col justify-between hidden md:flex"
     >
       <div>
         {/* Logo Branding */}
-        <div className="h-16 flex items-center px-6 border-b border-[#E5E7EB]">
+        <div className="h-16 flex items-center px-6 border-b border-line">
           <div className="flex items-center gap-2.5">
             <SkeletonBox className="w-8 h-8 rounded-lg" />
             <div className="flex flex-col gap-1.5">
@@ -83,12 +83,12 @@ export default function SidebarSkeleton() {
                 key={item.name}
                 variants={itemVariants}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl relative ${
-                  isActive ? "bg-[#2563EB]/5" : ""
+                  isActive ? "bg-accent/5" : ""
                 }`}
               >
                 {/* Active left indicator, identical to the real sidebar */}
                 {isActive && (
-                  <div className="absolute left-0 top-3 bottom-3 w-1 rounded-r bg-[#2563EB]" />
+                  <div className="absolute left-0 top-3 bottom-3 w-1 rounded-r bg-accent" />
                 )}
 
                 <div className="flex items-center gap-3">
@@ -110,7 +110,7 @@ export default function SidebarSkeleton() {
       </div>
 
       {/* Embedded Fixed Mini Profile Summary skeleton */}
-      <div className="p-4 border-t border-[#E5E7EB] bg-[#F8FAFC]/50 flex items-center justify-between gap-2">
+      <div className="p-4 border-t border-line bg-page/50 flex items-center justify-between gap-2">
         <div className="flex items-center gap-3 min-w-0">
           <SkeletonBox className="w-9 h-9 rounded-full flex-shrink-0" />
           <div className="flex-1 min-w-0 flex flex-col gap-1.5">

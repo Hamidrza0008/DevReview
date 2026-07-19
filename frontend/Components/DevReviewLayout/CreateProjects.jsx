@@ -165,11 +165,11 @@ export default function CreateProjects() {
 
   return (
     // Fixed 100vh container, no scroll
-    <div className="h-screen w-full bg-[#F8FAFC] flex items-center justify-center p-4 sm:p-6 overflow-hidden relative selection:bg-blue-100">
+    <div className="h-screen w-full bg-page flex items-center justify-center p-4 sm:p-6 overflow-hidden relative selection:bg-accent/20">
 
       {/* Background Decor */}
-      <div className="absolute inset-0 bg-[radial-gradient(#E5E7EB_1px,transparent_1px)] [background-size:24px_24px] opacity-50 pointer-events-none z-0" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(var(--color-line)_1px,transparent_1px)] bg-size-[24px_24px] opacity-50 pointer-events-none z-0" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-accent/10 rounded-full blur-[100px] pointer-events-none z-0" />
 
       {/* Floating Notifications (Absolute to avoid pushing layout) */}
       <AnimatePresence>
@@ -178,10 +178,10 @@ export default function CreateProjects() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3 shadow-lg shadow-emerald-500/10"
+            className="absolute top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-ok/10 border border-ok/30 rounded-xl flex items-center gap-3 shadow-lg shadow-ok/10"
           >
-            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-            <span className="text-sm font-bold text-emerald-900">Project published successfully!</span>
+            <CheckCircle2 className="w-5 h-5 text-ok" />
+            <span className="text-sm font-bold text-ok">Project published successfully!</span>
           </motion.div>
         )}
         {submitStatus === "error" && (
@@ -189,10 +189,10 @@ export default function CreateProjects() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-3 shadow-lg shadow-rose-500/10"
+            className="absolute top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-danger/10 border border-danger/30 rounded-xl flex items-center gap-3 shadow-lg shadow-danger/10"
           >
-            <AlertCircle className="w-5 h-5 text-rose-600" />
-            <span className="text-sm font-bold text-rose-900">Failed to publish project.</span>
+            <AlertCircle className="w-5 h-5 text-danger" />
+            <span className="text-sm font-bold text-danger">Failed to publish project.</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -201,27 +201,27 @@ export default function CreateProjects() {
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-5xl max-h-[92vh] flex flex-col bg-white border border-[#E5E7EB] rounded-3xl shadow-xl relative z-10 overflow-hidden"
+        className="w-full max-w-5xl max-h-[92vh] flex flex-col bg-surface border border-line rounded-3xl shadow-xl relative z-10 overflow-hidden"
       >
 
         {/* Compact Header with Go Back Button */}
-        <div className="px-4 sm:px-6 py-4 border-b border-[#E5E7EB] bg-white flex items-center gap-4 shrink-0">
+        <div className="px-4 sm:px-6 py-4 border-b border-line bg-surface flex items-center gap-4 shrink-0">
           <button
             type="button"
             onClick={() => router.back()}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-slate-200 shrink-0"
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface-2 border border-line text-muted hover:bg-line hover:text-ink transition-all focus:outline-none focus:ring-2 focus:ring-line shrink-0"
             title="Go Back"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
 
-          <div className="w-10 h-10 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-center shrink-0">
-            <Rocket className="w-5 h-5 text-blue-600" />
+          <div className="w-10 h-10 bg-accent-soft border border-accent/20 rounded-xl flex items-center justify-center shrink-0">
+            <Rocket className="w-5 h-5 text-accent" />
           </div>
 
           <div>
-            <h1 className="text-xl font-extrabold text-[#111827] tracking-tight">Publish Project</h1>
-            <p className="text-xs text-[#6B7280]">Share your architecture and gather community feedback.</p>
+            <h1 className="text-xl font-extrabold text-ink tracking-tight">Publish Project</h1>
+            <p className="text-xs text-muted">Share your architecture and gather community feedback.</p>
           </div>
         </div>
 
@@ -235,68 +235,68 @@ export default function CreateProjects() {
 
                 {/* Title */}
                 <div>
-                  <label className="block text-xs font-bold text-[#111827] mb-1.5 uppercase tracking-wider">
-                    Title <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
+                    Title <span className="text-danger">*</span>
                   </label>
                   <div className="relative group">
-                    <Type className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${errors.title ? 'text-rose-400' : 'text-[#94A3B8] group-focus-within:text-[#2563EB]'}`} />
+                    <Type className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${errors.title ? 'text-danger' : 'text-muted group-focus-within:text-accent'}`} />
                     <input
                       type="text"
                       name="title"
                       value={formData.title}
                       onChange={handleInputChange}
                       placeholder="e.g., E-Commerce Dashboard"
-                      className={`w-full pl-9 pr-3 py-2 bg-[#F8FAFC] border rounded-lg text-sm transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#2563EB]/20 ${errors.title ? "border-rose-300 focus:border-rose-500 bg-rose-50/30" : "border-[#E5E7EB] focus:border-[#2563EB]"}`}
+                      className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${errors.title ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"}`}
                     />
                   </div>
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-xs font-bold text-[#111827] mb-1.5 uppercase tracking-wider">
-                    Description <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
+                    Description <span className="text-danger">*</span>
                   </label>
                   <div className="relative group">
-                    <FileText className={`absolute top-2.5 left-3 w-4 h-4 transition-colors ${errors.description ? 'text-rose-400' : 'text-[#94A3B8] group-focus-within:text-[#2563EB]'}`} />
+                    <FileText className={`absolute top-2.5 left-3 w-4 h-4 transition-colors ${errors.description ? 'text-danger' : 'text-muted group-focus-within:text-accent'}`} />
                     <textarea
                       name="description"
                       rows={4}
                       value={formData.description}
                       onChange={handleInputChange}
                       placeholder="Explain features and problem solved..."
-                      className={`w-full pl-9 pr-3 py-2 bg-[#F8FAFC] border rounded-lg text-sm resize-none transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#2563EB]/20 ${errors.description ? "border-rose-300 focus:border-rose-500 bg-rose-50/30" : "border-[#E5E7EB] focus:border-[#2563EB]"}`}
+                      className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm resize-none transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${errors.description ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"}`}
                     />
                   </div>
                 </div>
 
                 {/* Tech Stack */}
                 <div className="flex flex-col flex-1">
-                  <label className="block text-xs font-bold text-[#111827] mb-1.5 uppercase tracking-wider">
-                    Tech Stack <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
+                    Tech Stack <span className="text-danger">*</span>
                   </label>
                   <div className="flex gap-2 mb-2">
                     <div className="relative group flex-grow">
-                      <Code2 className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${errors.techStack ? 'text-rose-400' : 'text-[#94A3B8] group-focus-within:text-[#2563EB]'}`} />
+                      <Code2 className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${errors.techStack ? 'text-danger' : 'text-muted group-focus-within:text-accent'}`} />
                       <input
                         type="text"
                         value={techInput}
                         onChange={(e) => setTechInput(e.target.value)}
                         onKeyDown={handleTechKeyDown}
                         placeholder="e.g., React, Node"
-                        className={`w-full pl-9 pr-3 py-2 bg-[#F8FAFC] border rounded-lg text-sm transition-all focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#2563EB]/20 ${errors.techStack ? "border-rose-300 focus:border-rose-500 bg-rose-50/30" : "border-[#E5E7EB] focus:border-[#2563EB]"}`}
+                        className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${errors.techStack ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"}`}
                       />
                     </div>
-                    <button type="button" onClick={addTechTag} className="px-4 bg-blue-50 text-blue-600 font-semibold text-xs border border-blue-100 rounded-lg hover:bg-blue-100 transition-colors">Add</button>
+                    <button type="button" onClick={addTechTag} className="px-4 bg-accent-soft text-accent font-semibold text-xs border border-accent/20 rounded-lg hover:bg-accent/20 transition-colors">Add</button>
                   </div>
 
-                  <div className={`flex-1 min-h-[60px] max-h-[100px] overflow-y-auto p-2 border rounded-lg bg-white flex flex-wrap gap-1.5 content-start ${errors.techStack ? 'border-rose-200 bg-rose-50/20' : 'border-[#E5E7EB]'}`}>
+                  <div className={`flex-1 min-h-[60px] max-h-[100px] overflow-y-auto p-2 border rounded-lg bg-surface flex flex-wrap gap-1.5 content-start ${errors.techStack ? 'border-danger/30 bg-danger/5' : 'border-line'}`}>
                     {techStack.length === 0 ? (
-                      <span className="text-xs text-[#94A3B8] w-full text-center mt-2">No tech added</span>
+                      <span className="text-xs text-muted w-full text-center mt-2">No tech added</span>
                     ) : (
                       techStack.map((tech, index) => (
-                        <span key={index} className="inline-flex items-center gap-1 pl-2 pr-1 py-1 bg-[#F1F5F9] border border-[#E2E8F0] rounded text-[11px] font-bold text-[#334155]">
+                        <span key={index} className="inline-flex items-center gap-1 pl-2 pr-1 py-1 bg-surface-2 border border-line rounded text-[11px] font-bold text-ink">
                           {tech}
-                          <button type="button" onClick={() => removeTechTag(index)} className="w-4 h-4 hover:bg-white hover:text-rose-500 rounded flex items-center justify-center transition-colors">
+                          <button type="button" onClick={() => removeTechTag(index)} className="w-4 h-4 hover:bg-surface hover:text-danger rounded flex items-center justify-center transition-colors">
                             <X className="w-2.5 h-2.5" />
                           </button>
                         </span>
@@ -311,55 +311,55 @@ export default function CreateProjects() {
 
                 {/* Links */}
                 <div>
-                  <label className="block text-xs font-bold text-[#111827] mb-1.5 uppercase tracking-wider">GitBranch Repo</label>
+                  <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">GitBranch Repo</label>
                   <div className="relative group">
-                    <GitBranch className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-[#94A3B8] group-focus-within:text-[#111827] transition-colors" />
+                    <GitBranch className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-muted group-focus-within:text-ink transition-colors" />
                     <input
                       type="url"
                       name="GitBranchUrl"
                       value={formData.GitBranchUrl}
                       onChange={handleInputChange}
                       placeholder="https://github.com/..."
-                      className="w-full pl-9 pr-3 py-2 bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg text-sm transition-all focus:outline-none focus:bg-white focus:border-[#111827] focus:ring-2 focus:ring-slate-200"
+                      className="w-full pl-9 pr-3 py-2 bg-page border border-line rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:border-ink focus:ring-2 focus:ring-line"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#111827] mb-1.5 uppercase tracking-wider">Live Demo</label>
+                  <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">Live Demo</label>
                   <div className="relative group">
-                    <Globe className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-[#94A3B8] group-focus-within:text-[#22C55E] transition-colors" />
+                    <Globe className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-muted group-focus-within:text-ok transition-colors" />
                     <input
                       type="url"
                       name="liveUrl"
                       value={formData.liveUrl}
                       onChange={handleInputChange}
                       placeholder="https://yourproject.com"
-                      className="w-full pl-9 pr-3 py-2 bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg text-sm transition-all focus:outline-none focus:bg-white focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20"
+                      className="w-full pl-9 pr-3 py-2 bg-page border border-line rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:border-ok focus:ring-2 focus:ring-ok/20"
                     />
                   </div>
                 </div>
 
                 {/* Thumbnail */}
                 <div className="flex-1 flex flex-col">
-                  <label className="block text-xs font-bold text-[#111827] mb-1.5 uppercase tracking-wider">Thumbnail (Optional)</label>
+                  <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">Thumbnail (Optional)</label>
                   <div className="relative group mb-3">
-                    <ImageIcon className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-[#94A3B8] group-focus-within:text-purple-500 transition-colors" />
+                    <ImageIcon className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-muted group-focus-within:text-info transition-colors" />
                     <input
                       type="file"
                       accept="image/*"
                       name="thumbnail"
                       onChange={handleThumbnailChange}
-                      className="w-full pl-9 pr-3 py-2 bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg text-sm transition-all focus:outline-none focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                      className="w-full pl-9 pr-3 py-2 bg-page border border-line rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:border-info focus:ring-2 focus:ring-info/20"
                     />
                   </div>
 
                   {/* Image Preview Box */}
-                  <div className="flex-1 bg-[#F8FAFC] border border-dashed border-[#CBD5E1] rounded-lg overflow-hidden flex items-center justify-center min-h-[100px]">
+                  <div className="flex-1 bg-page border border-dashed border-line rounded-lg overflow-hidden flex items-center justify-center min-h-[100px]">
                     {preview ? (
                       <img src={preview} alt="Preview" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                     ) : (
-                      <div className="text-center text-[#94A3B8]">
+                      <div className="text-center text-muted">
                         <ImageIcon className="w-6 h-6 mx-auto mb-1 opacity-50" />
                         <span className="text-[10px] font-medium uppercase tracking-wider">No Preview</span>
                       </div>
@@ -372,7 +372,7 @@ export default function CreateProjects() {
           </div>
 
           {/* Footer Actions */}
-          <div className="px-6 py-4 bg-[#F8FAFC] border-t border-[#E5E7EB] flex items-center justify-end gap-3 shrink-0">
+          <div className="px-6 py-4 bg-page border-t border-line flex items-center justify-end gap-3 shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -384,14 +384,14 @@ export default function CreateProjects() {
                 setThumbnail(null);
                 setPreview("");
               }}
-              className="px-5 py-2 text-sm font-semibold text-[#6B7280] bg-white border border-[#E5E7EB] rounded-lg hover:bg-slate-50 hover:text-[#111827] transition-all"
+              className="px-5 py-2 text-sm font-semibold text-muted bg-surface border border-line rounded-lg hover:bg-page hover:text-ink transition-all"
             >
               Clear
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-6 py-2 text-sm font-semibold text-white bg-[#111827] rounded-lg shadow hover:bg-[#1F2937] hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0 min-w-[140px] justify-center"
+              className="flex items-center gap-2 px-6 py-2 text-sm font-semibold text-page bg-ink rounded-lg shadow hover:brightness-125 hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0 min-w-[140px] justify-center"
             >
               {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Publishing</> : <>Publish <ArrowRight className="w-4 h-4" /></>}
             </button>

@@ -56,7 +56,7 @@ function StatCardSkeleton() {
   return (
     <motion.div
       variants={cardVariants}
-      className="bg-white border border-[#E5E7EB] rounded-xl p-5 flex flex-col gap-3"
+      className="bg-surface border border-line rounded-xl p-5 flex flex-col gap-3"
     >
       <div className="flex items-center justify-between">
         <SkeletonBox className="w-9 h-9 rounded-lg" />
@@ -72,7 +72,7 @@ function ContentCardSkeleton() {
   return (
     <motion.div
       variants={cardVariants}
-      className="bg-white border border-[#E5E7EB] rounded-xl p-5 flex flex-col gap-4"
+      className="bg-surface border border-line rounded-xl p-5 flex flex-col gap-4"
     >
       <div className="flex items-center justify-between">
         <SkeletonBox className="w-32 h-4 rounded" />
@@ -89,10 +89,10 @@ function TableSkeleton() {
   return (
     <motion.div
       variants={cardVariants}
-      className="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden"
+      className="bg-surface border border-line rounded-xl overflow-hidden"
     >
       {/* Table header */}
-      <div className="flex items-center gap-4 px-5 py-3 border-b border-[#E5E7EB] bg-[#F8FAFC]/60">
+      <div className="flex items-center gap-4 px-5 py-3 border-b border-line bg-page/60">
         <SkeletonBox className="w-1/3 h-3 rounded" />
         <SkeletonBox className="w-1/6 h-3 rounded" />
         <SkeletonBox className="w-1/6 h-3 rounded" />
@@ -104,7 +104,7 @@ function TableSkeleton() {
         {TABLE_ROWS.map((row) => (
           <div
             key={row}
-            className="flex items-center gap-4 px-5 py-4 border-b border-[#E5E7EB] last:border-b-0"
+            className="flex items-center gap-4 px-5 py-4 border-b border-line last:border-b-0"
           >
             <div className="w-1/3 flex items-center gap-3">
               <SkeletonBox className="w-7 h-7 rounded-full flex-shrink-0" />
@@ -122,7 +122,7 @@ function TableSkeleton() {
 
 export default function AppShellSkeleton() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-page">
       {/* Left: fixed sidebar skeleton, untouched structure/spacing */}
       <SidebarSkeleton />
 

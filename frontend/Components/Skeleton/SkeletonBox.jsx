@@ -9,7 +9,7 @@ export default function SkeletonBox({
       className={`
         relative
         overflow-hidden
-        bg-[#E5E7EB]
+        bg-line
         ${rounded}
         ${className}
       `}
@@ -21,9 +21,9 @@ export default function SkeletonBox({
           inset-0
           -translate-x-full
           animate-[shimmer_1.6s_infinite]
-          bg-gradient-to-r
+          bg-linear-to-r
           from-transparent
-          via-white/70
+          via-surface/70
           to-transparent
         "
       />

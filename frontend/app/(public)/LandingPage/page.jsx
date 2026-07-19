@@ -14,7 +14,7 @@ export default function DevReviewLandingPage() {
   const [showLoader, setShowLoader] = useState(true);
 
   return (
-    <div className="relative w-full min-h-screen bg-white font-sans antialiased text-[#111827]">
+    <div className="relative w-full min-h-screen bg-page font-sans antialiased text-ink">
       
       {/* 1. Preloader Slide-Up Layer */}
       {showLoader && (
@@ -43,7 +43,7 @@ export default function DevReviewLandingPage() {
           <FinalCTA />
         </main>
         
-        <footer className="w-full py-8 border-t border-[#E5E7EB] text-center text-xs text-[#6B7280]">
+        <footer className="w-full py-8 border-t border-line text-center text-xs text-muted">
           &copy; {new Date().getFullYear()} DevReview. All rights reserved.
         </footer>
       </div>

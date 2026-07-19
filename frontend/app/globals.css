@@ -1,26 +1,153 @@
 @import "tailwindcss";
 
+/* ============================================================
+   DevReview Design Tokens — "Review Ledger" Theme
+
+   Light mode values are defined in @theme.
+   The .dark class overrides the same CSS variables,
+   so every Tailwind utility generated from these tokens
+   (bg-*, text-*, border-*, ring-*, etc.) automatically
+   switches when <html> has the "dark" class.
+
+   No dark: variants are required in components.
+   ============================================================ */
+
+@theme {
+  --color-page: #F6F5F0;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #EFEDE4;
+  --color-line: #E2DFD3;
+
+  --color-ink: #1C2321;
+  --color-muted: #6E7268;
+
+  --color-accent: #2F6F4E;
+  --color-accent-2: #3FA97A;
+  --color-accent-ink: #F3FBF6;
+  --color-accent-soft: #E4EFE7;
+
+  --color-ok: #2F6F4E;
+  --color-star: #B98A2E;
+  --color-like: #B4574F;
+  --color-danger: #B4453F;
+  --color-info: #6D5FA8;
+}
+
+.dark {
+  --color-page: #10160F;
+  --color-surface: #171F19;
+  --color-surface-2: #1D2620;
+  --color-line: #29352C;
+
+  --color-ink: #EAF0EB;
+  --color-muted: #8B9990;
+
+  --color-accent: #4FAE7E;
+  --color-accent-2: #6FC79A;
+  --color-accent-ink: #08150F;
+  --color-accent-soft: #1C2A20;
+
+  --color-ok: #4FAE7E;
+  --color-star: #D7A53D;
+  --color-like: #E28783;
+  --color-danger: #E0736C;
+  --color-info: #9B8FD1;
+}
+
+/* ==========================
+   Animations
+========================== */
+
 @keyframes shimmer {
-  100% {
+  to {
     transform: translateX(100%);
   }
 }
+
 @keyframes loadingBar {
   0% {
     width: 0%;
   }
+
   50% {
     width: 70%;
   }
+
   100% {
     width: 100%;
   }
 }
-html, body {
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================
+   Base
+========================== */
+
+html,
+body {
   overflow-x: hidden;
 }
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
+
+body {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+/* ==========================
+   Selection
+========================== */
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+  color: var(--color-accent);
+}
+
+/* ==========================
+   Scrollbar
+========================== */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 999px;
+}
+
+/* ==========================
+   Accessibility
+========================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

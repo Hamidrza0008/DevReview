@@ -21,10 +21,10 @@ export default function DashboardLayout({ children }) {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-page">
       <Sidebar />
 
-      <div className="md:pl-64 min-h-screen flex flex-col">
+      <div className="md:pl-64 min-h-screen flex flex-col pt-14 md:pt-0">
         <main className="flex-1">
           {children}
         </main>
