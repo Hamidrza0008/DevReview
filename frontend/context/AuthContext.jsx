@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
             await logOutMe();
 
             setUser(null);
-            router.push("/auth/login")
+            router.push("/")
 
         } catch (error) {
             console.log(error);

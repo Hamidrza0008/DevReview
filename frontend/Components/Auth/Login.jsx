@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import { login } from "@/services/authApis";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -167,6 +168,15 @@ export default function Login() {
           transition={{ duration: 0.4, ease: "easeOut" }}
           className="w-full max-w-md bg-surface rounded-2xl border border-line p-8 sm:p-10 shadow-2xs"
         >
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-accent transition-colors mb-6"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to Home
+          </button>
+
           <div className="mb-8 lg:hidden flex items-center space-x-2">
             <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
               <span className="text-accent-ink font-black text-sm">&lt;/&gt;</span>

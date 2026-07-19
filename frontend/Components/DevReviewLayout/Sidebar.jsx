@@ -13,7 +13,8 @@ import {
   Terminal,
   LogOut,
   Menu,
-  X
+  X,
+  Home
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
@@ -177,13 +178,23 @@ export default function Sidebar() {
           </span>
         </div>
 
-        <button
-          onClick={() => setMobileOpen(true)}
-          aria-label="Open menu"
-          className="w-9 h-9 flex items-center justify-center rounded-xl border border-line bg-surface text-ink"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => router.push("/")}
+            aria-label="Back to home"
+            title="Back to Home"
+            className="w-9 h-9 flex items-center justify-center rounded-xl border border-line bg-surface text-muted hover:text-accent"
+          >
+            <Home className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+            className="w-9 h-9 flex items-center justify-center rounded-xl border border-line bg-surface text-ink"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* ---- MOBILE DRAWER ---- */}
@@ -209,13 +220,23 @@ export default function Sidebar() {
                   <span className="text-lg font-black tracking-tight text-ink">
                     Dev<span className="text-accent">Review</span>
                   </span>
-                  <button
-                    onClick={() => setMobileOpen(false)}
-                    aria-label="Close menu"
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-ink hover:bg-surface"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => { router.push("/"); setMobileOpen(false); }}
+                      aria-label="Back to home"
+                      title="Back to Home"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-surface"
+                    >
+                      <Home className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setMobileOpen(false)}
+                      aria-label="Close menu"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-ink hover:bg-surface"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
                 <NavList onNavigate={() => setMobileOpen(false)} />
               </div>
@@ -245,7 +266,7 @@ export default function Sidebar() {
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar relative z-10">
-          <div className="h-16 flex items-center px-6 border-b border-line bg-surface/40 backdrop-blur-md sticky top-0 z-20">
+          <div className="h-16 flex items-center justify-between px-6 border-b border-line bg-surface/40 backdrop-blur-md sticky top-0 z-20">
             <div
               className="flex items-center gap-2.5 cursor-pointer group"
               onClick={() => router.push("/dashboard")}
@@ -257,6 +278,15 @@ export default function Sidebar() {
                 Dev<span className="bg-linear-to-r from-accent to-accent-2 bg-clip-text text-transparent">Review</span>
               </span>
             </div>
+
+            <button
+              onClick={() => router.push("/")}
+              aria-label="Back to home"
+              title="Back to Home"
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-page transition-colors shrink-0"
+            >
+              <Home className="w-4 h-4" />
+            </button>
           </div>
 
           <NavList />
