@@ -4,6 +4,9 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
 const generateToken = require("../utils/generateToken");
+const { OAuth2Client } = require("google-auth-library");
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 
 const signUp = async (req, res) => {
@@ -138,6 +141,12 @@ const login = async (req, res) => {
             });
         }
 
+        if (!user.password) {
+            return res.status(400).json({
+                message: "This account uses Google Sign-In. Please continue with Google."
+            });
+        }
+
         const isMatched = await bcrypt.compare(password, user.password);
 
         if (!isMatched) {
@@ -175,6 +184,88 @@ const login = async (req, res) => {
 
     }
 
+}
+
+const googleAuth = async (req, res) => {
+    try {
+        const { credential } = req.body;
+
+        if (!credential) {
+            return res.status(400).json({
+                message: "Google credential is required"
+            });
+        }
+
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        const { sub: googleId, email, name, picture, email_verified } = payload;
+
+        if (!email_verified) {
+            return res.status(400).json({
+                message: "Google email is not verified"
+            });
+        }
+
+        let user = await Users.findOne({ $or: [{ googleId }, { email }] });
+
+        if (!user) {
+            const base = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "") || "user";
+            let finalUsername = base;
+            let suffix = 0;
+
+            while (await Users.findOne({ username: finalUsername })) {
+                suffix += 1;
+                finalUsername = `${base}${suffix}`;
+            }
+
+            user = await Users.create({
+                name,
+                username: finalUsername,
+                email,
+                googleId,
+                authProvider: "google",
+                profileImage: picture || "",
+                isVerified: true,
+            });
+        } else if (!user.googleId) {
+            user.googleId = googleId;
+            if (!user.profileImage && picture) user.profileImage = picture;
+            user.isVerified = true;
+            await user.save();
+        }
+
+        const token = generateToken(user._id);
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+        return res.status(200).json({
+            message: "Google sign-in successful",
+            success: true,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                username: user.username,
+                role: user.role,
+                profileImage: user.profileImage,
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Google sign-in failed. Please try again."
+        });
+    }
 }
 
 const forgotPassword = async (req, res) => {
@@ -367,4 +458,4 @@ const updateMe = async (req, res) => {
 }
 
 
-module.exports = { signUp, login, verifyOTP, forgotPassword, resetPassword, getMe, logout, updateMe }
+module.exports = { signUp, login, googleAuth, verifyOTP, forgotPassword, resetPassword, getMe, logout, updateMe }

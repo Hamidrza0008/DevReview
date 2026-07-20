@@ -2,13 +2,15 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/auth.middleware")
 
-const { signUp, verifyOTP, login, forgotPassword, resetPassword , getMe , logout , updateMe } = require("../controllers/auth.controller");
+const { signUp, verifyOTP, login, googleAuth, forgotPassword, resetPassword , getMe , logout , updateMe } = require("../controllers/auth.controller");
 const {getUserProfile} = require("../controllers/userController")
 router.post("/signup", signUp);
 
 router.post("/verify-otp", verifyOTP);
 
 router.post("/login", login);
+
+router.post("/google", googleAuth);
 
 router.post("/forgot-password" , forgotPassword);
 

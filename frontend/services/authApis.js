@@ -35,6 +35,19 @@ export const login = async (data) => {
     return await response.json();
 }
 
+export const googleAuth = async (credential) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({ credential })
+    })
+
+    return await response.json();
+}
+
 export const forgotPassword = async (data) => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, {
         method: "POST",

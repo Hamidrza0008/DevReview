@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { signUp } from '@/services/authApis';
 import { useRouter } from 'next/navigation';
+import GoogleButton from './GoogleButton';
 
 // Isolated Premium Skeleton Component for Next.js Suspense Fallback
 export function SignUpSkeleton() {
@@ -269,6 +270,14 @@ export default function SignUp() {
               </AnimatePresence>
             </motion.button>
           </form>
+
+          <div className="flex items-center gap-3 my-4">
+            <div className="h-px flex-1 bg-line" />
+            <span className="text-xs font-bold text-muted uppercase tracking-wider">Or</span>
+            <div className="h-px flex-1 bg-line" />
+          </div>
+
+          <GoogleButton onError={setError} />
 
           <p className="text-center text-xs text-muted mt-4">Already verified? <a href="/auth/login" className="font-bold text-accent hover:underline">Log In</a></p>
         </motion.div>

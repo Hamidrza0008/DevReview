@@ -1,0 +1,12 @@
+# dependencies
+/node_modules
+
+# env files (contains secrets — never commit)
+.env
+.env.*
+
+# logs
+npm-debug.log*
+
+# misc
+.DS_Store
