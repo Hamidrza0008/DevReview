@@ -56,6 +56,7 @@ export default function SignUp() {
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showEmailForm, setShowEmailForm] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -180,8 +181,11 @@ export default function SignUp() {
             Back to Home
           </button>
 
-          <h2 className="text-xl font-bold text-ink mb-0.5">Join Community</h2>
-          <p className="text-xs text-muted mb-4">Create your profile workspace setup to initiate sharing.</p>
+          <div className="flex items-center justify-between mb-0.5">
+            <h2 className="text-xl font-bold text-ink">Join Community</h2>
+            <span className="text-[10px] font-bold px-2 py-0.5 bg-accent/10 text-accent rounded-full uppercase tracking-wide">Recommended</span>
+          </div>
+          <p className="text-xs text-muted mb-4">Sign up with Google in one click — no password to set up.</p>
 
           <AnimatePresence mode="wait">
             {error && (
@@ -204,72 +208,7 @@ export default function SignUp() {
             )}
           </AnimatePresence>
 
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Name</label>
-                <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Hamid Rza" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Username</label>
-                <input type="text" required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="HamidRza0008" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Email</label>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@domain.com" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Password</label>
-                <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Confirm</label>
-                <input type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
-              </div>
-            </div>
-
-            <div className="flex items-start">
-              <input id="terms-check" type="checkbox" required checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} className="w-4 h-4 mt-0.5 rounded text-accent border-line focus:ring-accent/20" />
-              <label htmlFor="terms-check" className="ml-2 text-xs text-muted font-medium cursor-pointer hover:text-ink transition-colors">I authorize access terms and agree to code review policies.</label>
-            </div>
-
-            <motion.button
-              whileTap={{ scale: 0.99 }}
-              type="submit"
-              disabled={isLoading}
-              className="relative w-full py-2.5 px-4 bg-accent hover:brightness-110 text-accent-ink font-bold text-sm rounded-lg transition-colors flex items-center justify-center overflow-hidden shadow-xs"
-            >
-              <AnimatePresence mode="wait">
-                {isLoading ? (
-                  <motion.div
-                    key="loader"
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -10, opacity: 0 }}
-                    transition={{ duration: 0.12 }}
-                    className="flex items-center space-x-2"
-                  >
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Deploying Profile...</span>
-                  </motion.div>
-                ) : (
-                  <motion.span
-                    key="text"
-                    initial={{ y: -10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 10, opacity: 0 }}
-                    transition={{ duration: 0.12 }}
-                  >
-                    Initialize System Account
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
-          </form>
+          <GoogleButton onError={setError} />
 
           <div className="flex items-center gap-3 my-4">
             <div className="h-px flex-1 bg-line" />
@@ -277,7 +216,101 @@ export default function SignUp() {
             <div className="h-px flex-1 bg-line" />
           </div>
 
-          <GoogleButton onError={setError} />
+          <AnimatePresence mode="wait" initial={false}>
+            {!showEmailForm ? (
+              <motion.div
+                key="toggle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowEmailForm(true)}
+                  className="w-full py-2.5 px-4 bg-page border border-line hover:border-accent text-ink font-semibold text-sm rounded-lg transition-colors"
+                >
+                  Sign Up with Email &amp; Password
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="form"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                className="overflow-hidden"
+              >
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Name</label>
+                      <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Hamid Rza" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Username</label>
+                      <input type="text" required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="HamidRza0008" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Email</label>
+                    <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@domain.com" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Password</label>
+                      <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Confirm</label>
+                      <input type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                    </div>
+                  </div>
+
+                  <div className="flex items-start">
+                    <input id="terms-check" type="checkbox" required checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} className="w-4 h-4 mt-0.5 rounded text-accent border-line focus:ring-accent/20" />
+                    <label htmlFor="terms-check" className="ml-2 text-xs text-muted font-medium cursor-pointer hover:text-ink transition-colors">I authorize access terms and agree to code review policies.</label>
+                  </div>
+
+                  <motion.button
+                    whileTap={{ scale: 0.99 }}
+                    type="submit"
+                    disabled={isLoading}
+                    className="relative w-full py-2.5 px-4 bg-page border border-line hover:border-accent text-ink font-bold text-sm rounded-lg transition-colors flex items-center justify-center overflow-hidden"
+                  >
+                    <AnimatePresence mode="wait">
+                      {isLoading ? (
+                        <motion.div
+                          key="loader"
+                          initial={{ y: 10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -10, opacity: 0 }}
+                          transition={{ duration: 0.12 }}
+                          className="flex items-center space-x-2"
+                        >
+                          <span className="w-4 h-4 border-2 border-ink/20 border-t-accent rounded-full animate-spin" />
+                          <span>Deploying Profile...</span>
+                        </motion.div>
+                      ) : (
+                        <motion.span
+                          key="text"
+                          initial={{ y: -10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: 10, opacity: 0 }}
+                          transition={{ duration: 0.12 }}
+                        >
+                          Initialize System Account
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </motion.button>
+                </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <p className="text-center text-xs text-muted mt-4">Already verified? <a href="/auth/login" className="font-bold text-accent hover:underline">Log In</a></p>
         </motion.div>

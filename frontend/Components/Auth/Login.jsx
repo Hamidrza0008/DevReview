@@ -57,6 +57,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(false);
 
   const [error, setError] = useState(""); 
 
@@ -185,8 +186,11 @@ export default function Login() {
             <span className="text-xl font-bold text-ink">DevReview</span>
           </div>
 
-          <h2 className="text-2xl font-bold text-ink mb-1">Account Secure Sign In</h2>
-          <p className="text-sm text-muted mb-6">Enter your credentials below to synchronize access.</p>
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-2xl font-bold text-ink">Welcome Back</h2>
+            <span className="text-[10px] font-bold px-2 py-0.5 bg-accent/10 text-accent rounded-full uppercase tracking-wide">Recommended</span>
+          </div>
+          <p className="text-sm text-muted mb-6">Continue with Google — instant, secure, no password to remember.</p>
 
           {/* Premium Dynamic Error Alert UI */}
           <AnimatePresence mode="wait">
@@ -210,89 +214,7 @@ export default function Login() {
             )}
           </AnimatePresence>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Developer Identity Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@company.com"
-                className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all"
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-xs font-bold text-ink uppercase tracking-wider">Access Key / Password</label>
-                <a href="/auth/forgot-password" className="text-xs font-bold text-accent hover:underline">Lost Key?</a>
-              </div>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all pr-12"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center select-none"
-                >
-                  <span className="text-muted hover:text-ink text-xs font-bold transition-colors">{showPassword ? "HIDE" : "SHOW"}</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-1">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded text-accent border-line focus:ring-accent/20"
-                />
-                <label htmlFor="remember-me" className="ml-2 text-sm text-muted select-none cursor-pointer font-medium hover:text-ink transition-colors">Keep identity verified</label>
-              </div>
-            </div>
-
-            <motion.button
-              whileTap={{ scale: 0.99 }}
-              type="submit"
-              disabled={isLoading}
-              className="relative w-full py-3 px-4 bg-accent hover:brightness-110 text-accent-ink font-bold text-sm rounded-lg transition-colors flex items-center justify-center overflow-hidden shadow-xs"
-            >
-              <AnimatePresence mode="wait">
-                {isLoading ? (
-                  <motion.div
-                    key="loader"
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -10, opacity: 0 }}
-                    transition={{ duration: 0.12 }}
-                    className="flex items-center space-x-2"
-                  >
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Verifying Identity...</span>
-                  </motion.div>
-                ) : (
-                  <motion.span
-                    key="text"
-                    initial={{ y: -10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 10, opacity: 0 }}
-                    transition={{ duration: 0.12 }}
-                  >
-                    Authenticate Account
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
-          </form>
+          <GoogleButton onError={setError} />
 
           <div className="flex items-center gap-3 my-6">
             <div className="h-px flex-1 bg-line" />
@@ -300,7 +222,118 @@ export default function Login() {
             <div className="h-px flex-1 bg-line" />
           </div>
 
-          <GoogleButton onError={setError} />
+          <AnimatePresence mode="wait" initial={false}>
+            {!showEmailForm ? (
+              <motion.div
+                key="toggle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowEmailForm(true)}
+                  className="w-full py-3 px-4 bg-page border border-line hover:border-accent text-ink font-semibold text-sm rounded-lg transition-colors"
+                >
+                  Continue with Email &amp; Password
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="form"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                className="overflow-hidden"
+              >
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Developer Identity Email</label>
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@company.com"
+                      className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block text-xs font-bold text-ink uppercase tracking-wider">Access Key / Password</label>
+                      <a href="/auth/forgot-password" className="text-xs font-bold text-accent hover:underline">Lost Key?</a>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all pr-12"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-4 flex items-center select-none"
+                      >
+                        <span className="text-muted hover:text-ink text-xs font-bold transition-colors">{showPassword ? "HIDE" : "SHOW"}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="flex items-center">
+                      <input
+                        id="remember-me"
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="w-4 h-4 rounded text-accent border-line focus:ring-accent/20"
+                      />
+                      <label htmlFor="remember-me" className="ml-2 text-sm text-muted select-none cursor-pointer font-medium hover:text-ink transition-colors">Keep identity verified</label>
+                    </div>
+                  </div>
+
+                  <motion.button
+                    whileTap={{ scale: 0.99 }}
+                    type="submit"
+                    disabled={isLoading}
+                    className="relative w-full py-3 px-4 bg-page border border-line hover:border-accent text-ink font-bold text-sm rounded-lg transition-colors flex items-center justify-center overflow-hidden"
+                  >
+                    <AnimatePresence mode="wait">
+                      {isLoading ? (
+                        <motion.div
+                          key="loader"
+                          initial={{ y: 10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -10, opacity: 0 }}
+                          transition={{ duration: 0.12 }}
+                          className="flex items-center space-x-2"
+                        >
+                          <span className="w-4 h-4 border-2 border-ink/20 border-t-accent rounded-full animate-spin" />
+                          <span>Verifying Identity...</span>
+                        </motion.div>
+                      ) : (
+                        <motion.span
+                          key="text"
+                          initial={{ y: -10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: 10, opacity: 0 }}
+                          transition={{ duration: 0.12 }}
+                        >
+                          Authenticate Account
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </motion.button>
+                </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <p className="text-center text-sm text-muted mt-8">New to the ecosystem? <a href="/auth/signup" className="font-bold text-accent hover:underline">Create Account</a></p>
         </motion.div>
