@@ -14,7 +14,9 @@ import {
   ArrowUpRight,
   CheckCircle2,
   FileCode,
-  AlertCircle
+  AlertCircle,
+  Users,
+  UserPlus
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getMyReviews } from "@/services/reviewApis";
@@ -112,8 +114,8 @@ export default function Dashboard() {
                   <div className="h-10 bg-surface-2 rounded-xl w-full md:w-36 shrink-0" />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  {[...Array(4)].map((_, i) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {[...Array(6)].map((_, i) => (
                     <div key={i} className="bg-surface border border-line rounded-2xl p-5 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="h-3 bg-surface-2 rounded w-20" />
@@ -204,13 +206,15 @@ export default function Dashboard() {
 
                 <motion.div
                   variants={itemVariants}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
                 >
                   {[
                     { title: "Total Projects", value: data.stats?.totalProjects || 0, label: "Deployed", icon: FolderGit2, colorVar: "accent" },
                     { title: "Project Likes", value: data.stats?.totalLikes || 0, label: "Appreciations", icon: ThumbsUp, colorVar: "like" },
                     { title: "Reviews Received", value: data.stats?.totalReceivedReviews || 0, label: "Feedback", icon: MessageSquare, colorVar: "info" },
                     { title: "Reviews Given", value: data.stats?.totalGivenReviews || 0, label: "Community", icon: Star, colorVar: "star" },
+                    { title: "Followers", value: user?.followers?.length || 0, label: "Following you", icon: Users, colorVar: "accent-2" },
+                    { title: "Following", value: user?.following?.length || 0, label: "You follow", icon: UserPlus, colorVar: "accent" },
                   ].map((card, i) => {
                     const IconComponent = card.icon;
                     return (
