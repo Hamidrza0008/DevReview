@@ -322,57 +322,50 @@ export default function ExploreProjects() {
         )}
       </AnimatePresence>
 
-      <div className="max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-12 py-12 relative z-10">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-12 relative z-10">
         
         {/* KHATARNAK HERO SECTION */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center pt-8 mb-20">
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center pt-4 sm:pt-8 mb-10 lg:mb-20">
           <motion.div 
-            className="lg:col-span-7 space-y-6 text-left relative z-10"
+            className="lg:col-span-7 space-y-3 lg:space-y-6 text-left relative z-10"
             variants={containerVariants}
             initial="hidden"
             animate="show"
           >
             <motion.div variants={heroTextVariants}>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-accent-soft text-accent border border-accent/20 mb-5 shadow-[0_0_15px_rgba(47,111,78,0.15)]">
-                <Sparkles className="w-4 h-4 text-accent" /> Built for Creators
+              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold bg-accent-soft text-accent border border-accent/20 mb-3 sm:mb-5 shadow-[0_0_15px_rgba(47,111,78,0.15)]">
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent" /> Built for Creators
               </div>
             </motion.div>
 
-            <motion.h1 variants={heroTextVariants} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-ink leading-[1.1]">
+            <motion.h1 variants={heroTextVariants} className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-ink leading-[1.1]">
               Explore Open Source <br className="hidden sm:block" />
               <span className="bg-linear-to-r from-accent via-accent to-accent-2 bg-clip-text text-transparent animate-gradient-x drop-shadow-sm">
                 Masterpieces.
               </span>
             </motion.h1>
 
-            <motion.p variants={heroTextVariants} className="text-muted text-lg sm:text-xl max-w-xl font-medium leading-relaxed">
+            <motion.p variants={heroTextVariants} className="text-muted text-base sm:text-lg lg:text-xl max-w-xl font-medium leading-relaxed">
               Discover production-ready projects built by passionate developers. Level up your tech stack with clean architecture.
             </motion.p>
 
-            <motion.div variants={heroTextVariants} className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 mt-6">
-              {statCards.map((stat, idx) => (
-                <div
-                  key={idx}
-                  className="bg-surface/60 border border-line rounded-2xl p-4 shadow-sm md:backdrop-blur-md hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5 transition-all duration-300 group"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted group-hover:text-ink transition-colors">
-                      {stat.label}
-                    </span>
-                    <div className={`p-1.5 rounded-lg ${stat.bg} ${stat.color}`}>
-                      <stat.icon className="w-3.5 h-3.5" />
+            <motion.div variants={heroTextVariants} className="pt-3 mt-3 sm:pt-6 sm:mt-6">
+              <div className="bg-surface/60 border border-line rounded-2xl px-3 sm:px-6 py-3 sm:py-4 shadow-sm md:backdrop-blur-md">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  {statCards.map((stat, idx) => (
+                    <div key={idx} className="flex flex-col items-center group cursor-default py-1">
+                      {stat.loading ? (
+                        <Shimmer className="h-6 sm:h-7 w-10 sm:w-12 mb-1" />
+                      ) : (
+                        <span className="text-lg sm:text-xl lg:text-2xl font-extrabold text-ink group-hover:text-accent transition-colors tabular-nums">
+                          {stat.isRating ? stat.value ?? "—" : <AnimatedNumber value={stat.value} />}
+                        </span>
+                      )}
+                      <span className="text-[9px] sm:text-[11px] font-semibold text-muted lowercase">{stat.label.toLowerCase()}</span>
                     </div>
-                  </div>
-
-                  {stat.loading ? (
-                    <Shimmer className="h-7 w-16" />
-                  ) : (
-                    <div className="text-2xl font-extrabold tracking-tight text-ink">
-                      {stat.isRating ? stat.value ?? "—" : <AnimatedNumber value={stat.value} />}
-                    </div>
-                  )}
+                  ))}
                 </div>
-              ))}
+              </div>
             </motion.div>
           </motion.div>
 
@@ -443,30 +436,30 @@ export default function ExploreProjects() {
         </section>
 
         {/* Vibrant Search & Filters */}
-        <section className="max-w-4xl mx-auto w-full mb-10 relative z-20">
-          <div className="relative bg-surface border-2 border-line rounded-2xl p-2 shadow-lg shadow-accent/5 transition-all duration-300 flex items-center focus-within:ring-4 focus-within:ring-accent/20 focus-within:border-accent">
-            <div className="pl-4 pr-2 text-accent">
-              <Search className="w-5 h-5 stroke-[2.5]" />
+        <section className="max-w-4xl mx-auto w-full mb-4 sm:mb-10 relative z-20">
+          <div className="relative bg-surface border-2 border-line rounded-2xl p-1.5 sm:p-2 shadow-lg shadow-accent/5 transition-all duration-300 flex items-center focus-within:ring-4 focus-within:ring-accent/20 focus-within:border-accent">
+            <div className="pl-3 sm:pl-4 pr-1.5 sm:pr-2 text-accent">
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
             </div>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search projects, tech stack..."
-              className="flex-1 min-w-0 bg-transparent pl-2 pr-4 py-3.5 focus:outline-none text-sm sm:text-base font-semibold text-ink placeholder-muted"
+              className="flex-1 min-w-0 bg-transparent pl-2 pr-4 py-2.5 sm:py-3.5 focus:outline-none text-sm font-semibold text-ink placeholder-muted"
             />
           </div>
         </section>
 
         {/* Dynamic Filter Pills */}
-        <section className="flex flex-wrap items-center justify-center gap-2.5 max-w-4xl mx-auto mb-16">
+        <section className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 max-w-4xl mx-auto mb-6 sm:mb-12">
           {CATEGORIES.map((chip) => {
             const isActive = selectedCategory === chip;
             return (
               <button
                 key={chip}
                 onClick={() => setSelectedCategory(chip)}
-                className={`relative text-xs px-5 py-2.5 rounded-xl font-bold tracking-wide transition-all duration-300 outline-none border cursor-pointer ${
+                className={`relative text-[11px] sm:text-xs px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold tracking-wide transition-all duration-200 outline-none border cursor-pointer ${
                   isActive
                     ? "text-accent-ink border-transparent shadow-md shadow-accent/25"
                     : "bg-surface border-line text-muted hover:bg-accent-soft hover:text-accent hover:border-accent/30"
@@ -476,7 +469,7 @@ export default function ExploreProjects() {
                   <motion.span
                     layoutId="categoryPill"
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    className="absolute inset-0 bg-linear-to-r from-accent to-accent-2 rounded-xl -z-10"
+                    className="absolute inset-0 bg-linear-to-r from-accent to-accent-2 rounded-lg -z-10"
                   />
                 )}
                 {chip}
@@ -486,10 +479,10 @@ export default function ExploreProjects() {
         </section>
 
         {/* Project Grid */}
-        <section className="space-y-6">
-          <div className="flex items-center justify-between border-b-2 border-line pb-4">
-            <h3 className="font-extrabold text-2xl flex items-center text-ink tracking-tight">
-              <Flame className="w-6 h-6 text-star mr-2.5 fill-star/20 animate-pulse" />
+        <section className="space-y-4 sm:space-y-6">
+          <div className="flex items-center justify-between border-b-2 border-line pb-2 sm:pb-4">
+            <h3 className="font-extrabold text-xl sm:text-2xl flex items-center text-ink tracking-tight">
+              <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-star mr-2 sm:mr-2.5 fill-star/20 animate-pulse" />
               Trending Blueprints
             </h3>
             {!loading && !error && (
@@ -497,7 +490,7 @@ export default function ExploreProjects() {
                 key={filteredProjects.length}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-xs text-accent font-bold bg-accent-soft border border-accent/20 px-3.5 py-1.5 rounded-xl"
+                className="text-[10px] sm:text-xs text-accent font-bold bg-accent-soft border border-accent/20 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl"
               >
                 {filteredProjects.length} results
               </motion.span>
@@ -531,7 +524,7 @@ export default function ExploreProjects() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
               >
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="bg-surface border border-line rounded-[28px] h-[450px] flex flex-col justify-between overflow-hidden shadow-sm">
@@ -595,7 +588,7 @@ export default function ExploreProjects() {
                 variants={containerVariants}
                 initial="hidden"
                 animate="show"
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
               >
                 {filteredProjects.map((project, index) => {
                   const badgeTypes = ["Trending", "New", "Staff Pick"];
@@ -665,11 +658,11 @@ export default function ExploreProjects() {
                         </div>
 
                         {/* Card Body */}
-                        <div className="p-6 space-y-4">
+                        <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
                           {project.owner && (
                             <div
                               onClick={() => router.push(`/users/${project.owner.username}`)}
-                              className="flex items-center space-x-3 cursor-pointer group/owner w-fit"
+                              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer group/owner w-fit"
                             >
                               <div className="relative">
                                 {project.owner.profileImage ? (
@@ -678,46 +671,46 @@ export default function ExploreProjects() {
                                     alt={project.owner.username}
                                     width={32}
                                     height={32}
-                                    className="w-8 h-8 rounded-full object-cover border-2 border-surface shadow-sm group-hover/owner:border-accent/30 transition-colors"
+                                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border-2 border-surface shadow-sm group-hover/owner:border-accent/30 transition-colors"
                                   />
                                 ) : (
-                                  <div className="w-8 h-8 rounded-full bg-accent-soft border-2 border-surface shadow-sm flex items-center justify-center text-[10px] font-extrabold text-accent uppercase group-hover/owner:border-accent/30 transition-colors">
+                                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-accent-soft border-2 border-surface shadow-sm flex items-center justify-center text-[9px] sm:text-[10px] font-extrabold text-accent uppercase group-hover/owner:border-accent/30 transition-colors">
                                     {project.owner.username?.slice(0, 2)}
                                   </div>
                                 )}
-                                <div className="absolute -bottom-1 -right-1 bg-surface rounded-full p-[2px] shadow-sm">
-                                  <CheckCircle className="w-3 h-3 text-ok fill-ok stroke-surface" />
+                                <div className="absolute -bottom-0.5 -right-0.5 bg-surface rounded-full p-[2px] shadow-sm">
+                                  <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-ok fill-ok stroke-surface" />
                                 </div>
                               </div>
-                              <span className="text-xs font-bold text-muted group-hover/owner:text-accent transition-colors">
+                              <span className="text-[10px] sm:text-xs font-bold text-muted group-hover/owner:text-accent transition-colors">
                                 @{project.owner.username}
                               </span>
                             </div>
                           )}
 
-                          <div className="space-y-2">
+                          <div className="space-y-1.5">
                             <h4
                               onClick={() => router.push(`/projects/${project._id}`)}
-                              className="font-extrabold text-[19px] text-ink line-clamp-1 capitalize tracking-tight group-hover:text-accent cursor-pointer transition-colors"
+                              className="font-extrabold text-base sm:text-[19px] text-ink line-clamp-1 capitalize tracking-tight group-hover:text-accent cursor-pointer transition-colors"
                             >
                               {project.title}
                             </h4>
-                            <p className="text-[13px] text-muted line-clamp-2 min-h-[40px] leading-relaxed font-medium">
+                            <p className="text-xs sm:text-[13px] text-muted line-clamp-2 min-h-[32px] sm:min-h-[40px] leading-relaxed font-medium">
                               {project.description || "Production-ready codebase. Review architectures and implementation frameworks."}
                             </p>
                           </div>
 
-                          <div className="flex flex-wrap gap-2 pt-2">
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1 sm:pt-2">
                             {project.techStack?.slice(0, 4).map((tech, i) => (
                               <span
                                 key={i}
-                                className="text-[11px] font-bold font-mono bg-page text-ink px-3 py-1.5 rounded-lg border border-line group-hover:border-accent/20 group-hover:bg-accent-soft group-hover:text-accent transition-colors capitalize"
+                                className="text-[9px] sm:text-[11px] font-bold font-mono bg-page text-ink px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg border border-line group-hover:border-accent/20 group-hover:bg-accent-soft group-hover:text-accent transition-colors capitalize"
                               >
                                 {tech}
                               </span>
                             ))}
                             {(project.techStack?.length || 0) > 4 && (
-                              <span className="text-[11px] font-bold font-mono bg-surface-2 text-muted px-3 py-1.5 rounded-lg">
+                              <span className="text-[9px] sm:text-[11px] font-bold font-mono bg-surface-2 text-muted px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg">
                                 +{project.techStack.length - 4}
                               </span>
                             )}
@@ -726,16 +719,16 @@ export default function ExploreProjects() {
                       </div>
 
                       {/* Card Footer */}
-                      <div className="px-6 py-4 border-t-2 border-page flex items-center justify-between bg-surface rounded-b-[28px]">
-                        <div className="flex items-center space-x-5 text-muted">
+                      <div className="px-4 sm:px-6 py-3 sm:py-4 border-t-2 border-page flex items-center justify-between bg-surface rounded-b-[28px]">
+                        <div className="flex items-center space-x-3 sm:space-x-5 text-muted">
                           <motion.button
                             whileTap={{ scale: 0.85 }}
                             onClick={(e) => handleLike(e, project._id)}
-                            className="flex items-center text-[12px] font-extrabold hover:text-like transition-colors group/like outline-none cursor-pointer"
+                            className="flex items-center text-[10px] sm:text-[12px] font-extrabold hover:text-like transition-colors group/like outline-none cursor-pointer"
                             aria-label="Like project"
                           >
                             <Heart
-                              className={`w-4 h-4 mr-1.5 transition-all ${
+                              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-1.5 transition-all ${
                                 project.isLiked
                                   ? "fill-like text-like"
                                   : "stroke-[2.5] text-muted group-hover/like:text-like"
@@ -746,9 +739,9 @@ export default function ExploreProjects() {
 
                           <button
                             onClick={() => router.push(`/projects/${project._id}`)}
-                            className="flex items-center text-[12px] font-extrabold hover:text-info transition-colors outline-none cursor-pointer"
+                            className="flex items-center text-[10px] sm:text-[12px] font-extrabold hover:text-info transition-colors outline-none cursor-pointer"
                           >
-                            <MessageSquare className="w-4 h-4 mr-1.5 stroke-[2.5] text-muted" />
+                            <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-1.5 stroke-[2.5] text-muted" />
                             {project.reviewsCount || 0}
                           </button>
 
@@ -759,7 +752,7 @@ export default function ExploreProjects() {
                             aria-label="Save project"
                           >
                             <Bookmark
-                              className={`w-4 h-4 transition-all ${
+                              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all ${
                                 project.isSaved
                                   ? "fill-accent text-accent"
                                   : "stroke-[2.5] text-muted group-hover/save:text-accent"
@@ -768,7 +761,7 @@ export default function ExploreProjects() {
                           </motion.button>
                         </div>
 
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2 sm:space-x-3">
                           {project.githubUrl && (
                             <a
                               href={project.githubUrl}
@@ -776,9 +769,9 @@ export default function ExploreProjects() {
                               rel="noopener noreferrer"
                               aria-label="View source code on GitHub"
                               onClick={(e) => e.stopPropagation()}
-                              className="p-2.5 text-muted hover:text-ink bg-surface-2 hover:bg-line rounded-xl transition-all active:scale-95 cursor-pointer"
+                              className="p-2 sm:p-2.5 text-muted hover:text-ink bg-surface-2 hover:bg-line rounded-lg sm:rounded-xl transition-all active:scale-95 cursor-pointer"
                             >
-                              <GitBranch className="w-4 h-4 stroke-[2.5]" />
+                              <GitBranch className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
                             </a>
                           )}
                           {project.liveUrl && (
@@ -788,10 +781,10 @@ export default function ExploreProjects() {
                               rel="noopener noreferrer"
                               aria-label="View live project"
                               onClick={(e) => e.stopPropagation()}
-                              className="text-xs font-extrabold text-accent-ink bg-linear-to-r from-accent to-accent-2 hover:brightness-110 px-4 py-2.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-accent/20 transition-all active:scale-95 cursor-pointer"
+                              className="text-[10px] sm:text-xs font-extrabold text-accent-ink bg-linear-to-r from-accent to-accent-2 hover:brightness-110 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl flex items-center gap-1 sm:gap-1.5 shadow-md shadow-accent/20 transition-all active:scale-95 cursor-pointer"
                             >
                               <span>Live</span>
-                              <ExternalLink className="w-3.5 h-3.5 stroke-[2.5]" />
+                              <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
                             </a>
                           )}
                         </div>

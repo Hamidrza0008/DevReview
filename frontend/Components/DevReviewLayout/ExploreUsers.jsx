@@ -291,12 +291,12 @@ export default function ExploreUsers() {
         )}
       </AnimatePresence>
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 py-12 relative z-10">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-12 relative z-10">
         
         {/* MATCHED HERO SECTION */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center pt-4 mb-20">
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center pt-2 mb-10 lg:mb-20">
           <motion.div 
-            className="lg:col-span-7 space-y-6 text-center lg:text-left relative z-10"
+            className="lg:col-span-7 space-y-3 lg:space-y-6 text-center lg:text-left relative z-10"
             variants={containerVariants}
             initial="hidden"
             animate="show"
@@ -304,7 +304,7 @@ export default function ExploreUsers() {
             <motion.div variants={heroTextVariants} className="flex justify-center lg:justify-start">
               <motion.div
                 whileHover={{ scale: 1.04 }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-surface border border-accent/20 text-accent mb-2 shadow-sm shadow-accent/10"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-surface border border-accent/20 text-accent shadow-sm shadow-accent/10"
               >
                 <motion.span
                   animate={{ rotate: [0, 15, -15, 0] }}
@@ -316,38 +316,30 @@ export default function ExploreUsers() {
               </motion.div>
             </motion.div>
 
-            <motion.h1 variants={heroTextVariants} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-ink leading-[1.1]">
+            <motion.h1 variants={heroTextVariants} className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-ink leading-[1.1]">
               Connect with <br className="hidden md:inline" />
               <span className="bg-gradient-to-r from-accent via-accent to-accent-2 bg-clip-text text-transparent animate-gradient-x">
                 Elite Developers.
               </span>
             </motion.h1>
 
-            <motion.p variants={heroTextVariants} className="text-muted text-lg max-w-xl font-normal leading-relaxed mx-auto lg:mx-0">
+            <motion.p variants={heroTextVariants} className="text-muted text-base sm:text-lg max-w-xl font-normal leading-relaxed mx-auto lg:mx-0">
               Find talented developers, collaborate on open-source, review production-ready systems, and scale ecosystems together.
             </motion.p>
 
-            <motion.div variants={heroTextVariants} className="grid grid-cols-3 gap-4 pt-6 mt-6">
-              {liveStats.map((stat, idx) => (
-                <motion.div
-                  key={idx}
-                  whileHover={{ y: -5, scale: 1.03 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                  className="bg-surface/90 md:backdrop-blur-sm border border-line rounded-2xl p-4 shadow-sm hover:border-accent-2/60 hover:shadow-xl hover:shadow-accent/15 transition-all duration-300 flex flex-col items-center lg:items-start text-center lg:text-left group cursor-default"
-                >
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted group-hover:text-accent transition-colors wrap-break-word">
-                      {stat.label}
-                    </span>
-                    <div className="text-accent bg-accent/5 rounded p-1 group-hover:scale-125 group-hover:bg-accent/10 transition-transform">
-                      <stat.icon className="w-3 h-3" />
+            <motion.div variants={heroTextVariants} className="pt-3 mt-3 sm:pt-6 sm:mt-6">
+              <div className="bg-surface/90 md:backdrop-blur-sm border border-line rounded-2xl px-4 sm:px-6 py-3 sm:py-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  {liveStats.map((stat, idx) => (
+                    <div key={idx} className={`flex flex-col items-center group cursor-default px-3 sm:px-6 py-1 ${idx < 2 ? "border-r border-muted/30" : ""}`}>
+                      <span className="text-lg sm:text-2xl font-extrabold text-ink group-hover:text-accent transition-colors tabular-nums">
+                        {loading ? "—" : stat.value.toLocaleString()}
+                      </span>
+                      <span className="text-[9px] sm:text-[11px] font-semibold text-muted lowercase">{stat.label.toLowerCase()}</span>
                     </div>
-                  </div>
-                  <div className="text-xl font-extrabold tracking-tight text-ink group-hover:text-accent transition-colors tabular-nums">
-                    {loading ? "—" : stat.value.toLocaleString()}
-                  </div>
-                </motion.div>
-              ))}
+                  ))}
+                </div>
+              </div>
             </motion.div>
           </motion.div>
 
@@ -439,41 +431,41 @@ export default function ExploreUsers() {
         </section>
 
         {/* Search & Filters */}
-        <section className="max-w-4xl mx-auto w-full mb-8 relative z-20">
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
+        <section className="max-w-4xl mx-auto w-full mb-4 sm:mb-8 relative z-20">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center">
             <div className="relative flex-1 w-full group">
-              <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-accent transition-colors z-20">
-                <Search className="w-5 h-5 stroke-[2.5]" />
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-accent transition-colors z-20">
+                <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
               </div>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search developers, skills..."
-                className="w-full pl-14 pr-4 py-4 bg-surface/90 md:backdrop-blur-md border border-line rounded-2xl text-sm sm:text-base font-semibold text-ink placeholder-muted shadow-sm hover:shadow-md focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15 transition-all"
+                className="w-full pl-11 sm:pl-14 pr-4 py-3 sm:py-4 bg-surface/90 md:backdrop-blur-md border border-line rounded-2xl text-sm font-semibold text-ink placeholder-muted shadow-sm hover:shadow-md focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15 transition-all"
               />
             </div>
 
-            <div className="flex gap-3 w-full sm:w-auto shrink-0">
+            <div className="flex gap-2 sm:gap-3 w-full sm:w-auto shrink-0">
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-2 bg-surface/90 md:backdrop-blur-md border border-line hover:bg-page hover:border-accent/40 hover:text-accent text-sm font-bold px-6 py-4 rounded-2xl text-muted shadow-sm transition-all cursor-pointer"
+                className="flex items-center gap-2 bg-surface/90 md:backdrop-blur-md border border-line hover:bg-page hover:border-accent/40 hover:text-accent text-xs sm:text-sm font-bold px-4 sm:px-6 py-3 sm:py-4 rounded-2xl text-muted shadow-sm transition-all cursor-pointer"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 <span>Filters</span>
               </motion.button>
-              <div className="relative">
+              <div className="relative flex-1 sm:flex-initial">
                 <select 
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-surface/90 md:backdrop-blur-md border border-line text-sm font-bold pl-5 pr-10 py-4 rounded-2xl text-muted shadow-sm focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15 hover:border-accent/40 transition-all cursor-pointer appearance-none min-w-[140px]"
+                  className="w-full sm:w-auto bg-surface/90 md:backdrop-blur-md border border-line text-xs sm:text-sm font-bold pl-4 sm:pl-5 pr-8 sm:pr-10 py-3 sm:py-4 rounded-2xl text-muted shadow-sm focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/15 hover:border-accent/40 transition-all cursor-pointer appearance-none min-w-[120px] sm:min-w-[140px]"
                 >
                   <option value="Trending">Trending</option>
                   <option value="Newest">Newest</option>
                   <option value="Top Rated">Top Rated</option>
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
+                <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
                   <svg width="12" height="8" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -484,16 +476,14 @@ export default function ExploreUsers() {
         </section>
 
         {/* Dynamic Category Pills */}
-        <section className="flex flex-wrap items-center justify-start sm:justify-center gap-2.5 max-w-4xl mx-auto mb-16 px-2">
+        <section className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 max-w-4xl mx-auto mb-6 sm:mb-12 px-2">
           {CATEGORIES.map((category) => {
             const isActive = selectedFilter === category;
             return (
-              <motion.button
+              <button
                 key={category}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
                 onClick={() => setSelectedFilter(category)}
-                className={`relative text-xs px-5 py-2.5 rounded-xl font-bold tracking-wide transition-all duration-300 outline-none border cursor-pointer ${
+                className={`relative text-[10px] sm:text-[11px] px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-lg font-bold tracking-wide transition-all duration-200 outline-none border cursor-pointer ${
                   isActive
                     ? "text-accent-ink border-transparent shadow-md shadow-accent/25"
                     : "bg-surface/80 md:backdrop-blur-sm border-line text-muted hover:bg-surface hover:text-accent hover:border-accent/30"
@@ -503,19 +493,19 @@ export default function ExploreUsers() {
                   <motion.span
                     layoutId="categoryPillUsers"
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    className="absolute inset-0 bg-gradient-to-r from-accent to-accent-2 rounded-xl -z-10"
+                    className="absolute inset-0 bg-gradient-to-r from-accent to-accent-2 rounded-lg -z-10"
                   />
                 )}
                 {category}
-              </motion.button>
+              </button>
             );
           })}
         </section>
 
         {/* Main Grid Area */}
-        <section className="space-y-6 relative z-10">
-          <div className="flex items-center justify-between pb-4">
-            <h3 className="font-extrabold text-2xl flex items-center text-ink tracking-tight">
+        <section className="space-y-4 sm:space-y-6 relative z-10">
+          <div className="flex items-center justify-between pb-2 sm:pb-4">
+            <h3 className="font-extrabold text-xl sm:text-2xl flex items-center text-ink tracking-tight">
               Discover Talent
             </h3>
             {!loading && !error && (
@@ -523,7 +513,7 @@ export default function ExploreUsers() {
                 key={filteredDevelopers.length}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-xs text-accent font-bold bg-accent/10 border border-accent/20 px-3.5 py-1.5 rounded-xl shadow-sm"
+                className="text-[10px] sm:text-xs text-accent font-bold bg-accent/10 border border-accent/20 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl shadow-sm"
               >
                 {filteredDevelopers.length} developers
               </motion.span>
@@ -562,7 +552,7 @@ export default function ExploreUsers() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, transition: { duration: 0.2 } }}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
               >
                 {Array.from({ length: 8 }).map((_, idx) => (
                   <div key={idx} className="bg-surface/90 md:backdrop-blur-sm border border-line rounded-[28px] h-[480px] shadow-sm flex flex-col overflow-hidden">
@@ -624,7 +614,7 @@ export default function ExploreUsers() {
                 variants={containerVariants}
                 initial="hidden"
                 animate="show"
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
               >
                 {filteredDevelopers.map((dev) => {
                   const isFollowing = dev.isFollowing || false;
@@ -648,9 +638,9 @@ export default function ExploreUsers() {
                         />
                       </div>
 
-                      <div className="px-5 flex-1 flex flex-col relative z-10">
+                      <div className="px-4 sm:px-5 flex-1 flex flex-col relative z-10">
                         {/* Avatar */}
-                        <div className="relative mx-auto w-20 h-20 rounded-full overflow-hidden border-[5px] border-surface shadow-md -mt-10 mb-3 bg-surface group-hover:shadow-lg group-hover:shadow-accent/20 transition-shadow">
+                        <div className="relative mx-auto w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-4 sm:border-[5px] border-surface shadow-md -mt-8 sm:-mt-10 mb-2 sm:mb-3 bg-surface group-hover:shadow-lg group-hover:shadow-accent/20 transition-shadow">
                           <Image
                             src={dev.profileImage || defaultAvatar}
                             alt={`${dev.name}'s profile`}
@@ -664,11 +654,11 @@ export default function ExploreUsers() {
                         </div>
 
                         {/* Centered Name & Username */}
-                        <div className="text-center space-y-0.5 mb-3">
+                        <div className="text-center space-y-0.5 mb-2 sm:mb-3">
                           <div className="flex items-center justify-center gap-1.5">
                             <h3 
                               onClick={() => router.push(`/users/${dev.username}`)}
-                              className="font-extrabold text-ink text-[18px] tracking-tight truncate max-w-[180px] group-hover:text-accent transition-colors cursor-pointer"
+                              className="font-extrabold text-ink text-base sm:text-[18px] tracking-tight truncate max-w-[150px] sm:max-w-[180px] group-hover:text-accent transition-colors cursor-pointer"
                             >
                               {dev.name || "Anonymous Developer"}
                             </h3>
@@ -711,58 +701,56 @@ export default function ExploreUsers() {
                         </div>
 
                         {/* Bio */}
-                        <p className="text-[13px] text-muted font-medium leading-relaxed line-clamp-2 min-h-[40px] mb-5 text-center px-2">
+                        <p className="text-xs sm:text-[13px] text-muted font-medium leading-relaxed line-clamp-2 min-h-[32px] sm:min-h-[40px] mb-3 sm:mb-5 text-center px-1 sm:px-2">
                           {dev.bio || "Software engineer passionate about building scalable, production-ready applications."}
                         </p>
 
                         {/* Stats Grid */}
-                        <div className="grid grid-cols-3 gap-1 bg-page rounded-xl p-3 text-center mb-5 border border-surface-2 group-hover:border-accent/25 group-hover:bg-accent-soft/60 transition-colors">
-                          <div className="space-y-1">
-                            <span className="text-[10px] font-bold text-muted uppercase tracking-wider block">Repos</span>
-                            <span className="text-sm font-extrabold text-ink group-hover:text-accent transition-colors">{dev.totalProjects || 0}</span>
-                          </div>
-                          <div className="space-y-1 border-l border-r border-line group-hover:border-accent/20 transition-colors">
-                            <span className="text-[10px] font-bold text-muted uppercase tracking-wider block">Reviews</span>
-                            <span className="text-sm font-extrabold text-ink group-hover:text-accent transition-colors">{dev.totalReviews || 0}</span>
-                          </div>
-                          <div className="space-y-1">
-                            <span className="text-[10px] font-bold text-muted uppercase tracking-wider block">Likes</span>
-                            <span className="text-sm font-extrabold text-ink group-hover:text-accent transition-colors">{dev.totalLikes || 0}</span>
-                          </div>
+                        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 bg-page rounded-xl p-2 sm:p-3 text-center mb-3 sm:mb-5 border border-surface-2 group-hover:border-accent/25 group-hover:bg-accent-soft/60 transition-colors">
+                          {[
+                            { label: "repos", val: dev.totalProjects || 0 },
+                            { label: "reviews", val: dev.totalReviews || 0 },
+                            { label: "likes", val: dev.totalLikes || 0 }
+                          ].map((s, idx) => (
+                            <div key={idx} className={`flex flex-col items-center ${idx < 2 ? "border-r border-line group-hover:border-accent/20" : ""} transition-colors py-0.5`}>
+                              <span className="text-xs sm:text-sm font-extrabold text-ink group-hover:text-accent transition-colors tabular-nums">{s.val}</span>
+                              <span className="text-[8px] sm:text-[9px] font-semibold text-muted lowercase">{s.label}</span>
+                            </div>
+                          ))}
                         </div>
 
                         {/* Skills */}
-                        <div className="flex flex-wrap justify-center gap-1.5 pb-2">
+                        <div className="flex flex-wrap justify-center gap-1 sm:gap-1.5 pb-1 sm:pb-2">
                           {devSkills.length > 0 ? (
                             <>
                               {devSkills.slice(0, 3).map((skill) => (
                                 <span
                                   key={skill}
-                                  className="px-3 py-1 rounded-full bg-surface text-accent text-[11px] font-bold border border-line group-hover:border-accent/40 group-hover:bg-accent-soft transition-colors"
+                                  className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-surface text-accent text-[10px] sm:text-[11px] font-bold border border-line group-hover:border-accent/40 group-hover:bg-accent-soft transition-colors"
                                 >
                                   {skill}
                                 </span>
                               ))}
                               {devSkills.length > 3 && (
-                                <span className="px-3 py-1 rounded-full bg-surface-2 text-muted text-[11px] font-bold border border-line">
+                                <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-surface-2 text-muted text-[10px] sm:text-[11px] font-bold border border-line">
                                   +{devSkills.length - 3}
                                 </span>
                               )}
                             </>
                           ) : (
-                            <span className="text-xs italic font-medium text-muted">No specific skills listed</span>
+                            <span className="text-[10px] sm:text-xs italic font-medium text-muted">No specific skills listed</span>
                           )}
                         </div>
 
                         {/* Button Actions - ALWAYS sticks to bottom due to mt-auto */}
-                        <div className="mt-auto pb-5 pt-2">
-                          <div className="grid grid-cols-2 gap-3">
+                        <div className="mt-auto pb-3 sm:pb-5 pt-1 sm:pt-2">
+                          <div className="grid grid-cols-2 gap-2 sm:gap-3">
                             <motion.button
                               whileHover={{ scale: 1.03 }}
                               whileTap={{ scale: 0.95 }}
                               disabled={followLoadingIds[dev._id]}
                               onClick={() => handleFollowToggle(dev._id, dev.username)}
-                              className={`w-full py-2.5 px-2 rounded-xl text-[13px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm disabled:opacity-70 disabled:cursor-not-allowed ${
+                              className={`w-full py-2 sm:py-2.5 px-2 rounded-lg sm:rounded-xl text-[11px] sm:text-[13px] font-bold flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer shadow-sm disabled:opacity-70 disabled:cursor-not-allowed ${
                                 isFollowing
                                   ? "bg-accent text-accent-ink hover:brightness-90 shadow-accent/25"
                                   : "bg-gradient-to-r from-accent to-accent-2 text-accent-ink hover:from-accent hover:to-accent shadow-accent/25"
@@ -799,10 +787,10 @@ export default function ExploreUsers() {
                               whileHover={{ scale: 1.03 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => router.push(`/users/${dev.username}`)} 
-                              className="w-full py-2.5 px-2 bg-surface border border-line text-ink text-[13px] font-bold rounded-xl hover:bg-page hover:border-accent/30 flex items-center justify-center gap-1.5 transition-all group/btn shadow-sm cursor-pointer"
+                              className="w-full py-2 sm:py-2.5 px-2 bg-surface border border-line text-ink text-[11px] sm:text-[13px] font-bold rounded-lg sm:rounded-xl hover:bg-page hover:border-accent/30 flex items-center justify-center gap-1 sm:gap-1.5 transition-all group/btn shadow-sm cursor-pointer"
                             >
                               <span>Profile</span>
-                              <ArrowRight className="w-3.5 h-3.5 text-muted group-hover/btn:text-accent group-hover/btn:translate-x-1 transition-transform" />
+                              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-muted group-hover/btn:text-accent group-hover/btn:translate-x-1 transition-transform" />
                             </motion.button>
                           </div>
                         </div>
