@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bug, Lightbulb, HelpCircle, MessageCircle, Send, CheckCircle2, AlertCircle, Loader2, Sparkles } from "lucide-react";
+import { Bug, Lightbulb, HelpCircle, MessageCircle, Send, CheckCircle2, AlertCircle, Loader2, Sparkles, Inbox } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const categories = [
@@ -12,6 +12,18 @@ const categories = [
   { id: "feedback", label: "General Feedback", icon: MessageCircle },
 ];
 
+const STORAGE_KEY = "devreview_feedback_submissions";
+
+function formatTime(iso) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return new Date(iso).toLocaleDateString();
+}
+
 export default function Feedback() {
   const { user } = useAuth();
 
@@ -20,7 +32,17 @@ export default function Feedback() {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState({ show: false, type: "", message: "" });
-  const [lastSubmission, setLastSubmission] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
+
+  // Load past submissions (this browser only — no backend yet)
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      setSubmissions(stored);
+    } catch {
+      setSubmissions([]);
+    }
+  }, []);
 
   // Prefill from the logged-in user, still editable
   useEffect(() => {
@@ -64,6 +86,7 @@ export default function Feedback() {
     setSubmitting(true);
 
     const payload = {
+      id: `${Date.now()}`,
       category,
       ...formData,
       submittedAt: new Date().toISOString(),
@@ -74,19 +97,21 @@ export default function Feedback() {
 
     setTimeout(() => {
       setSubmitting(false);
-      setLastSubmission(payload);
+      setSubmissions((prev) => {
+        const next = [payload, ...prev];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        return next;
+      });
       setToast({ show: true, type: "success", message: "Thanks! Your message has been logged — we'll get back to you." });
       setFormData((prev) => ({ ...prev, subject: "", message: "" }));
     }, 500);
   };
 
-  const submittedCategory = categories.find((c) => c.id === lastSubmission?.category);
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="h-[calc(100dvh-3.5rem)] md:h-screen flex flex-col overflow-hidden p-3 md:p-6 max-w-3xl mx-auto w-full text-ink"
+      className="h-[calc(100dvh-3.5rem)] md:h-screen flex flex-col overflow-hidden p-3 md:p-6 w-full text-ink"
     >
       {/* Toast */}
       <AnimatePresence>
@@ -119,156 +144,172 @@ export default function Feedback() {
         </p>
       </div>
 
-      {/* Form Card */}
-      <form
-        onSubmit={handleSubmit}
-        className="flex-1 min-h-0 bg-surface border border-line rounded-2xl shadow-sm p-3 md:p-5 flex flex-col gap-2.5 md:gap-3 overflow-y-auto"
-      >
-        {/* Category Pills */}
-        <div className="shrink-0">
-          <label className="text-[10px] font-bold uppercase tracking-wide text-muted mb-1.5 block">
-            What's this about?
-          </label>
-          <div className="grid grid-cols-4 gap-1.5 md:gap-2">
-            {categories.map((c) => {
-              const Icon = c.icon;
-              const active = category === c.id;
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => setCategory(c.id)}
-                  className={`flex flex-col items-center justify-center gap-1 py-1.5 md:py-2 px-1 rounded-lg border text-[10px] md:text-xs font-semibold transition-all duration-200 ${
-                    active
-                      ? "bg-accent-soft border-accent/40 text-accent shadow-sm"
-                      : "bg-page border-line text-muted hover:border-accent/30 hover:text-ink"
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                  <span className="leading-tight text-center">{c.label}</span>
-                </button>
-              );
-            })}
+      {/* Body: submissions on the left, form on the right */}
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
+
+        {/* LEFT: What you've sent */}
+        <div className="order-2 lg:order-1 min-h-0 flex flex-col bg-surface border border-line rounded-2xl p-3 md:p-4 overflow-hidden">
+          <div className="shrink-0 flex items-center justify-between mb-2">
+            <h2 className="text-[10px] md:text-xs font-bold uppercase tracking-wide text-muted">Your Submissions</h2>
+            {submissions.length > 0 && (
+              <span className="text-[10px] text-muted">{submissions.length} sent</span>
+            )}
+          </div>
+
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2 pr-1">
+            {submissions.length === 0 ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center gap-2 text-muted py-8">
+                <Inbox className="w-7 h-7 opacity-40" />
+                <p className="text-xs">Nothing sent yet — your messages will show up here.</p>
+              </div>
+            ) : (
+              submissions.map((s) => {
+                const cat = categories.find((c) => c.id === s.category);
+                return (
+                  <div key={s.id} className="shrink-0 bg-page border border-line rounded-xl p-2.5 md:p-3 flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      {cat && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-accent-soft text-accent border border-accent/20 shrink-0">
+                          <cat.icon className="w-3 h-3" />
+                          {cat.label}
+                        </span>
+                      )}
+                      <span className="text-[10px] text-muted shrink-0">{formatTime(s.submittedAt)}</span>
+                    </div>
+                    <p className="text-xs md:text-sm font-bold text-ink truncate">{s.subject}</p>
+                    <p className="text-[11px] md:text-xs text-muted line-clamp-2 leading-relaxed">{s.message}</p>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
-        {/* Prefill notice — makes it explicit where Name/Email came from */}
-        {user && (
-          <div className="shrink-0 flex items-center gap-1.5 text-[10px] md:text-xs font-semibold text-accent bg-accent-soft border border-accent/20 rounded-lg px-2.5 py-1.5">
-            <Sparkles className="w-3.5 h-3.5 shrink-0" />
-            Auto-filled from your profile — feel free to edit
+        {/* RIGHT: Form — sits opposite the sidebar */}
+        <form
+          onSubmit={handleSubmit}
+          className="order-1 lg:order-2 min-h-0 bg-surface border border-line rounded-2xl shadow-sm p-3 md:p-5 flex flex-col gap-2.5 md:gap-3 overflow-y-auto"
+        >
+          {/* Category Pills */}
+          <div className="shrink-0">
+            <label className="text-[10px] font-bold uppercase tracking-wide text-muted mb-1.5 block">
+              What's this about?
+            </label>
+            <div className="grid grid-cols-4 gap-1.5 md:gap-2">
+              {categories.map((c) => {
+                const Icon = c.icon;
+                const active = category === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setCategory(c.id)}
+                    className={`flex flex-col items-center justify-center gap-1 py-1.5 md:py-2 px-1 rounded-lg border text-[10px] md:text-xs font-semibold transition-all duration-200 ${
+                      active
+                        ? "bg-accent-soft border-accent/40 text-accent shadow-sm"
+                        : "bg-page border-line text-muted hover:border-accent/30 hover:text-ink"
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    <span className="leading-tight text-center">{c.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        )}
 
-        {/* Name + Email */}
-        <div className="shrink-0 grid grid-cols-2 gap-2 md:gap-3">
-          <div>
-            <label className="text-[10px] font-bold uppercase tracking-wide text-muted mb-1 block">Name</label>
+          {/* Prefill notice — makes it explicit where Name/Email came from */}
+          {user && (
+            <div className="shrink-0 flex items-center gap-1.5 text-[10px] md:text-xs font-semibold text-accent bg-accent-soft border border-accent/20 rounded-lg px-2.5 py-1.5">
+              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+              Auto-filled from your profile — feel free to edit
+            </div>
+          )}
+
+          {/* Name + Email */}
+          <div className="shrink-0 grid grid-cols-2 gap-2 md:gap-3">
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wide text-muted mb-1 block">Name</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Your name"
+                className={`w-full px-3 py-1.5 md:py-2 bg-page border rounded-lg text-xs md:text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
+                  errors.name ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
+                }`}
+              />
+              {errors.name && <p className="text-[10px] text-danger mt-1">{errors.name}</p>}
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wide text-muted mb-1 block">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                className={`w-full px-3 py-1.5 md:py-2 bg-page border rounded-lg text-xs md:text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
+                  errors.email ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
+                }`}
+              />
+              {errors.email && <p className="text-[10px] text-danger mt-1">{errors.email}</p>}
+            </div>
+          </div>
+
+          {/* Subject */}
+          <div className="shrink-0">
+            <label className="text-[10px] font-bold uppercase tracking-wide text-muted mb-1 block">Subject</label>
             <input
               type="text"
-              name="name"
-              value={formData.name}
+              name="subject"
+              value={formData.subject}
               onChange={handleChange}
-              placeholder="Your name"
+              placeholder="Short summary"
               className={`w-full px-3 py-1.5 md:py-2 bg-page border rounded-lg text-xs md:text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
-                errors.name ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
+                errors.subject ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
               }`}
             />
-            {errors.name && <p className="text-[10px] text-danger mt-1">{errors.name}</p>}
+            {errors.subject && <p className="text-[10px] text-danger mt-1">{errors.subject}</p>}
           </div>
-          <div>
-            <label className="text-[10px] font-bold uppercase tracking-wide text-muted mb-1 block">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
+
+          {/* Message — fills whatever space is left so the card never overflows */}
+          <div className="flex-1 min-h-0 flex flex-col">
+            <label className="text-[10px] font-bold uppercase tracking-wide text-muted mb-1 block shrink-0">Message</label>
+            <textarea
+              name="message"
+              value={formData.message}
               onChange={handleChange}
-              placeholder="you@example.com"
-              className={`w-full px-3 py-1.5 md:py-2 bg-page border rounded-lg text-xs md:text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
-                errors.email ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
+              placeholder="Tell us what's up..."
+              className={`w-full flex-1 min-h-11 px-3 py-2 bg-page border rounded-lg text-xs md:text-sm resize-none transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
+                errors.message ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
               }`}
             />
-            {errors.email && <p className="text-[10px] text-danger mt-1">{errors.email}</p>}
+            {errors.message && <p className="text-[10px] text-danger mt-1 shrink-0">{errors.message}</p>}
           </div>
-        </div>
 
-        {/* Subject */}
-        <div className="shrink-0">
-          <label className="text-[10px] font-bold uppercase tracking-wide text-muted mb-1 block">Subject</label>
-          <input
-            type="text"
-            name="subject"
-            value={formData.subject}
-            onChange={handleChange}
-            placeholder="Short summary"
-            className={`w-full px-3 py-1.5 md:py-2 bg-page border rounded-lg text-xs md:text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
-              errors.subject ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
-            }`}
-          />
-          {errors.subject && <p className="text-[10px] text-danger mt-1">{errors.subject}</p>}
-        </div>
-
-        {/* Message — fills whatever space is left so the card never overflows */}
-        <div className="flex-1 min-h-0 flex flex-col">
-          <label className="text-[10px] font-bold uppercase tracking-wide text-muted mb-1 block shrink-0">Message</label>
-          <textarea
-            name="message"
-            value={formData.message}
-            onChange={handleChange}
-            placeholder="Tell us what's up..."
-            className={`w-full flex-1 min-h-[44px] px-3 py-2 bg-page border rounded-lg text-xs md:text-sm resize-none transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
-              errors.message ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
-            }`}
-          />
-          {errors.message && <p className="text-[10px] text-danger mt-1 shrink-0">{errors.message}</p>}
-        </div>
-
-        <button
-          type="submit"
-          disabled={submitting}
-          className="shrink-0 px-5 py-2 md:py-2.5 bg-accent text-accent-ink font-semibold text-xs md:text-sm rounded-lg shadow-sm hover:brightness-110 transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {submitting ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" /> Sending...
-            </>
-          ) : (
-            <>
-              <Send className="w-4 h-4" /> Send Message
-            </>
-          )}
-        </button>
-
-        {/* Bottom strip: default helper text, swapped for a "what you sent" summary right after submit — reuses the same space instead of growing the card */}
-        <div className="shrink-0 min-h-[16px]">
-          <AnimatePresence mode="wait">
-            {lastSubmission ? (
-              <motion.p
-                key="sent"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-[10px] md:text-xs text-ok text-center font-semibold flex items-center justify-center gap-1.5 truncate"
-              >
-                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                {submittedCategory && <span>{submittedCategory.label}:</span>}
-                <span className="truncate">"{lastSubmission.subject}"</span>
-                sent
-              </motion.p>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="shrink-0 px-5 py-2 md:py-2.5 bg-accent text-accent-ink font-semibold text-xs md:text-sm rounded-lg shadow-sm hover:brightness-110 transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Sending...
+              </>
             ) : (
-              <motion.p
-                key="helper"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-[10px] md:text-xs text-muted text-center"
-              >
-                We're early stage — this currently logs to the developer directly, no ticket system yet.
-              </motion.p>
+              <>
+                <Send className="w-4 h-4" /> Send Message
+              </>
             )}
-          </AnimatePresence>
-        </div>
-      </form>
+          </button>
+
+          <p className="shrink-0 text-[10px] md:text-xs text-muted text-center">
+            We're early stage — this currently logs to the developer directly, no ticket system yet.
+          </p>
+        </form>
+      </div>
     </motion.div>
   );
 }
