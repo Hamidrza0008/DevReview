@@ -68,15 +68,24 @@ export const ThemeToggle = ({ className = '' }) => {
   const theme = useTheme();
   if (!theme) return null;
   const { theme: mode, toggleTheme } = theme;
+  const isDark = mode === 'dark';
 
   return (
     <button
       onClick={toggleTheme}
-      aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-      title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`flex items-center justify-center w-9 h-9 rounded-xl border border-line bg-surface text-muted hover:text-ink hover:border-accent/40 transition-all duration-200 ${className}`}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className={`group flex items-center justify-center w-9 h-9 rounded-xl border border-line bg-surface text-muted transition-all duration-300 hover:scale-110 hover:-translate-y-0.5 active:scale-95 ${
+        isDark
+          ? 'hover:bg-amber-400 hover:border-amber-400 hover:text-black hover:shadow-[0_0_18px_rgba(251,191,36,0.55)]'
+          : 'hover:bg-black hover:border-black hover:text-amber-300 hover:shadow-[0_0_18px_rgba(0,0,0,0.35)]'
+      } ${className}`}
     >
-      {mode === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      {isDark ? (
+        <Sun className="w-4 h-4 transition-transform duration-500 group-hover:rotate-90" />
+      ) : (
+        <Moon className="w-4 h-4 transition-transform duration-500 group-hover:-rotate-12" />
+      )}
     </button>
   );
 };
