@@ -15,7 +15,8 @@ import {
   LogOut,
   Menu,
   X,
-  Home
+  Home,
+  MessageCircleQuestion
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
@@ -30,6 +31,7 @@ const menuItems = [
   { name: "Saved Projects", icon: Bookmark, path: "/projects/saved" },
   { name: "Community", icon: Users, path: "/community" },
   { name: "Profile", icon: User, path: "/profile/my" },
+  { name: "Feedback & Support", icon: MessageCircleQuestion, path: "/feedback" },
 ];
 
 function isMenuActive(item, pathname) {
@@ -57,6 +59,8 @@ function isMenuActive(item, pathname) {
       return pathname.startsWith("/review");
     case "Community":
       return pathname.startsWith("/community");
+    case "Feedback & Support":
+      return pathname.startsWith("/feedback");
     default:
       return pathname === item.path;
   }
