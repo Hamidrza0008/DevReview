@@ -10,6 +10,7 @@ export default function Navbar() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
   const { user } = useAuth();
   const loggedIn = !!user;
 
@@ -25,10 +26,36 @@ export default function Navbar() {
   // Updated links with their target section IDs
   const navLinks = [
     { name: 'Explore Projects', href: '#explore' },
+    { name: 'How it Works', href: '#how-it-works' },
     { name: 'Reviews', href: '#reviews' },
     { name: 'Community', href: '#community' },
     { name: 'About', href: '#about' },
   ];
+
+  // Scroll-spy: highlight whichever section is currently in view
+  useEffect(() => {
+    const sectionIds = navLinks
+      .filter((link) => link.href.startsWith('#'))
+      .map((link) => link.href.replace('#', ''));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: '-45% 0px -50% 0px', threshold: 0 }
+    );
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   // Smooth Scroll Function
   const handleScrollToSection = (e, href) => {
@@ -72,18 +99,27 @@ export default function Navbar() {
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              onClick={(e) => handleScrollToSection(e, link.href)}
-              className="relative text-sm font-medium text-muted hover:text-ink py-2 transition-colors duration-200 group"
-            >
-              {link.name}
-              {/* Premium Animated Underline */}
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-linear-to-r from-accent to-accent-2 rounded-full transition-all duration-300 ease-out group-hover:w-full opacity-0 group-hover:opacity-100" />
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = activeSection === link.href.replace('#', '');
+            return (
+              <a
+                key={link.name}
+                href={link.href}
+                onClick={(e) => handleScrollToSection(e, link.href)}
+                className={`relative text-sm font-medium py-2 transition-colors duration-200 group ${
+                  isActive ? 'text-ink' : 'text-muted hover:text-ink'
+                }`}
+              >
+                {link.name}
+                {/* Premium Animated Underline — stays lit for the active section */}
+                <span
+                  className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-linear-to-r from-accent to-accent-2 rounded-full transition-all duration-300 ease-out ${
+                    isActive ? 'w-full opacity-100' : 'w-0 opacity-0 group-hover:w-full group-hover:opacity-100'
+                  }`}
+                />
+              </a>
+            );
+          })}
         </div>
 
         {/* Desktop Buttons (Logged In vs Logged Out) */}
@@ -147,16 +183,22 @@ export default function Navbar() {
             className="md:hidden overflow-hidden border-t border-line bg-page/95 md:backdrop-blur-2xl absolute w-full left-0 shadow-xl"
           >
             <div className="px-6 py-6 flex flex-col gap-5">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={(e) => handleScrollToSection(e, link.href)}
-                  className="text-base font-semibold text-muted hover:text-accent transition-colors duration-200"
-                >
-                  {link.name}
-                </a>
-              ))}
+              {navLinks.map((link) => {
+                const isActive = activeSection === link.href.replace('#', '');
+                return (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    onClick={(e) => handleScrollToSection(e, link.href)}
+                    className={`flex items-center gap-2 text-base font-semibold transition-colors duration-200 ${
+                      isActive ? 'text-accent' : 'text-muted hover:text-accent'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full bg-accent transition-opacity duration-200 ${isActive ? 'opacity-100' : 'opacity-0'}`} />
+                    {link.name}
+                  </a>
+                );
+              })}
 
               <hr className="border-line my-2" />
 

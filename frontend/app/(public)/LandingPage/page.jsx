@@ -6,8 +6,10 @@ import Navbar from '@/Components/LandingPage/Navbar';
 import Hero from '@/Components/LandingPage/Hero';
 import Features from '@/Components/LandingPage/Features';
 import HowItWorks from '@/Components/LandingPage/HowItWorks';
+import Reviews from '@/Components/LandingPage/Reviews';
 import FeaturedProjects from '@/Components/LandingPage/FeaturedProjects';
 import Community from '@/Components/LandingPage/Community';
+import About from '@/Components/LandingPage/About';
 import FinalCTA from '@/Components/LandingPage/FinalCTA';
 
 export default function DevReviewLandingPage() {
@@ -38,8 +40,10 @@ export default function DevReviewLandingPage() {
           
           <Features />
           <HowItWorks />
+          <Reviews />
           <FeaturedProjects />
           <Community />
+          <About />
           <FinalCTA />
         </main>
         
