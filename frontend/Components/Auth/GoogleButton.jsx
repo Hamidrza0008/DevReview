@@ -5,6 +5,7 @@ import Script from "next/script";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { useToast } from "@/context/ToastContext";
 import { googleAuth } from "@/services/authApis";
 
 export default function GoogleButton({ onError }) {
@@ -13,6 +14,7 @@ export default function GoogleButton({ onError }) {
   const router = useRouter();
   const { fetchUser } = useAuth();
   const { theme } = useTheme();
+  const { showToast } = useToast();
   const [scriptReady, setScriptReady] = useState(
     () => typeof window !== "undefined" && !!window.google?.accounts?.id
   );
@@ -26,6 +28,7 @@ export default function GoogleButton({ onError }) {
 
       if (res.success) {
         await fetchUser();
+        showToast("success", "Welcome back! Redirecting to your dashboard...");
         router.push("/dashboard");
       } else {
         setIsVerifying(false);

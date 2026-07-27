@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { login } from "@/services/authApis";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import GoogleButton from "./GoogleButton";
 
 // Isolated Premium Skeleton Component to use inside Next.js Suspense Fallback
@@ -51,6 +52,7 @@ export function LoginSkeleton() {
 export default function Login() {
   const { fetchUser } = useAuth();
   const router = useRouter();
+  const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -75,6 +77,7 @@ export default function Login() {
       console.log(res);
       if (res.success) {
         await fetchUser();
+        showToast("success", "Welcome back! Redirecting to your dashboard...");
         router.push("/dashboard");
       } else {
         setError(res.message || "Invalid email or access key. Please try again.");
