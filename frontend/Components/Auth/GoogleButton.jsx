@@ -17,8 +17,10 @@ export default function GoogleButton({ onError }) {
     () => typeof window !== "undefined" && !!window.google?.accounts?.id
   );
   const [buttonReady, setButtonReady] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const handleCredentialResponse = async (response) => {
+    setIsVerifying(true);
     try {
       const res = await googleAuth(response.credential);
 
@@ -26,10 +28,12 @@ export default function GoogleButton({ onError }) {
         await fetchUser();
         router.push("/dashboard");
       } else {
+        setIsVerifying(false);
         onError?.(res.message || "Google sign-in failed. Please try again.");
       }
     } catch (err) {
       console.log(err);
+      setIsVerifying(false);
       onError?.("Something went wrong with Google sign-in.");
     }
   };
@@ -89,9 +93,20 @@ export default function GoogleButton({ onError }) {
         strategy="afterInteractive"
         onLoad={() => setScriptReady(true)}
       />
-      <div ref={containerRef} className="w-full">
+      <div ref={containerRef} className="w-full relative">
         {!buttonReady && <div className="w-full h-11 rounded-full bg-line animate-pulse" />}
-        <div ref={buttonRef} className={`w-full flex justify-center ${buttonReady ? "" : "hidden"}`} />
+        <div
+          ref={buttonRef}
+          className={`w-full flex justify-center transition-opacity ${buttonReady ? "" : "hidden"} ${
+            isVerifying ? "opacity-40" : ""
+          }`}
+        />
+        {isVerifying && (
+          <div className="absolute inset-0 flex items-center justify-center gap-2 rounded-full bg-page/80 backdrop-blur-sm text-sm font-semibold text-ink">
+            <span className="w-4 h-4 border-2 border-ink/20 border-t-accent rounded-full animate-spin" />
+            <span>Signing you in...</span>
+          </div>
+        )}
       </div>
     </>
   );
