@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   FolderGit2,
   MessageSquare,
+  MessageCircle,
   Compass,
   Bookmark,
   Users,
@@ -26,6 +27,7 @@ const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { name: "Explore Projects", icon: Compass, path: "/projects/explore" },
   { name: "Users", icon: Users, path: "/users/explore" },
+  { name: "Messages", icon: MessageCircle, path: "/messages" },
   { name: "My Projects", icon: FolderGit2, path: "/projects/my" },
   { name: "Reviews Received", icon: MessageSquare, path: "/review", badge: "New" },
   { name: "Saved Projects", icon: Bookmark, path: "/projects/saved" },
@@ -51,6 +53,8 @@ function isMenuActive(item, pathname) {
       return pathname.startsWith("/projects/my");
     case "Users":
       return pathname.startsWith("/users");
+    case "Messages":
+      return pathname.startsWith("/messages");
     case "Profile":
       return pathname.startsWith("/profile");
     case "Saved Projects":
