@@ -75,7 +75,7 @@ export const ThemeToggle = ({ className = '' }) => {
       onClick={toggleTheme}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`group flex items-center justify-center w-9 h-9 rounded-xl border border-line bg-surface text-muted transition-all duration-300 hover:scale-110 hover:-translate-y-0.5 active:scale-95 ${
+      className={`group flex items-center justify-center w-9 h-9 rounded-xl border border-line bg-surface text-muted transition-all duration-300 hover:scale-110 hover:-translate-y-0.5 active:scale-95 cursor-pointer ${
         isDark
           ? 'hover:bg-amber-400 hover:border-amber-400 hover:text-black hover:shadow-[0_0_18px_rgba(251,191,36,0.55)]'
           : 'hover:bg-black hover:border-black hover:text-amber-300 hover:shadow-[0_0_18px_rgba(0,0,0,0.35)]'

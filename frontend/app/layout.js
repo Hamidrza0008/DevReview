@@ -21,7 +21,11 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: themeInitScript }}
+        />
       </head>
       <body className="min-h-full flex flex-col bg-page text-ink">
         <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />

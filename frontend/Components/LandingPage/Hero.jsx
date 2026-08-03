@@ -100,7 +100,7 @@ export default function Hero() {
         </div>
 
         {/* Honest early-stage status row instead of fake metrics */}
-        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-8 mt-10 pt-6 border-t border-line/80 w-full text-left">
+        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-8 mt-4 pt-4 border-t border-line/80 w-full text-left">
           <div>
             <div className="text-3xl font-bold text-ink">Day 1</div>
             <div className="text-xs text-muted mt-1 font-semibold tracking-wide uppercase">Just Getting Started</div>

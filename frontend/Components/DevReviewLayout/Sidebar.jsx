@@ -80,10 +80,10 @@ function NavList({ onNavigate }) {
           <button
             key={item.name}
             onClick={() => { router.push(item.path); onNavigate?.(); }}
-            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm transition-all duration-200 group relative overflow-hidden ${
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm transition-all duration-200 group relative overflow-hidden cursor-pointer active:scale-[0.98] ${
               isActive
                 ? "font-bold shadow-sm border border-accent/15 bg-surface/80 md:backdrop-blur-sm"
-                : "text-muted hover:bg-surface/80 md:backdrop-blur-sm hover:text-ink hover:shadow-sm border border-transparent"
+                : "text-muted hover:bg-surface/80 md:backdrop-blur-sm hover:text-ink hover:shadow-sm hover:border-line/60 border border-transparent"
             }`}
           >
             {isActive && (
@@ -156,7 +156,7 @@ function ProfileFooter() {
 
       <button
         onClick={() => logout()}
-        className="p-2 text-muted hover:text-danger hover:bg-danger/10 rounded-xl transition-all duration-200 shrink-0 group/logout"
+        className="p-2 text-muted hover:text-danger hover:bg-danger/10 rounded-xl transition-all duration-200 shrink-0 group/logout cursor-pointer hover:scale-110 active:scale-95"
         title="Log Out"
       >
         <LogOut className="w-4 h-4 transition-transform duration-200 group-hover/logout:-translate-x-0.5" />
@@ -190,14 +190,14 @@ export default function Sidebar() {
             onClick={() => router.push("/")}
             aria-label="Back to home"
             title="Back to Home"
-            className="w-9 h-9 flex items-center justify-center rounded-xl border border-line bg-surface text-muted hover:text-accent"
+            className="w-9 h-9 flex items-center justify-center rounded-xl border border-line bg-surface text-muted hover:text-accent hover:border-accent/40 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
           >
             <Home className="w-4 h-4" />
           </button>
           <button
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
-            className="w-9 h-9 flex items-center justify-center rounded-xl border border-line bg-surface text-ink"
+            className="w-9 h-9 flex items-center justify-center rounded-xl border border-line bg-surface text-ink hover:text-accent hover:border-accent/40 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -232,14 +232,14 @@ export default function Sidebar() {
                       onClick={() => { router.push("/"); setMobileOpen(false); }}
                       aria-label="Back to home"
                       title="Back to Home"
-                      className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-surface"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-surface hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
                     >
                       <Home className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setMobileOpen(false)}
                       aria-label="Close menu"
-                      className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-ink hover:bg-surface"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-ink hover:bg-surface hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -290,7 +290,7 @@ export default function Sidebar() {
               onClick={() => router.push("/")}
               aria-label="Back to home"
               title="Back to Home"
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-page transition-colors shrink-0"
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-page hover:scale-110 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
             >
               <Home className="w-4 h-4" />
             </button>
