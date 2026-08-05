@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Search, Send, ArrowLeft, MessageCircle, CheckCheck } from "lucide-react";
+import { Search, Send, ArrowLeft, MessageCircle, CheckCheck, Construction } from "lucide-react";
 
 const initialConversations = [
   {
@@ -127,6 +127,10 @@ export default function Messages() {
         <p className="text-xs md:text-sm text-muted mt-0.5">
           Chat with developers about their projects and your reviews.
         </p>
+        <div className="mt-2.5 flex items-center gap-2 rounded-xl border border-star/25 bg-star/10 px-3 py-2 text-xs text-ink">
+          <Construction className="h-4 w-4 shrink-0 text-star" />
+          <p><strong>Under development:</strong> Chat is currently a dummy UI for preview purposes. Real-time messaging is coming soon.</p>
+        </div>
       </div>
 
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-3 md:gap-4">

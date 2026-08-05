@@ -77,10 +77,10 @@ export default function Reviews() {
             <div className="flex items-center justify-between border-b border-line pb-4">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-linear-to-br from-accent to-accent-2 text-accent-ink flex items-center justify-center font-bold text-xs">
-                  AV
+                  HS
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-ink">Ananya Verma</p>
+                  <p className="text-sm font-bold text-ink">Hariom Singh</p>
                   <p className="text-[11px] text-muted font-medium">reviewed Finance Tracker</p>
                 </div>
               </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bug, Lightbulb, HelpCircle, MessageCircle, Send, CheckCircle2, AlertCircle, Loader2, Sparkles, Inbox } from "lucide-react";
+import { Bug, Lightbulb, HelpCircle, MessageCircle, Send, CheckCircle2, AlertCircle, Loader2, Sparkles, Inbox, Construction } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const categories = [
@@ -142,6 +142,10 @@ export default function Feedback() {
         <p className="text-muted text-xs md:text-sm mt-0.5">
           Got a problem, a question, or an idea? Send it straight to the developer.
         </p>
+        <div className="mt-2 flex items-center gap-2 rounded-xl border border-star/25 bg-star/10 px-3 py-2 text-xs text-ink">
+          <Construction className="h-4 w-4 shrink-0 text-star" />
+          <p><strong>Under development:</strong> This is currently a dummy UI. Submissions are saved only in this browser, not sent to a server.</p>
+        </div>
       </div>
 
       {/* Body: submissions on the left, form on the right */}

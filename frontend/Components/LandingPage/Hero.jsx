@@ -11,10 +11,10 @@ export default function Hero() {
   const { user } = useAuth();
   const springConfig = { type: 'spring', stiffness: 100, damping: 20 };
 
-  // Both destinations require an account, so send logged-out visitors
-  // to sign up first instead of dropping them on a page that will 401.
-  const goExploreProjects = () => router.push(user ? '/projects/explore' : '/auth/signup');
-  const goUploadProject = () => router.push(user ? '/projects/create' : '/auth/signup');
+  // Both destinations require an account. Logged-in users continue directly;
+  // everyone else is sent to login first.
+  const goExploreProjects = () => router.push(user ? '/projects/explore' : '/auth/login');
+  const goUploadProject = () => router.push(user ? '/projects/create' : '/auth/login');
 
   return (
     <section className="relative w-full min-h-screen bg-page px-6 md:px-16 lg:px-24 pt-20 pb-20 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center overflow-hidden select-none z-10">
@@ -210,7 +210,7 @@ export default function Hero() {
                 <span className="text-[9px] text-muted">2h ago</span>
               </div>
               <p className="text-[10px] text-muted leading-relaxed font-medium">
-                "Great UI and clean code! Maybe improve the mobile responsive part..."
+                Great UI and clean code! Maybe improve the mobile responsive part...
               </p>
               <div className="text-[10px] text-star tracking-tighter">★★★★☆</div>
             </div>

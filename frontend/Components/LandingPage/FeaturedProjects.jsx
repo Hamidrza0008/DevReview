@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { TechBadge } from './atoms';
+import { useAuth } from '@/context/AuthContext';
 
 const projects = [
   {
@@ -25,6 +26,7 @@ const projects = [
 
 export default function FeaturedProjects() {
   const router = useRouter();
+  const { user } = useAuth();
 
   return (
     <section className="w-full px-6 md:px-12 py-20 bg-surface border-b border-line">
@@ -90,7 +92,7 @@ export default function FeaturedProjects() {
 
         <button
           type="button"
-          onClick={() => router.push('/auth/signup')}
+          onClick={() => router.push(user ? '/projects/create' : '/auth/login')}
           className="border-2 border-dashed border-line rounded-2xl flex flex-col items-center justify-center gap-3 py-16 text-muted hover:text-accent hover:border-accent/40 transition-all duration-300"
         >
           <div className="w-10 h-10 rounded-full bg-accent-soft text-accent flex items-center justify-center">
