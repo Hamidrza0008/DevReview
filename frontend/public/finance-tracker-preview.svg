@@ -1,0 +1,75 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="720" rx="28" fill="#F5F7F5"/>
+  <rect width="226" height="720" fill="#14231B"/>
+  <rect x="30" y="30" width="42" height="42" rx="12" fill="#52B982"/>
+  <path d="M43 53L50 60L62 43" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="85" y="59" fill="white" font-family="Arial, sans-serif" font-size="23" font-weight="700">Fintrack</text>
+  <rect x="22" y="113" width="182" height="52" rx="14" fill="#254533"/>
+  <circle cx="49" cy="139" r="9" fill="#65CA91"/>
+  <rect x="69" y="132" width="91" height="14" rx="7" fill="#DDF5E7"/>
+  <g fill="#50655A">
+    <rect x="30" y="205" width="126" height="13" rx="6.5"/>
+    <rect x="30" y="252" width="145" height="13" rx="6.5"/>
+    <rect x="30" y="299" width="112" height="13" rx="6.5"/>
+    <rect x="30" y="346" width="134" height="13" rx="6.5"/>
+  </g>
+  <circle cx="54" cy="656" r="20" fill="#DBA06C"/>
+  <rect x="84" y="644" width="86" height="11" rx="5.5" fill="#E0E9E4"/>
+  <rect x="84" y="663" width="55" height="8" rx="4" fill="#61776B"/>
+
+  <text x="270" y="65" fill="#1B2D24" font-family="Arial, sans-serif" font-size="27" font-weight="700">Financial overview</text>
+  <text x="270" y="94" fill="#78837D" font-family="Arial, sans-serif" font-size="15">Track your money and monthly goals</text>
+  <rect x="985" y="38" width="170" height="46" rx="13" fill="#2F8058"/>
+  <text x="1019" y="67" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="700">+ Transaction</text>
+
+  <g font-family="Arial, sans-serif">
+    <rect x="266" y="130" width="274" height="132" rx="20" fill="white"/>
+    <text x="290" y="163" fill="#77827C" font-size="14" font-weight="600">TOTAL BALANCE</text>
+    <text x="290" y="211" fill="#1B2D24" font-size="36" font-weight="700">$24,560.80</text>
+    <text x="290" y="239" fill="#349264" font-size="14" font-weight="700">↗ 8.4% this month</text>
+
+    <rect x="560" y="130" width="274" height="132" rx="20" fill="white"/>
+    <text x="584" y="163" fill="#77827C" font-size="14" font-weight="600">MONTHLY INCOME</text>
+    <text x="584" y="211" fill="#1B2D24" font-size="36" font-weight="700">$8,420.00</text>
+    <rect x="584" y="231" width="178" height="8" rx="4" fill="#DDF3E6"/>
+    <rect x="584" y="231" width="124" height="8" rx="4" fill="#4EB47B"/>
+
+    <rect x="854" y="130" width="302" height="132" rx="20" fill="#193326"/>
+    <text x="880" y="163" fill="#9FBAAC" font-size="14" font-weight="600">SAVINGS GOAL</text>
+    <text x="880" y="211" fill="white" font-size="36" font-weight="700">72%</text>
+    <text x="974" y="208" fill="#71D39B" font-size="14" font-weight="700">$7,200 saved</text>
+    <rect x="880" y="231" width="244" height="8" rx="4" fill="#355343"/>
+    <rect x="880" y="231" width="176" height="8" rx="4" fill="#5DC88B"/>
+  </g>
+
+  <rect x="266" y="286" width="588" height="380" rx="22" fill="white"/>
+  <text x="292" y="326" fill="#1B2D24" font-family="Arial, sans-serif" font-size="19" font-weight="700">Cash flow</text>
+  <text x="747" y="326" fill="#76817B" font-family="Arial, sans-serif" font-size="13">Last 6 months</text>
+  <g stroke="#E8EDE9" stroke-width="1">
+    <line x1="292" y1="381" x2="823" y2="381"/><line x1="292" y1="439" x2="823" y2="439"/>
+    <line x1="292" y1="497" x2="823" y2="497"/><line x1="292" y1="555" x2="823" y2="555"/>
+  </g>
+  <path d="M298 546C351 526 371 476 422 486C473 496 491 418 547 438C603 458 617 371 679 397C741 423 768 349 822 363" stroke="#46A873" stroke-width="6" stroke-linecap="round"/>
+  <path d="M298 546C351 526 371 476 422 486C473 496 491 418 547 438C603 458 617 371 679 397C741 423 768 349 822 363V622H298V546Z" fill="url(#chart)" opacity="0.42"/>
+  <g fill="#46A873">
+    <circle cx="422" cy="486" r="7"/><circle cx="547" cy="438" r="7"/><circle cx="679" cy="397" r="7"/><circle cx="822" cy="363" r="7"/>
+  </g>
+  <g fill="#89938E" font-family="Arial, sans-serif" font-size="12">
+    <text x="296" y="647">MAR</text><text x="396" y="647">APR</text><text x="500" y="647">MAY</text>
+    <text x="605" y="647">JUN</text><text x="710" y="647">JUL</text><text x="802" y="647">AUG</text>
+  </g>
+
+  <rect x="876" y="286" width="280" height="380" rx="22" fill="white"/>
+  <text x="902" y="326" fill="#1B2D24" font-family="Arial, sans-serif" font-size="19" font-weight="700">Recent activity</text>
+  <g font-family="Arial, sans-serif">
+    <circle cx="924" cy="382" r="20" fill="#E5F4EB"/><text x="916" y="389" fill="#36855A" font-size="20">↑</text>
+    <text x="958" y="378" fill="#26372E" font-size="15" font-weight="700">Salary deposit</text><text x="958" y="400" fill="#849089" font-size="12">Today, 09:42</text><text x="1082" y="380" fill="#349264" font-size="14" font-weight="700">+$4,200</text>
+    <circle cx="924" cy="458" r="20" fill="#F9E9E5"/><text x="916" y="465" fill="#B65A4E" font-size="20">↓</text>
+    <text x="958" y="454" fill="#26372E" font-size="15" font-weight="700">Workspace</text><text x="958" y="476" fill="#849089" font-size="12">Yesterday</text><text x="1090" y="456" fill="#B65A4E" font-size="14" font-weight="700">-$42</text>
+    <circle cx="924" cy="534" r="20" fill="#E8EBFA"/><text x="916" y="541" fill="#6574B8" font-size="20">↓</text>
+    <text x="958" y="530" fill="#26372E" font-size="15" font-weight="700">Cloud hosting</text><text x="958" y="552" fill="#849089" font-size="12">Aug 18</text><text x="1090" y="532" fill="#B65A4E" font-size="14" font-weight="700">-$18</text>
+    <circle cx="924" cy="610" r="20" fill="#FFF1D7"/><text x="916" y="617" fill="#AE7D27" font-size="20">↓</text>
+    <text x="958" y="606" fill="#26372E" font-size="15" font-weight="700">Groceries</text><text x="958" y="628" fill="#849089" font-size="12">Aug 17</text><text x="1084" y="608" fill="#B65A4E" font-size="14" font-weight="700">-$126</text>
+  </g>
+  <defs><linearGradient id="chart" x1="560" y1="363" x2="560" y2="622" gradientUnits="userSpaceOnUse"><stop stop-color="#62C58C"/><stop offset="1" stop-color="#62C58C" stop-opacity="0"/></linearGradient></defs>
+</svg>

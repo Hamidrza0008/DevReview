@@ -203,10 +203,10 @@ export default function Hero() {
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
             className="absolute bottom-10 -left-6 md:-left-16 max-w-[240px] bg-surface/90 md:backdrop-blur-xl border border-surface shadow-[0_20px_40px_rgba(0,0,0,0.08)] p-4 rounded-xl hidden md:flex items-start gap-3 z-20"
           >
-            <div className="w-8 h-8 rounded-full bg-page border border-line shrink-0 flex items-center justify-center text-[11px] font-bold text-muted">RS</div>
+            <div className="w-8 h-8 rounded-full bg-page border border-line shrink-0 flex items-center justify-center text-[11px] font-bold text-muted">AB</div>
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between w-full gap-3">
-                <span className="text-[11px] font-bold text-ink">Rahul Sharma</span>
+                <span className="text-[11px] font-bold text-ink">Abhishek Bind</span>
                 <span className="text-[9px] text-muted">2h ago</span>
               </div>
               <p className="text-[10px] text-muted leading-relaxed font-medium">

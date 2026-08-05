@@ -12,14 +12,14 @@ const projects = [
     stack: ['Next.js', 'MongoDB', 'Tailwind'],
     dev: 'Hamid Raza',
     role: 'Founder',
-    imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80',
+    imageUrl: '/finance-tracker-preview.svg',
   },
   {
     title: 'TaskFlow',
     stack: ['React', 'Node.js', 'PostgreSQL'],
     dev: 'DevReview Team',
     role: 'Community Pick',
-    imageUrl: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?auto=format&fit=crop&w=600&q=80',
+    imageUrl: '/taskflow-preview.svg',
   },
 ];
 

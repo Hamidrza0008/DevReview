@@ -1,0 +1,67 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="720" rx="28" fill="#F4F7F5"/>
+  <rect width="1200" height="76" fill="#17231D"/>
+  <circle cx="38" cy="38" r="8" fill="#F16D64"/>
+  <circle cx="64" cy="38" r="8" fill="#F2C15C"/>
+  <circle cx="90" cy="38" r="8" fill="#65C78A"/>
+  <rect x="132" y="25" width="330" height="27" rx="13.5" fill="#26372E"/>
+  <circle cx="1116" cy="38" r="20" fill="#65C78A"/>
+  <rect y="76" width="224" height="644" fill="#FFFFFF"/>
+  <rect x="26" y="112" width="172" height="50" rx="14" fill="#E6F4EB"/>
+  <circle cx="52" cy="137" r="9" fill="#3FA97A"/>
+  <rect x="72" y="130" width="84" height="14" rx="7" fill="#315D46"/>
+  <g fill="#DCE4DF">
+    <rect x="30" y="194" width="142" height="14" rx="7"/>
+    <rect x="30" y="240" width="116" height="14" rx="7"/>
+    <rect x="30" y="286" width="136" height="14" rx="7"/>
+    <rect x="30" y="332" width="102" height="14" rx="7"/>
+  </g>
+  <rect x="258" y="112" width="314" height="52" rx="12" fill="#FFFFFF"/>
+  <text x="282" y="146" fill="#1C2D24" font-family="Arial, sans-serif" font-size="25" font-weight="700">Product launch board</text>
+  <rect x="970" y="116" width="188" height="44" rx="12" fill="#2F8058"/>
+  <text x="1011" y="145" fill="white" font-family="Arial, sans-serif" font-size="17" font-weight="700">+ Add task</text>
+  <g font-family="Arial, sans-serif">
+    <text x="266" y="212" fill="#68746D" font-size="17" font-weight="700">TO DO</text>
+    <text x="576" y="212" fill="#68746D" font-size="17" font-weight="700">IN PROGRESS</text>
+    <text x="886" y="212" fill="#68746D" font-size="17" font-weight="700">COMPLETED</text>
+  </g>
+  <g>
+    <rect x="252" y="234" width="280" height="168" rx="18" fill="white"/>
+    <rect x="274" y="258" width="72" height="24" rx="12" fill="#FCE8BD"/>
+    <rect x="274" y="305" width="198" height="17" rx="8.5" fill="#26372E"/>
+    <rect x="274" y="337" width="150" height="11" rx="5.5" fill="#CAD4CE"/>
+    <circle cx="292" cy="376" r="11" fill="#D68B68"/>
+    <circle cx="308" cy="376" r="11" fill="#6E89BC"/>
+    <rect x="252" y="424" width="280" height="184" rx="18" fill="white"/>
+    <rect x="274" y="448" width="88" height="24" rx="12" fill="#DDEBFF"/>
+    <rect x="274" y="495" width="208" height="17" rx="8.5" fill="#26372E"/>
+    <rect x="274" y="527" width="172" height="11" rx="5.5" fill="#CAD4CE"/>
+    <rect x="274" y="552" width="128" height="8" rx="4" fill="#E3E9E5"/>
+    <circle cx="292" cy="583" r="11" fill="#65A987"/>
+  </g>
+  <g>
+    <rect x="562" y="234" width="280" height="232" rx="18" fill="white"/>
+    <rect x="584" y="258" width="92" height="24" rx="12" fill="#E4DFFF"/>
+    <rect x="584" y="305" width="210" height="17" rx="8.5" fill="#26372E"/>
+    <rect x="584" y="337" width="174" height="11" rx="5.5" fill="#CAD4CE"/>
+    <rect x="584" y="370" width="228" height="48" rx="10" fill="#F0F4F1"/>
+    <rect x="596" y="382" width="166" height="8" rx="4" fill="#C4D0C9"/>
+    <rect x="596" y="400" width="104" height="8" rx="4" fill="#D6DFD9"/>
+    <circle cx="602" cy="442" r="11" fill="#C1789C"/>
+    <circle cx="618" cy="442" r="11" fill="#E0AE60"/>
+  </g>
+  <g>
+    <rect x="872" y="234" width="280" height="168" rx="18" fill="white"/>
+    <rect x="894" y="258" width="68" height="24" rx="12" fill="#DDF4E5"/>
+    <rect x="894" y="305" width="190" height="17" rx="8.5" fill="#26372E"/>
+    <rect x="894" y="337" width="146" height="11" rx="5.5" fill="#CAD4CE"/>
+    <circle cx="912" cy="376" r="11" fill="#6E89BC"/>
+    <circle cx="928" cy="376" r="11" fill="#65A987"/>
+    <circle cx="944" cy="376" r="11" fill="#D68B68"/>
+    <rect x="872" y="424" width="280" height="136" rx="18" fill="white"/>
+    <rect x="894" y="450" width="178" height="17" rx="8.5" fill="#26372E"/>
+    <rect x="894" y="482" width="208" height="11" rx="5.5" fill="#CAD4CE"/>
+    <rect x="894" y="516" width="104" height="8" rx="4" fill="#8DD0AA"/>
+  </g>
+  <rect x="252" y="644" width="900" height="2" rx="1" fill="#E0E7E2"/>
+</svg>
