@@ -41,8 +41,8 @@ export default function GoogleButton({ onError }) {
     }
   };
 
-  // Fallback in case the Script component's onLoad fires before this
-  // component mounts (e.g. script already cached from an earlier page).
+
+
   useEffect(() => {
     if (scriptReady) return;
 

@@ -4,9 +4,9 @@ import React from "react";
 import { motion } from "framer-motion";
 import SkeletonBox from "./SkeletonBox";
 
-// Mirrors the real Sidebar.jsx menuItems array exactly (order + which item
-// carries a badge). Only used here to know how many rows to render and
-// where the badge skeleton goes — no icons/text are needed for a skeleton.
+
+
+
 const menuItems = [
   { name: "Dashboard", hasBadge: false },
   { name: "Explore Projects", hasBadge: false },
@@ -19,8 +19,8 @@ const menuItems = [
   { name: "Settings", hasBadge: false },
 ];
 
-// Dashboard is shown active while data is loading, matching the real
-// sidebar's default active route.
+
+
 const ACTIVE_INDEX = 0;
 
 const sidebarVariants = {
@@ -57,7 +57,7 @@ export default function SidebarSkeleton() {
       className="w-64 bg-page border-r border-line fixed top-0 bottom-0 left-0 z-40 flex-col justify-between hidden md:flex"
     >
       <div>
-        {/* Logo Branding */}
+
         <div className="h-16 flex items-center px-6 border-b border-line">
           <div className="flex items-center gap-2.5">
             <SkeletonBox className="w-8 h-8 rounded-lg" />
@@ -68,7 +68,7 @@ export default function SidebarSkeleton() {
           </div>
         </div>
 
-        {/* Navigation Map */}
+
         <motion.nav
           variants={listVariants}
           initial="hidden"
@@ -86,7 +86,7 @@ export default function SidebarSkeleton() {
                   isActive ? "bg-accent/5" : ""
                 }`}
               >
-                {/* Active left indicator, identical to the real sidebar */}
+
                 {isActive && (
                   <div className="absolute left-0 top-3 bottom-3 w-1 rounded-r bg-accent" />
                 )}
@@ -109,7 +109,7 @@ export default function SidebarSkeleton() {
         </motion.nav>
       </div>
 
-      {/* Embedded Fixed Mini Profile Summary skeleton */}
+
       <div className="p-4 border-t border-line bg-page/50 flex items-center justify-between gap-2">
         <div className="flex items-center gap-3 min-w-0">
           <SkeletonBox className="w-9 h-9 rounded-full flex-shrink-0" />

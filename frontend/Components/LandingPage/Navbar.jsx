@@ -14,7 +14,7 @@ export default function Navbar() {
   const { user } = useAuth();
   const loggedIn = !!user;
 
-  // Track scroll for dynamic navbar background blur
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -23,7 +23,7 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Updated links with their target section IDs
+
   const navLinks = [
     { name: 'Explore Projects', href: '#explore' },
     { name: 'How it Works', href: '#how-it-works' },
@@ -32,7 +32,7 @@ export default function Navbar() {
     { name: 'About', href: '#about' },
   ];
 
-  // Scroll-spy: highlight whichever section is currently in view
+
   useEffect(() => {
     const sectionIds = navLinks
       .filter((link) => link.href.startsWith('#'))
@@ -57,12 +57,12 @@ export default function Navbar() {
     return () => observer.disconnect();
   }, []);
 
-  // Smooth Scroll Function
+
   const handleScrollToSection = (e, href) => {
     e.preventDefault();
     setIsOpen(false); // Mobile menu band karne ke liye
 
-    // Agar href '#' se start hota hai, toh smooth scroll karo
+
     if (href.startsWith('#')) {
       const targetId = href.replace('#', '');
       const elem = document.getElementById(targetId);
@@ -70,7 +70,7 @@ export default function Navbar() {
       if (elem) {
         elem.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
-        // Agar element current page par nahi hai, toh home page + hash par bhej do
+
         router.push(`/${href}`);
       }
     } else {
@@ -86,10 +86,10 @@ export default function Navbar() {
           : 'bg-transparent border-b-transparent'
       }`}
     >
-      {/* Navbar Container */}
+
       <div className="max-w-7xl mx-auto h-16 px-6 md:px-12 flex items-center justify-between">
 
-        {/* Logo */}
+
         <div
           onClick={() => router.push('/')}
           className="hover:scale-[1.02] transition-transform duration-200 active:scale-[0.98] cursor-pointer"
@@ -97,7 +97,7 @@ export default function Navbar() {
           <DevReviewLogo />
         </div>
 
-        {/* Desktop Links */}
+
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => {
             const isActive = activeSection === link.href.replace('#', '');
@@ -111,7 +111,7 @@ export default function Navbar() {
                 }`}
               >
                 {link.name}
-                {/* Premium Animated Underline — stays lit for the active section */}
+
                 <span
                   className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-linear-to-r from-accent to-accent-2 rounded-full transition-all duration-300 ease-out ${
                     isActive ? 'w-full opacity-100' : 'w-0 opacity-0 group-hover:w-full group-hover:opacity-100'
@@ -122,7 +122,7 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Desktop Buttons (Logged In vs Logged Out) */}
+
         <div className="hidden md:flex items-center gap-3">
           <ThemeToggle />
 
@@ -158,7 +158,7 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Hamburger Menu (Mobile Only) */}
+
         <div className="md:hidden flex items-center gap-2">
           <ThemeToggle />
           <button
@@ -172,7 +172,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu Drawer (Framer Motion setup for smooth dropdown) */}
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -202,7 +202,7 @@ export default function Navbar() {
 
               <hr className="border-line my-2" />
 
-              {/* Mobile Buttons */}
+
               <div className="flex items-center gap-3 w-full">
                 {loggedIn ? (
                   <button

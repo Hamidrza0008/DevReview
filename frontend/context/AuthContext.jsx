@@ -1,7 +1,6 @@
 "use client"
 import { createContext, useContext, useState, useEffect } from "react";
 import { getMe, logOutMe } from "@/services/authApis";
-import { AwardIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/context/ToastContext";
 
@@ -18,7 +17,6 @@ export const AuthProvider = ({ children }) => {
         try {
             const res = await getMe();
             setUser(res.user);
-            console.log("GET ME", res);
 
         } catch (error) {
             setUser(null);

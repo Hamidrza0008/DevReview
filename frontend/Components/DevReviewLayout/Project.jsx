@@ -288,7 +288,7 @@ export default function SingleProject() {
         }
       `}</style>
 
-      {/* Vibrant "Hara Bahra" Background Orbs — matches Explore page energy */}
+
       <div className="absolute top-[-100px] right-[-100px] w-[600px] h-[600px] bg-linear-to-bl from-accent/25 via-accent-2/15 to-accent-2/10 rounded-full blur-[140px] pointer-events-none z-0" />
       <div className="absolute top-[400px] left-[-200px] w-[500px] h-[500px] bg-linear-to-tr from-accent-2/20 to-info/10 rounded-full blur-[120px] pointer-events-none z-0" />
       <div
@@ -363,7 +363,7 @@ export default function SingleProject() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                {/* left column: canvas */}
+
                 <div className="lg:col-span-7 xl:col-span-8 space-y-6">
                   <motion.div
                     animate={{ y: [-4, 4, -4] }}
@@ -423,7 +423,7 @@ export default function SingleProject() {
                   </motion.div>
                 </div>
 
-                {/* right column: primary info */}
+
                 <div className="lg:col-span-5 xl:col-span-4 space-y-6">
                   <div className="bg-surface border-2 border-surface-2 rounded-[28px] p-6 shadow-xl shadow-accent/5 space-y-5">
                     
@@ -534,7 +534,7 @@ export default function SingleProject() {
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
-                {/* left column: long-form details */}
+
                 <div className="lg:col-span-8 space-y-6">
                   
                   <div className="bg-surface border-2 border-surface-2 rounded-[28px] p-6 shadow-sm hover:border-accent/30 transition-colors space-y-4">
@@ -567,7 +567,7 @@ export default function SingleProject() {
                   </div>
                 </div>
 
-                {/* right column: metadata sidebar (with management controls inside) */}
+
                 <div className="lg:col-span-4 space-y-6">
                   <div className="bg-surface border-2 border-surface-2 rounded-[28px] p-6 shadow-sm space-y-5">
                     <h3 className="text-sm font-extrabold text-ink">Repository Metadata</h3>
@@ -592,7 +592,7 @@ export default function SingleProject() {
                       </div>
                     </div>
 
-                    {/* Integrated Management Actions Layer */}
+
                     {showManagementActions && (
                       <div className="pt-4 border-t-2 border-page space-y-3">
                         <div className="flex flex-col gap-2 w-full">
@@ -643,7 +643,7 @@ export default function SingleProject() {
                 </div>
               </div>
 
-              {/* peer feedback / reviews block */}
+
               <div className="bg-surface border-2 border-surface-2 rounded-[28px] p-6 md:p-8 shadow-sm space-y-8">
                 <div className="flex items-center justify-between border-b-2 border-surface-2 pb-4 flex-wrap gap-4">
                   <div>
@@ -700,7 +700,7 @@ export default function SingleProject() {
                       />
                     </div>
 
-                    {/* Integrated Framer Motion Error Component inside Form */}
+
                     <AnimatePresence mode="wait">
                       {reviewError && (
                         <motion.div

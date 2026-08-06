@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import GoogleButton from "./GoogleButton";
 
-// Isolated Premium Skeleton Component to use inside Next.js Suspense Fallback
+
 export function LoginSkeleton() {
   return (
     <div className="h-screen bg-page flex text-ink font-sans antialiased relative overflow-hidden animate-pulse">

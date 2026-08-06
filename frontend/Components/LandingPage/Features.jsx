@@ -43,7 +43,7 @@ export default function Features() {
     },
   ];
 
-  // Framer Motion Variants for Staggered Animations
+
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -64,10 +64,10 @@ export default function Features() {
   return (
     <section id="explore" className="relative w-full px-6 md:px-12 py-24 bg-page border-b border-line overflow-hidden">
 
-      {/* Subtle Background Glows */}
+
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[400px] bg-linear-to-b from-accent/15 to-transparent rounded-full blur-[100px] pointer-events-none" />
 
-      {/* Header */}
+
       <div className="text-center max-w-2xl mx-auto mb-20 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -84,10 +84,10 @@ export default function Features() {
         </motion.div>
       </div>
 
-      {/* Horizontal Progress Container */}
+
       <div className="relative max-w-7xl mx-auto">
 
-        {/* Animated Connecting Line (Now properly hidden behind circles) */}
+
         <div className="absolute top-10 left-[12.5%] right-[12.5%] h-0.5 hidden lg:block z-0 overflow-hidden">
           <div className="w-full h-full bg-line" />
           <motion.div
@@ -97,7 +97,7 @@ export default function Features() {
           />
         </div>
         
-        {/* Horizontal Process Grid */}
+
         <motion.div 
           variants={containerVariants}
           initial="hidden"
@@ -108,25 +108,25 @@ export default function Features() {
           {featureList.map((item, idx) => (
             <motion.div variants={itemVariants} key={idx} className="flex flex-col items-center lg:items-start text-center lg:text-left group cursor-pointer">
               
-              {/* Step Circle */}
+
               <div className="relative flex items-center justify-center w-20 h-20 mb-8 bg-surface border-2 border-line rounded-full shadow-sm group-hover:border-accent/40 group-hover:shadow-[0_0_20px_rgba(47,111,78,0.2)] transition-all duration-500 z-10 overflow-hidden">
 
-                {/* Background accent fill animation on hover */}
+
                 <div className="absolute inset-0 bg-linear-to-br from-accent to-accent-2 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
 
-                {/* SVG Icon centered */}
+
                 <div className="relative z-10 text-muted group-hover:text-accent-ink transition-colors duration-500 group-hover:scale-110">
                   {item.icon}
                 </div>
               </div>
 
-              {/* Feature Content (Glassmorphism Card) */}
+
               <div className="p-6 bg-surface/70 md:backdrop-blur-xl border border-surface rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] group-hover:shadow-[0_10px_40px_rgba(47,111,78,0.08)] group-hover:-translate-y-1 group-hover:border-accent/30 transition-all duration-300 w-full min-h-[170px] relative overflow-hidden">
 
-                {/* Subtle top border highlight on hover */}
+
                 <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-accent to-accent-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                {/* Clean Step Number Badge inside card */}
+
                 <span className="text-[11px] font-bold tracking-widest text-accent uppercase mb-2.5 block">
                   Step 0{idx + 1}
                 </span>

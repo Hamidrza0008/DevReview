@@ -22,7 +22,6 @@ export default function EditProject() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
 
-  // Authorization, loader and error hook states
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -34,7 +33,6 @@ export default function EditProject() {
         setIsLoading(true);
         setHasError(false);
         const res = await getProjectDetails(id);
-        console.log("API Response Received:", res);
 
         if (res && res.success && res.project) {
           setIsAuthorized(true);
@@ -126,12 +124,8 @@ export default function EditProject() {
       liveUrl: formData.liveUrl.trim() || null,
     };
 
-    console.log("=== SUBMITTED FORM DATA PAYLOAD ===");
-    console.log(updatedProjectPayload);
-
     try {
       const res = await updateProject(id, updatedProjectPayload);
-      console.log(res);
       setSubmitStatus("success");
     } catch (error) {
       console.error("Failed to update project:", error);
@@ -141,7 +135,6 @@ export default function EditProject() {
     }
   };
 
-  // 1. Loading Screen View
   if (isLoading) {
     return (
       <div className="min-h-screen bg-page flex flex-col items-center justify-center font-sans antialiased">
@@ -156,7 +149,6 @@ export default function EditProject() {
     );
   }
 
-  // 2. Unexpected Error View
   if (hasError) {
     return (
       <div className="min-h-screen bg-page py-8 px-4 sm:px-6 lg:px-8 font-sans antialiased flex flex-col justify-center items-center">
@@ -179,7 +171,6 @@ export default function EditProject() {
     );
   }
 
-  // 3. Beautiful Centered Unauthorized View
   if (!isAuthorized) {
     return (
       <div className="min-h-screen bg-page py-8 px-4 sm:px-6 lg:px-8 font-sans antialiased flex flex-col justify-center items-center">
@@ -216,7 +207,6 @@ export default function EditProject() {
     );
   }
 
-  // 4. Authorized Edit Form Component
   return (
     <div className="min-h-screen bg-page py-8 px-4 sm:px-6 lg:px-8 font-sans antialiased flex flex-col justify-center">
       <div className="max-w-4xl mx-auto w-full">
@@ -425,7 +415,6 @@ export default function EditProject() {
             <div className="pt-4 border-t border-line flex items-center justify-end gap-3.5">
               <button
                 type="button"
-                onClick={() => console.log("Edit cancelled")}
                 className="px-4 py-2 text-sm font-medium text-muted bg-surface border border-line rounded-lg hover:bg-page hover:text-ink transition-all focus:outline-none"
               >
                 Cancel

@@ -5,7 +5,6 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
-  SlidersHorizontal,
   Flame,
   Code,
   Heart,
@@ -18,7 +17,6 @@ import {
   Star,
   Bookmark,
   CheckCircle,
-  Eye,
   AlertCircle,
   Sparkles
 } from "lucide-react";
@@ -41,7 +39,6 @@ const CATEGORIES = [
   "Tailwind"
 ];
 
-// Animated Number Helper
 function AnimatedNumber({ value, duration = 900 }) {
   const [display, setDisplay] = useState(0);
   const fromRef = useRef(0);
@@ -72,7 +69,6 @@ function AnimatedNumber({ value, duration = 900 }) {
   return <>{Math.round(display).toLocaleString()}</>;
 }
 
-// Shimmer Loader
 function Shimmer({ className = "" }) {
   return <div className={`shimmer rounded-md ${className}`} />;
 }
@@ -249,7 +245,6 @@ export default function ExploreProjects() {
     }
   ];
 
-  // Hero Text Stagger Animation
   const heroTextVariants = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
@@ -287,7 +282,7 @@ export default function ExploreProjects() {
         }
       `}</style>
 
-      {/* Ambient Background Orbs */}
+
       <div className="absolute top-[-100px] right-[-100px] w-[600px] h-[600px] bg-linear-to-bl from-accent/25 via-accent-2/15 to-accent-2/10 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute top-[300px] left-[-200px] w-[500px] h-[500px] bg-linear-to-tr from-accent-2/20 to-info/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute top-[600px] right-[10%] w-[400px] h-[400px] bg-linear-to-l from-accent/20 to-transparent rounded-full blur-[100px] pointer-events-none" />
@@ -296,7 +291,7 @@ export default function ExploreProjects() {
         style={{ backgroundImage: `radial-gradient(var(--color-muted) 1px, transparent 1px)`, backgroundSize: "28px 28px" }}
       />
 
-      {/* Floating Sticky Search */}
+
       <AnimatePresence>
         {isPinned && (
           <motion.div
@@ -324,7 +319,7 @@ export default function ExploreProjects() {
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-12 relative z-10">
         
-        {/* KHATARNAK HERO SECTION */}
+
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center pt-4 sm:pt-8 mb-10 lg:mb-20">
           <motion.div 
             className="lg:col-span-7 space-y-3 lg:space-y-6 text-left relative z-10"
@@ -369,7 +364,7 @@ export default function ExploreProjects() {
             </motion.div>
           </motion.div>
 
-          {/* Floating Interactive Illustration */}
+
           <div className="lg:col-span-5 relative hidden lg:flex items-center justify-center select-none perspective-1000">
             <div className="absolute w-[450px] h-[450px] bg-linear-to-tr from-accent/20 via-accent-2/10 to-transparent rounded-full blur-3xl -z-10 animate-pulse" />
 
@@ -435,7 +430,7 @@ export default function ExploreProjects() {
           </div>
         </section>
 
-        {/* Vibrant Search & Filters */}
+
         <section className="max-w-4xl mx-auto w-full mb-4 sm:mb-10 relative z-20">
           <div className="relative bg-surface border-2 border-line rounded-2xl p-1.5 sm:p-2 shadow-lg shadow-accent/5 transition-all duration-300 flex items-center focus-within:ring-4 focus-within:ring-accent/20 focus-within:border-accent">
             <div className="pl-3 sm:pl-4 pr-1.5 sm:pr-2 text-accent">
@@ -451,7 +446,7 @@ export default function ExploreProjects() {
           </div>
         </section>
 
-        {/* Dynamic Filter Pills */}
+
         <section className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 max-w-4xl mx-auto mb-6 sm:mb-12">
           {CATEGORIES.map((chip) => {
             const isActive = selectedCategory === chip;
@@ -478,7 +473,7 @@ export default function ExploreProjects() {
           })}
         </section>
 
-        {/* Project Grid */}
+
         <section className="space-y-4 sm:space-y-6">
           <div className="flex items-center justify-between border-b-2 border-line pb-2 sm:pb-4">
             <h3 className="font-extrabold text-xl sm:text-2xl flex items-center text-ink tracking-tight">
@@ -602,7 +597,7 @@ export default function ExploreProjects() {
                       className="group bg-surface border-2 border-line hover:border-accent/50 rounded-[28px] flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-accent/10 transition-all duration-300"
                     >
                       <div>
-                        {/* Thumbnail */}
+
                         <div
                           onClick={() => router.push(`/projects/${project._id}`)}
                           className="relative h-48 w-full overflow-hidden cursor-pointer border-b border-line bg-page group/thumb"
@@ -657,7 +652,7 @@ export default function ExploreProjects() {
                           )}
                         </div>
 
-                        {/* Card Body */}
+
                         <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
                           {project.owner && (
                             <div
@@ -718,7 +713,7 @@ export default function ExploreProjects() {
                         </div>
                       </div>
 
-                      {/* Card Footer */}
+
                       <div className="px-4 sm:px-6 py-3 sm:py-4 border-t-2 border-page flex items-center justify-between bg-surface rounded-b-[28px]">
                         <div className="flex items-center space-x-3 sm:space-x-5 text-muted">
                           <motion.button

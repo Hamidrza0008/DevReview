@@ -2,12 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Plus, Heart, MessageSquare, ExternalLink, GitBranch, Layers, FolderGit2, Search, SlidersHorizontal, Eye } from 'lucide-react';
+import { Plus, Heart, MessageSquare, ExternalLink, GitBranch, FolderGit2, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getMyProjects } from '@/services/getMyProjectsApi';
 import { toggleLikes } from '@/services/toggleLikesApi';
 
-// Fallback gradient filters using the design palette variations
 const getFallbackGradient = (title) => {
   const gradients = [
     'from-accent/10 to-accent-2/20 text-accent',
@@ -46,7 +45,6 @@ export default function MyProjects() {
     getProjects();
   }, []);
 
-  // COMPACT PREMIUM SKELETON LOADING UI
   if (loading) {
     return (
       <div className="p-6 md:p-8 bg-page min-h-screen space-y-6 animate-pulse">
@@ -73,11 +71,11 @@ export default function MyProjects() {
       animate={{ opacity: 1 }}
       className="p-6 md:p-8 bg-page min-h-screen text-ink max-w-7xl mx-auto space-y-6 antialiased relative selection:bg-accent/10 selection:text-accent"
     >
-      {/* BACKGROUND EFFECTS */}
+
       <div className="absolute inset-0 bg-[radial-gradient(var(--color-line)_1px,transparent_1px)] bg-size-[24px_24px] opacity-40 pointer-events-none z-0" />
       <div className="absolute top-0 right-1/4 w-[400px] h-[400px] bg-linear-to-br from-accent/5 to-accent-2/5 rounded-full blur-[100px] pointer-events-none z-0" />
 
-      {/* HEADER SECTION */}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-line z-10 relative">
         <div className="space-y-0.5">
           <h1 className="text-2xl font-bold tracking-tight text-ink">
@@ -96,7 +94,7 @@ export default function MyProjects() {
         </motion.button>
       </div>
 
-      {/* NO PROJECTS STATE */}
+
       {projects.length === 0 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -116,7 +114,7 @@ export default function MyProjects() {
         </motion.div>
       )}
 
-      {/* REDESIGNED COMPACT PROJECTS GRID */}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 z-10 relative">
         {projects.map((project, i) => {
           const hasThumbnail = project.thumbnail && project.thumbnail.trim() !== "";
@@ -132,9 +130,9 @@ export default function MyProjects() {
               className="bg-surface border border-line hover:border-accent/40 rounded-2xl overflow-hidden flex flex-col justify-between group transition-all duration-300 shadow-2xs hover:shadow-[0_10px_20px_-12px_rgba(47,111,78,0.15)]"
             >
               <div>
-                {/* COMPACT BROWSER SCREENSHOT BAR AREA */}
+
                 <div className="h-32 w-full relative overflow-hidden bg-page border-b border-line flex flex-col justify-between select-none">
-                  {/* Mock Browser Header Top Layer */}
+
                   <div className="flex items-center justify-between px-3 py-1.5 bg-surface border-b border-line/60 shrink-0 z-10">
                     <div className="flex items-center space-x-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-line group-hover:bg-like transition-colors" />
@@ -147,7 +145,7 @@ export default function MyProjects() {
                     <div className="w-4" />
                   </div>
 
-                  {/* Body Canvas Wrapper */}
+
                   <div onClick={() => router.push(`/projects/${project._id}`)} className="flex-1 w-full relative overflow-hidden bg-page cursor-pointer flex items-center justify-center">
                     {hasThumbnail ? (
                       <Image
@@ -169,7 +167,7 @@ export default function MyProjects() {
                     )}
                   </div>
 
-                  {/* Status Badge */}
+
                   <span className={`absolute bottom-2 right-2 text-[9px] font-mono font-bold px-1.5 py-0.2 rounded border uppercase tracking-wider ${project.status === 'Published'
                       ? 'bg-ok/10 text-ok border-ok/20'
                       : 'bg-muted/10 text-muted border-line'
@@ -178,7 +176,7 @@ export default function MyProjects() {
                   </span>
                 </div>
 
-                {/* CARD BODY TEXT LAYOUT */}
+
                 <div className="p-4 space-y-3">
                   <div className="space-y-1">
                     <div className="flex items-center justify-between gap-2">
@@ -186,7 +184,7 @@ export default function MyProjects() {
                         {project.title}
                       </h3>
 
-                      {/* Anchor Links Blocks */}
+
                       <div className="flex items-center space-x-1 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
                         {project.githubUrl && (
                           <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="p-1 hover:bg-page rounded-md text-muted hover:text-ink border border-transparent hover:border-line transition-colors">
@@ -206,7 +204,7 @@ export default function MyProjects() {
                     </p>
                   </div>
 
-                  {/* TECH STACK CHIPS */}
+
                   <div className="flex flex-wrap gap-1 pt-0.5">
                     {project.techStack && project.techStack.map((tech, idx) => (
                       <span
@@ -220,7 +218,7 @@ export default function MyProjects() {
                 </div>
               </div>
 
-              {/* MOCK CARD METRICS FOOTER */}
+
               <div className="px-4 py-2.5 border-t border-line bg-page/50 flex justify-between items-center text-[11px] text-muted font-medium rounded-b-2xl">
                 <div className="flex space-x-3">
                   <span onClick={() => handleLike(project._id)} className="flex items-center text-[11px] font-bold hover:text-like cursor-pointer transition-colors group/like select-none">

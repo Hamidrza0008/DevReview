@@ -14,7 +14,7 @@ export default function SkeletonBox({
         ${className}
       `}
     >
-      {/* Shimmer */}
+
       <div
         className="
           absolute

@@ -26,16 +26,9 @@ export default function DevReviewLandingPage() {
       {/* 2. Main Content Wrapper */}
       <div className="w-full relative">
         
-        {/* Navbar ko absolute/fixed context ke liye top par rakha hai.
-          Aap apne Navbar component ke andar se 'bg-white/70' hata kar use 
-          'bg-transparent' ya 'bg-white/10' kar dena jaisa aapko transparent chahiye!
-        */}
         <Navbar />
         
         <main>
-          {/* Bhai, ab Hero section automatic screen ke sabse top se shuru hoga,
-            aur iska background pure Navbar ke peeche dikhega.
-          */}
           <Hero />
           
           <Features />

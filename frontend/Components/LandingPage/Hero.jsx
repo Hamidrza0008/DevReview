@@ -11,25 +11,25 @@ export default function Hero() {
   const { user } = useAuth();
   const springConfig = { type: 'spring', stiffness: 100, damping: 20 };
 
-  // Both destinations require an account. Logged-in users continue directly;
-  // everyone else is sent to login first.
+
+
   const goExploreProjects = () => router.push(user ? '/projects/explore' : '/auth/login');
   const goUploadProject = () => router.push(user ? '/projects/create' : '/auth/login');
 
   return (
     <section className="relative w-full min-h-screen bg-page px-6 md:px-16 lg:px-24 pt-20 pb-20 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center overflow-hidden select-none z-10">
 
-      {/* Ambient animated background (disabled on mobile — heavy blur + continuous animation is expensive on low-end GPUs) */}
+
       <div className="hidden md:block absolute inset-0 z-0 overflow-hidden pointer-events-none">
 
-        {/* Animated Moving Grid */}
+
         <motion.div
           animate={{ backgroundPosition: ['0px 0px', '48px 48px'] }}
           transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
           className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-line)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-line)_1px,transparent_1px)] bg-size-[3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_60%,transparent_100%)] opacity-70"
         />
 
-        {/* Dynamic Glowing Aurora Blobs */}
+
         <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center opacity-60">
           <motion.div
             animate={{
@@ -50,14 +50,14 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* LEFT: TYPOGRAPHY & CONTROLS */}
+
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="flex flex-col gap-6 lg:col-span-6 z-10 text-center lg:text-left items-center lg:items-start"
       >
-        {/* Honest early-stage tagline instead of fake social proof */}
+
         <motion.div
           whileHover={{ scale: 1.05 }}
           className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface/80 border border-line md:backdrop-blur-md text-xs text-muted font-medium shadow-sm"
@@ -69,7 +69,7 @@ export default function Hero() {
           Just launched — be one of our first reviewers
         </motion.div>
 
-        {/* Premium Heading */}
+
         <h1 className="text-4xl sm:text-5xl md:text-[52px] lg:text-[58px] font-extrabold text-ink tracking-tight leading-[1.1]">
           Showcase your projects. <br />
           Get feedback from <br className="hidden md:block" />
@@ -78,12 +78,12 @@ export default function Hero() {
           </span>
         </h1>
 
-        {/* Description Text */}
+
         <p className="text-base sm:text-lg text-muted leading-relaxed max-w-lg font-normal">
           Share your work, receive honest reviews, improve your skills, and build amazing things together — right from day one of this community.
         </p>
 
-        {/* Actions Buttons */}
+
         <div className="flex flex-col sm:flex-row items-center gap-4 mt-4 w-full sm:w-auto">
           <motion.div className="w-full sm:w-auto group relative" whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }} transition={springConfig}>
             <div className="absolute -inset-0.5 bg-linear-to-r from-accent to-accent-2 rounded-lg blur opacity-30 group-hover:opacity-60 transition duration-500" />
@@ -99,7 +99,7 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* Honest early-stage status row instead of fake metrics */}
+
         <div className="flex flex-wrap items-center justify-center lg:justify-start gap-8 mt-4 pt-4 border-t border-line/80 w-full text-left">
           <div>
             <div className="text-3xl font-bold text-ink">Day 1</div>
@@ -118,7 +118,7 @@ export default function Hero() {
         </div>
       </motion.div>
 
-      {/* RIGHT: 3D GLASSMORPHISM MOCKUP */}
+
       <div
         className="w-full lg:col-span-6 flex justify-center lg:justify-end relative z-10 px-2 sm:px-0 lg:pl-10 mt-10 lg:mt-0"
         style={{ perspective: 1200 }}
@@ -151,7 +151,7 @@ export default function Hero() {
               </span>
             </div>
 
-            {/* Inner Preview Screenshot Card Mock */}
+
             <div className="w-full h-48 bg-page/80 rounded-xl border border-line/60 relative overflow-hidden flex flex-col justify-between p-4 shadow-inner">
               <div className="flex items-center justify-between text-[9px] text-muted font-mono font-bold tracking-widest">
                 <span>METRICS // REVENUE</span>
@@ -160,7 +160,7 @@ export default function Hero() {
                 </span>
               </div>
 
-              {/* Vibrant Visual Analytics Bar Graph lines */}
+
               <div className="w-full flex items-end justify-between h-24 gap-2 px-2 opacity-90 mt-2">
                 <motion.div initial={{ height: 0 }} animate={{ height: '30%' }} transition={{ duration: 1, delay: 0.1 }} className="w-full bg-accent/25 rounded-t-sm" />
                 <motion.div initial={{ height: 0 }} animate={{ height: '65%' }} transition={{ duration: 1, delay: 0.2 }} className="w-full bg-linear-to-t from-accent to-accent-2 rounded-t-sm relative shadow-md">
@@ -172,7 +172,7 @@ export default function Hero() {
                 <motion.div initial={{ height: 0 }} animate={{ height: '40%' }} transition={{ duration: 1, delay: 0.6 }} className="w-full bg-star/40 rounded-t-sm" />
               </div>
 
-              {/* Design Badges */}
+
               <div className="flex flex-wrap gap-2 z-10 mt-3">
                 <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface text-muted border border-line shadow-sm">Next.js</span>
                 <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface text-muted border border-line shadow-sm">TailwindCSS</span>
@@ -180,14 +180,14 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Actions Footer */}
+
             <div className="flex items-center gap-5 text-[12px] font-semibold text-muted pt-1">
               <span className="flex items-center gap-1.5 cursor-pointer hover:text-ink transition-colors">💬 12 Reviews</span>
               <span className="flex items-center gap-1.5 cursor-pointer hover:text-ink transition-colors">❤️ 24 Likes</span>
             </div>
           </motion.div>
 
-          {/* FLOATING CARD 1: Top Right Verified Badge */}
+
           <motion.div
             animate={{ y: [0, -10, 0], rotate: [0, 2, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
@@ -197,7 +197,7 @@ export default function Hero() {
             <span className="text-[11px] font-bold text-ink tracking-tight">Project Verified</span>
           </motion.div>
 
-          {/* FLOATING CARD 2: Review Box */}
+
           <motion.div
             animate={{ y: [0, 10, 0], rotate: [0, -2, 0] }}
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
@@ -216,7 +216,7 @@ export default function Hero() {
             </div>
           </motion.div>
 
-          {/* FLOATING CARD 3: Views tracker */}
+
           <motion.div
             animate={{ scale: [1, 1.05, 1], y: [0, -5, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}

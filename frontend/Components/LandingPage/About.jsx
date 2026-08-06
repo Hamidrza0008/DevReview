@@ -27,7 +27,7 @@ export default function About() {
     <section id="about" className="w-full px-6 md:px-12 py-24 bg-page border-b border-line">
       <div className="max-w-7xl mx-auto">
 
-        {/* Header */}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -46,7 +46,7 @@ export default function About() {
           </p>
         </motion.div>
 
-        {/* Values Grid */}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {values.map((value, idx) => (
             <motion.div
@@ -66,7 +66,7 @@ export default function About() {
           ))}
         </div>
 
-        {/* Founder Card */}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

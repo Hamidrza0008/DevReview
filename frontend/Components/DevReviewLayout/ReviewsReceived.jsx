@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, MessageSquare, ArrowDownLeft, ArrowUpRight, Heart, Folder, Activity } from 'lucide-react';
+import { Star, MessageSquare, ArrowDownLeft, ArrowUpRight, Heart, Activity } from 'lucide-react';
 import { getMyReviews } from '@/services/reviewApis';
 
 export default function ReviewsDashboard() {
@@ -16,8 +16,6 @@ export default function ReviewsDashboard() {
   const fetchDashboardData = async () => {
     try {
       const res = await getMyReviews();
-      console.log(res)
-      // Assuming 'res' is directly the object you provided: { success: true, stats: {...}, givenReviews: [...], ... }
       if (res && res.success) {
         setData({
           stats: res.stats || data.stats,
@@ -37,7 +35,6 @@ export default function ReviewsDashboard() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Framer Motion Variants
   const containerVariants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.1 } }

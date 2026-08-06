@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   FolderGit2,
   MessageSquare,
-  MessageCircle,
   Compass,
   Bookmark,
   Users,
@@ -16,8 +15,7 @@ import {
   LogOut,
   Menu,
   X,
-  Home,
-  MessageCircleQuestion
+  Home
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
@@ -27,13 +25,11 @@ const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { name: "Explore Projects", icon: Compass, path: "/projects/explore" },
   { name: "Users", icon: Users, path: "/users/explore" },
-  { name: "Messages", icon: MessageCircle, path: "/messages" },
   { name: "My Projects", icon: FolderGit2, path: "/projects/my" },
   { name: "Reviews Received", icon: MessageSquare, path: "/review", badge: "New" },
   { name: "Saved Projects", icon: Bookmark, path: "/projects/saved" },
   { name: "Community", icon: Users, path: "/community" },
   { name: "Profile", icon: User, path: "/profile/my" },
-  { name: "Feedback & Support", icon: MessageCircleQuestion, path: "/feedback" },
 ];
 
 function isMenuActive(item, pathname) {
@@ -53,8 +49,6 @@ function isMenuActive(item, pathname) {
       return pathname.startsWith("/projects/my");
     case "Users":
       return pathname.startsWith("/users");
-    case "Messages":
-      return pathname.startsWith("/messages");
     case "Profile":
       return pathname.startsWith("/profile");
     case "Saved Projects":
@@ -63,8 +57,6 @@ function isMenuActive(item, pathname) {
       return pathname.startsWith("/review");
     case "Community":
       return pathname.startsWith("/community");
-    case "Feedback & Support":
-      return pathname.startsWith("/feedback");
     default:
       return pathname === item.path;
   }

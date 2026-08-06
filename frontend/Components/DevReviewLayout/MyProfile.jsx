@@ -40,18 +40,15 @@ export default function MyProfile() {
     portfolioUrl: ""
   });
 
-  // fetch projects on mount
   const getMyProject = async () => {
     try {
       const res = await getMyProjects();
       setMyProjects(res?.projects || []);
-      console.log(res)
     } catch (err) {
       console.error(err);
     }
   };
 
-  // sync form data when user context updates
   useEffect(() => {
     getMyProject();
     if (user) {
@@ -70,13 +67,11 @@ export default function MyProfile() {
     }
   }, [user]);
 
-  // artificial delay for premium skeleton demonstration
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
 
-  // auto-dismiss toasts
   useEffect(() => {
     if (toast.show) {
       const timer = setTimeout(() => setToast({ show: false, type: "", message: "" }), 3000);
@@ -120,7 +115,6 @@ export default function MyProfile() {
     try {
       let finalImageUrl = formData.profileImage;
 
-      // 1. Upload image if a new one was selected
       if (selectedImage) {
         const uploadFormData = new FormData();
         uploadFormData.append("image", selectedImage);
@@ -139,7 +133,6 @@ export default function MyProfile() {
         finalImageUrl = data.imageUrl;
       }
       
-      // 2. Prepare remaining profile data
       const parsedSkills = formData.skillsString
         .split(",")
         .map((skill) => skill.trim())
@@ -152,12 +145,10 @@ export default function MyProfile() {
         profileImage: finalImageUrl 
       };
 
-      // Strip undefined values before sending payload
       Object.keys(finalFormData).forEach((key) => {
         if (finalFormData[key] === undefined) delete finalFormData[key];
       });
 
-      // 3. Update profile
       const res = await updateProfile(finalFormData);
       if (res?.success) {
         setIsEditing(false);
@@ -176,7 +167,6 @@ export default function MyProfile() {
   };
 
   const handleCancel = () => {
-    // Revert changes if aborted
     setFormData({
       name: user.name || "",
       username: user.username || "",
@@ -226,11 +216,11 @@ export default function MyProfile() {
       animate={{ opacity: 1 }}
       className="p-4 md:p-8 bg-page min-h-screen text-ink max-w-7xl mx-auto space-y-8 antialiased relative selection:bg-accent/20 selection:text-accent pb-24"
     >
-      {/* background textures */}
+
       <div className="absolute inset-0 bg-[radial-gradient(var(--color-line)_1px,transparent_1px)] bg-size-[24px_24px] opacity-50 pointer-events-none z-0" />
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-linear-to-tr from-accent/5 to-accent-2/5 rounded-full blur-[140px] pointer-events-none z-0" />
 
-      {/* global toast notification */}
+
       <AnimatePresence>
         {toast.show && (
           <motion.div
@@ -253,7 +243,7 @@ export default function MyProfile() {
         )}
       </AnimatePresence>
 
-      {/* header profile card */}
+
       <div className="bg-surface border border-line rounded-[32px] p-8 md:p-10 shadow-sm relative overflow-hidden z-10">
         <div className="absolute top-0 right-0 w-80 h-80 bg-linear-to-br from-accent/5 to-transparent rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
 
@@ -269,7 +259,7 @@ export default function MyProfile() {
             >
               <div className="lg:col-span-2 flex flex-col sm:flex-row items-center sm:items-start gap-8 text-center sm:text-left">
                 
-                {/* avatar */}
+
                 <div className="relative group shrink-0">
                   <div className="absolute -inset-2 bg-linear-to-tr from-accent to-accent-2 rounded-full blur-md opacity-30 group-hover:opacity-50 transition duration-500" />
                   <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-surface relative z-10 shadow-lg bg-surface-2">
@@ -283,7 +273,7 @@ export default function MyProfile() {
                   </div>
                 </div>
 
-                {/* bio & links (Enhanced UI) */}
+
                 <div className="space-y-4 flex-1">
                   <div>
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
@@ -304,7 +294,7 @@ export default function MyProfile() {
                       </div>
                     )}
 
-                    {/* Links - Now as sleek pills */}
+
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-sm mt-4">
                       <span className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-2 text-ink rounded-lg border border-line font-semibold">
                         <Mail className="w-4 h-4 text-muted" /> {user.email}
@@ -322,14 +312,14 @@ export default function MyProfile() {
                     </div>
                   </div>
 
-                  {/* Bio - Enhanced readability with subtle background */}
+
                   <div className="bg-page border border-line p-4 rounded-2xl">
                     <p className="text-[15px] text-ink font-medium leading-relaxed">
                       {user.bio || "Craft a professional summary here to stand out to recruiters and collaborators. Highlight your core competencies and career trajectory."}
                     </p>
                   </div>
 
-                  {/* Skills map - Premium tags */}
+
                   <div className="pt-1 flex flex-wrap justify-center sm:justify-start gap-2">
                     {user.skills?.length > 0 ? (
                       user.skills.map((skill, index) => (
@@ -347,7 +337,7 @@ export default function MyProfile() {
                 </div>
               </div>
 
-              {/* metrics overview - Instagram style compact */}
+
               <div className="flex flex-col gap-4 h-full justify-center lg:border-l lg:border-surface-2 lg:pl-10">
                 <div className="grid grid-cols-3 gap-x-4 gap-y-3">
                   {[
@@ -396,7 +386,7 @@ export default function MyProfile() {
               className="space-y-6 relative z-10"
             >
               <div className="flex flex-col lg:flex-row gap-8">
-                {/* visual settings */}
+
                 <div className="flex flex-col items-center space-y-5 shrink-0 bg-page border border-line p-6 rounded-[24px]">
                   <input
                     type="file"
@@ -426,7 +416,7 @@ export default function MyProfile() {
                   </div>
                 </div>
 
-                {/* textual settings */}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 flex-1">
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold text-muted uppercase tracking-wider">Full Name</label>
@@ -517,7 +507,7 @@ export default function MyProfile() {
                 </div>
               </div>
 
-              {/* form controls */}
+
               <div className="flex flex-col sm:flex-row justify-end items-center gap-3 pt-6 border-t border-surface-2">
                 <button
                   type="button"
@@ -546,7 +536,7 @@ export default function MyProfile() {
         </AnimatePresence>
       </div>
 
-      {/* primary navigation tabs */}
+
       <div className="border-b border-line flex items-center space-x-8 z-10 relative overflow-x-auto no-scrollbar pt-4">
         {[
           { id: "projects", label: "Projects", icon: Layers },
@@ -577,14 +567,14 @@ export default function MyProfile() {
         })}
       </div>
 
-      {/* main content split */}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 z-10 relative">
         
-        {/* left column content */}
+
         <div className="lg:col-span-2 space-y-6">
           <AnimatePresence mode="wait">
             
-            {/* projects tab view */}
+
             {activeTab === "projects" && (
               <motion.div
                 key="projects"
@@ -631,7 +621,7 @@ export default function MyProfile() {
                         onClick={() => router.push(`/projects/${project._id || project.id}`)}
                         className="bg-surface border border-line rounded-[24px] flex flex-col justify-between overflow-hidden group shadow-sm hover:shadow-xl hover:shadow-accent/5 hover:border-accent/30 cursor-pointer transition-all duration-300"
                       >
-                        {/* thumbnail area */}
+
                         <div className="h-44 bg-surface-2 border-b border-line relative flex flex-col overflow-hidden">
                           {project.thumbnail ? (
                             <Image
@@ -653,7 +643,7 @@ export default function MyProfile() {
                           </div>
                         </div>
 
-                        {/* project details */}
+
                         <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                           <div className="space-y-1.5">
                             <h3 className="font-bold text-lg text-ink group-hover:text-accent transition-colors line-clamp-1 tracking-tight">
@@ -698,7 +688,7 @@ export default function MyProfile() {
               </motion.div>
             )}
 
-            {/* resume / bio tab view */}
+
             {activeTab === "about" && (
               <motion.div
                 key="about"
@@ -728,7 +718,7 @@ export default function MyProfile() {
               </motion.div>
             )}
 
-            {/* bookmarks tab view */}
+
             {activeTab === "bookmarks" && (
               <motion.div
                 key="bookmarks"
@@ -755,7 +745,7 @@ export default function MyProfile() {
           </AnimatePresence>
         </div>
 
-        {/* right sidebar statistics */}
+
         <div className="space-y-6">
           <div className="bg-surface border border-line rounded-3xl p-6 space-y-5 shadow-sm">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted">Profile Details</h3>

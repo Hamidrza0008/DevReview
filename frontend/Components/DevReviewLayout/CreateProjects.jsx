@@ -21,7 +21,6 @@ import {
   ArrowLeft
 } from "lucide-react";
 
-// Form ka initial data alag nikal liya taki baad me reset karne me asani ho
 const INITIAL_FORM_DATA = {
   title: "",
   description: "",
@@ -42,7 +41,6 @@ export default function CreateProjects() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
 
-  // Success ya error message ko 5 second baad gayab karne ke liye
   useEffect(() => {
     if (submitStatus) {
       const timer = setTimeout(() => {
@@ -52,20 +50,16 @@ export default function CreateProjects() {
     }
   }, [submitStatus]);
 
-  // Normal text inputs handle karne ke liye
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Agar user ne type karna shuru kar diya to error hata do
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // Thumbnail image select hone par ye chalega
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Optimize: Agar pehle se koi preview URL hai to use memory se uda do varna browser slow hoga
     if (preview) {
       URL.revokeObjectURL(preview);
     }
@@ -74,7 +68,6 @@ export default function CreateProjects() {
     setPreview(URL.createObjectURL(file));
   };
 
-  // Tech stack me naya tag add karne ka logic
   const addTechTag = () => {
     const trimmedValue = techInput.trim().replace(/,$/, "");
     if (trimmedValue && !techStack.includes(trimmedValue)) {
@@ -84,7 +77,6 @@ export default function CreateProjects() {
     }
   };
 
-  // Enter ya comma dabane par bhi tech tag add ho jaye
   const handleTechKeyDown = (e) => {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
@@ -96,7 +88,6 @@ export default function CreateProjects() {
     setTechStack(techStack.filter((_, index) => index !== indexToRemove));
   };
 
-  // Form submit karne se pehle check kar lete hain sab sahi bhara hai ya nahi
   const validateForm = () => {
     const newErrors = {};
     if (!formData.title.trim()) newErrors.title = "Required";
@@ -116,7 +107,6 @@ export default function CreateProjects() {
 
     let imageUrl = null;
 
-    // Agar user ne image dali hai to pehle use server pe upload karte hain
     if (thumbnail) {
       const uploadFormData = new FormData();
       uploadFormData.append("image", thumbnail);
@@ -131,11 +121,10 @@ export default function CreateProjects() {
         const data = await response.json();
         imageUrl = data.imageUrl;
       } catch (err) {
-        console.error("Image upload fat gaya:", err);
+        console.error("Image upload failed:", err);
       }
     }
 
-    // Final payload jo database me jayega
     const projectPayload = {
       title: formData.title.trim(),
       description: formData.description.trim(),
@@ -156,7 +145,7 @@ export default function CreateProjects() {
       router.push("/projects/explore")
       
     } catch (error) {
-      console.error("Project banate time error aagya:", error);
+      console.error("Project creation failed:", error);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);
@@ -166,11 +155,10 @@ export default function CreateProjects() {
   return (
     <div className="min-h-screen md:h-screen w-full bg-page flex items-center justify-center p-4 sm:p-6 md:overflow-hidden relative selection:bg-accent/20">
 
-      {/* Background Decor */}
       <div className="absolute inset-0 bg-[radial-gradient(var(--color-line)_1px,transparent_1px)] bg-size-[24px_24px] opacity-50 pointer-events-none z-0" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-accent/10 rounded-full blur-[100px] pointer-events-none z-0" />
 
-      {/* Floating Notifications (Absolute to avoid pushing layout) */}
+      {/* Floating Notifications */}
       <AnimatePresence>
         {submitStatus === "success" && (
           <motion.div
@@ -203,7 +191,6 @@ export default function CreateProjects() {
         className="w-full max-w-5xl md:max-h-[92vh] flex flex-col bg-surface border border-line rounded-3xl shadow-xl relative z-10 overflow-hidden"
       >
 
-        {/* Compact Header with Go Back Button */}
         <div className="px-4 sm:px-6 py-4 border-b border-line bg-surface flex items-center gap-4 shrink-0">
           <button
             type="button"
@@ -224,15 +211,12 @@ export default function CreateProjects() {
           </div>
         </div>
 
-        {/* 2-Column Form Body */}
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
           <div className="flex-1 overflow-y-auto p-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-5 lg:h-full">
 
-              {/* LEFT COLUMN */}
               <div className="flex flex-col gap-5 h-full justify-start">
 
-                {/* Title */}
                 <div>
                   <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
                     Title <span className="text-danger">*</span>
@@ -250,8 +234,8 @@ export default function CreateProjects() {
                   </div>
                 </div>
 
-                {/* Description */}
                 <div>
+
                   <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
                     Description <span className="text-danger">*</span>
                   </label>
@@ -268,7 +252,6 @@ export default function CreateProjects() {
                   </div>
                 </div>
 
-                {/* Tech Stack */}
                 <div className="flex flex-col flex-1">
                   <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
                     Tech Stack <span className="text-danger">*</span>
@@ -305,10 +288,8 @@ export default function CreateProjects() {
                 </div>
               </div>
 
-              {/* RIGHT COLUMN */}
               <div className="flex flex-col gap-5 h-full justify-start">
 
-                {/* Links */}
                 <div>
                   <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">GitBranch Repo</label>
                   <div className="relative group">
@@ -339,7 +320,6 @@ export default function CreateProjects() {
                   </div>
                 </div>
 
-                {/* Thumbnail */}
                 <div className="flex-1 flex flex-col">
                   <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">Thumbnail (Optional)</label>
                   <div className="relative group mb-3">
@@ -353,7 +333,6 @@ export default function CreateProjects() {
                     />
                   </div>
 
-                  {/* Image Preview Box */}
                   <div className="flex-1 bg-page border border-dashed border-line rounded-lg overflow-hidden flex items-center justify-center min-h-[100px]">
                     {preview ? (
                       <img src={preview} alt="Preview" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
@@ -370,12 +349,10 @@ export default function CreateProjects() {
             </div>
           </div>
 
-          {/* Footer Actions */}
           <div className="px-6 py-4 bg-page border-t border-line flex items-center justify-end gap-3 shrink-0">
             <button
               type="button"
               onClick={() => {
-                // Yaha bhi jab user Clear button dabaye to image clear honi chahiye
                 setFormData(INITIAL_FORM_DATA);
                 setTechStack([]); 
                 setErrors({}); 

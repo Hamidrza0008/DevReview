@@ -19,8 +19,8 @@ export const ThemeProvider = ({ children }) => {
     window.localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
-  // Accepts the triggering click/tap event so the reveal can expand from
-  // wherever the toggle button actually is (navbar, sidebar, mobile drawer...).
+
+
   const toggleTheme = (originEvent) => {
     const next = theme === "dark" ? "light" : "dark";
 

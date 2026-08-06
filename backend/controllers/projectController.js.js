@@ -53,21 +53,6 @@ const getMyProjects = async (req, res) => {
 
         const userId = req.user.id;
 
-        // const updatedProjects = projects.map((project) => {
-
-        //     const likesCount = project.likes.length;
-
-        //     const isLiked = project.likes.some(
-        //         (id) => id.toString() === userId
-        //     );
-
-        //     return {
-        //         ...project.toObject(),
-        //         likesCount,
-        //         isLiked,
-        //     };
-        // });
-
         const updatedProjects = await Promise.all(
             projects.map(async (proj) => {
 
@@ -167,18 +152,6 @@ const getExploreProjects = async (req, res) => {
 
 
 
-        // const updatedProject = projects.map((proj) => {
-
-        //     const likesCount = proj.likes.length;
-        //     const isLiked = proj.likes.some((id) => id.toString() === userId);
-
-        //     return {
-        //         ...proj.toObject(),
-        //         likesCount,
-        //         isLiked,
-        //     }
-        // })
-
         const updatedProject = await Promise.all(
             projects.map(async (proj) => {
 
@@ -219,11 +192,9 @@ const getExploreProjects = async (req, res) => {
 
 const getProjectForEdit = async (req, res) => {
     try {
-        console.log("rpoject")
         const { id } = req.params;
 
         const project = await Projects.findById(id);
-        console.log(project)
 
         if (!project) {
             return res.status(404).json({
@@ -232,14 +203,7 @@ const getProjectForEdit = async (req, res) => {
             })
         }
 
-        console.log({
-            projectOwner: project.owner.toString(),
-            loggedInUser: req.user.id,
-            isEqual: project.owner.toString() === req.user.id,
-        });
-
         if (project.owner.toString() !== req.user.id) {
-            console.log("hamid")
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to edit this project."
@@ -272,9 +236,6 @@ const updateProject = async (req, res) => {
                 message: "Project Not Found"
             })
         }
-        // console.log("Project Owner :", project.owner.toString());
-        // console.log("Logged User :", req.user.id);
-        // console.log("Project Id :", id);
 
         if (project.owner.toString() !== req.user.id) {
             return res.status(403).json({

@@ -7,7 +7,7 @@ import { signUp } from '@/services/authApis';
 import { useRouter } from 'next/navigation';
 import GoogleButton from './GoogleButton';
 
-// Isolated Premium Skeleton Component for Next.js Suspense Fallback
+
 export function SignUpSkeleton() {
   return (
     <div className="h-screen bg-page flex text-ink font-sans antialiased relative overflow-hidden animate-pulse">
@@ -122,7 +122,7 @@ export default function SignUp() {
       <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-accent-2/10 rounded-full blur-3xl z-0 pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-accent/5 rounded-full blur-3xl z-0 pointer-events-none" />
 
-      {/* Left Panel */}
+
       <div className="hidden lg:flex lg:w-1/2 bg-accent relative items-center justify-center p-12 overflow-hidden border-r border-line/10 z-10">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
 
@@ -164,7 +164,7 @@ export default function SignUp() {
         </motion.div>
       </div>
 
-      {/* Right Panel */}
+
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 relative z-10 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 12 }}

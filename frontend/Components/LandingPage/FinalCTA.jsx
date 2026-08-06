@@ -10,15 +10,15 @@ export default function FinalCTA() {
 
   return (
     <section className="w-full px-6 md:px-12  bg-surface">
-      {/* Max container to balance sizing like the screenshot */}
+
       <div className="max-w-7xl mx-auto relative overflow-hidden rounded-3xl bg-linear-to-r from-accent via-accent to-accent-2 p-8 md:p-14 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-10 shadow-xl shadow-accent/10">
 
-        {/* Decorative Grid & Abstract BG Elements inside the banner */}
+
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-size-[20px_20px]" />
         <div className="absolute -right-10 -bottom-10 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute left-1/3 top-5 w-60 h-60 bg-white/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* LEFT ALIGNED CONTENT BLOCK */}
+
         <div className="flex flex-col gap-4 text-left items-start max-w-xl relative z-10 w-full lg:w-1/2">
           <h2 className="text-3xl md:text-4xl font-extrabold text-accent-ink tracking-tight leading-[1.2]">
             Ready to present your builds <br className="hidden sm:inline" /> to the network?
@@ -36,10 +36,10 @@ export default function FinalCTA() {
           </button>
         </div>
 
-        {/* RIGHT FLOATING VISUAL ASSETS CONTAINER */}
+
         <div className="relative w-full lg:w-1/2 flex items-center justify-center lg:justify-end h-64 lg:h-auto z-10">
 
-          {/* Main Simulated Futuristic Laptop Element using motion */}
+
           <motion.div
             animate={{ y: [0, -8, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
@@ -53,11 +53,11 @@ export default function FinalCTA() {
               className="object-contain rounded-2xl mix-blend-screen brightness-125 select-none"
             />
 
-            {/* Glowing Backdrop behind the main mock object */}
+
             <div className="absolute inset-0 bg-white/20 rounded-full blur-2xl -z-10 scale-75" />
           </motion.div>
 
-          {/* FLOATING MICRO NODE: Code Symbol (Left side floating tag) */}
+
           <motion.div
             animate={{ y: [0, 6, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
@@ -66,7 +66,7 @@ export default function FinalCTA() {
             &lt;/&gt;
           </motion.div>
 
-          {/* FLOATING MICRO NODE: Shield/Reputation Badge (Right side floating tag) */}
+
           <motion.div
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}

@@ -5,9 +5,9 @@ import { motion } from "framer-motion";
 import SidebarSkeleton from "./SidebarSkeleton";
 import SkeletonBox from "./SkeletonBox";
 
-// Generic content rows for the main area. Deliberately has no
-// Dashboard/Projects/etc-specific shape — this is what renders while we
-// don't yet know which route the user is headed to.
+
+
+
 const STAT_CARDS = [1, 2, 3];
 const CONTENT_CARDS = [1, 2, 3];
 const TABLE_ROWS = [1, 2, 3, 4, 5];
@@ -91,7 +91,7 @@ function TableSkeleton() {
       variants={cardVariants}
       className="bg-surface border border-line rounded-xl overflow-hidden"
     >
-      {/* Table header */}
+
       <div className="flex items-center gap-4 px-5 py-3 border-b border-line bg-page/60">
         <SkeletonBox className="w-1/3 h-3 rounded" />
         <SkeletonBox className="w-1/6 h-3 rounded" />
@@ -99,7 +99,7 @@ function TableSkeleton() {
         <SkeletonBox className="w-1/6 h-3 rounded" />
       </div>
 
-      {/* Table rows */}
+
       <div className="flex flex-col">
         {TABLE_ROWS.map((row) => (
           <div
@@ -123,10 +123,10 @@ function TableSkeleton() {
 export default function AppShellSkeleton() {
   return (
     <div className="min-h-screen bg-page">
-      {/* Left: fixed sidebar skeleton, untouched structure/spacing */}
+
       <SidebarSkeleton />
 
-      {/* Right: neutral generic page skeleton, route-agnostic */}
+
       <motion.main
         variants={mainVariants}
         initial="hidden"
@@ -135,7 +135,7 @@ export default function AppShellSkeleton() {
       >
         <PageHeaderSkeleton />
 
-        {/* Top stat row */}
+
         <motion.div
           variants={groupVariants}
           initial="hidden"
@@ -147,7 +147,7 @@ export default function AppShellSkeleton() {
           ))}
         </motion.div>
 
-        {/* Generic content cards */}
+
         <motion.div
           variants={groupVariants}
           initial="hidden"
@@ -159,7 +159,7 @@ export default function AppShellSkeleton() {
           ))}
         </motion.div>
 
-        {/* Generic table placeholder */}
+
         <motion.div
           variants={groupVariants}
           initial="hidden"

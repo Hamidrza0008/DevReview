@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/auth.middleware");
-const { createProjects, getMyProjects, getProjectById, getExploreProjects, updateProject, deleteProject, getProjectForEdit, toggleLikes , getProjectByUsername , toggleSaveProject , getSavedProjects} = require("../controllers/projectController.js");
-const { addReviews, getReviews, deleteReview, getReviewForEdit, editReview , getCurrentUserReview } = require("../controllers/reviewController.js");
+const { createProjects, getMyProjects, getProjectById, getExploreProjects, updateProject, deleteProject, getProjectForEdit, toggleLikes, toggleSaveProject, getSavedProjects} = require("../controllers/projectController.js");
+const { addReviews, getReviews, deleteReview, editReview, getCurrentUserReview } = require("../controllers/reviewController.js");
 
 
 router.post("/", authMiddleware, createProjects);
@@ -27,7 +27,6 @@ router.get("/saved/me", authMiddleware, getSavedProjects);
 
 router.post("/:id/review", authMiddleware, addReviews);
 router.put("/:id/review", authMiddleware, editReview);
-// router.get("/:id/review", authMiddleware, getReviewForEdit);
 router.get("/:id/review", authMiddleware, getReviews);
 router.delete("/:id/review", authMiddleware, deleteReview);
 

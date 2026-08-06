@@ -27,7 +27,7 @@ export default function Reviews() {
     <section id="reviews" className="relative w-full px-6 md:px-12 py-24 bg-surface border-b border-line overflow-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
 
-        {/* LEFT: Copy + Points */}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -65,7 +65,7 @@ export default function Reviews() {
           </div>
         </motion.div>
 
-        {/* RIGHT: Example Review Card */}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

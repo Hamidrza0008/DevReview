@@ -15,9 +15,7 @@ import {
   ArrowUpRight,
   CheckCircle2,
   FileCode,
-  AlertCircle,
-  Users,
-  UserPlus
+  AlertCircle
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getMyReviews } from "@/services/reviewApis";
@@ -41,7 +39,6 @@ export default function Dashboard() {
       try {
         setIsLoading(true);
 
-        // Fetching both APIs in parallel to save time
         const [projectsRes, reviewsRes] = await Promise.all([
           getMyProjects().catch(err => {
             console.error("Error fetching projects:", err);

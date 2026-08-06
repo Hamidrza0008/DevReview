@@ -65,7 +65,7 @@ export default function Settings() {
       </div>
 
       <div className="bg-surface border border-line rounded-xl max-w-4xl overflow-hidden">
-        {/* Account settings tab matrix wrapper */}
+
         <div className="grid grid-cols-1 md:grid-cols-4">
           <div className="border-r border-line p-4 space-y-1 bg-page/50">
             {[
@@ -83,7 +83,7 @@ export default function Settings() {
             ))}
           </div>
 
-          {/* Form parameters content section */}
+
           <div className="p-6 md:col-span-3 space-y-6">
             <div>
               <h3 className="font-bold text-base mb-4 pb-2 border-b border-line">Public Profile Parameters</h3>

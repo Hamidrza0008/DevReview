@@ -67,12 +67,12 @@ export default function HowItWorks() {
   return (
     <section id="how-it-works" className="relative w-full px-6 md:px-12 py-24 bg-page border-b border-line overflow-hidden">
 
-      {/* Subtle Premium Background Glow */}
+
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[500px] bg-linear-to-tr from-accent/15 to-accent-2/15 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10">
 
-        {/* Section Heading */}
+
         <div className="text-center mb-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -92,7 +92,7 @@ export default function HowItWorks() {
           </motion.div>
         </div>
 
-        {/* Steps Flex Layout Layer */}
+
         <motion.div 
           variants={containerVariants}
           initial="hidden"
@@ -102,24 +102,24 @@ export default function HowItWorks() {
         >
           {steps.map((step, idx) => (
             <React.Fragment key={idx}>
-              {/* Step Card Element */}
+
               <motion.div
                 variants={cardVariants}
                 className="group flex flex-col items-center text-center p-8 bg-surface/80 md:backdrop-blur-xl border border-surface rounded-[2rem] shadow-[0_8px_30px_rgba(47,111,78,0.06)] hover:shadow-[0_20px_40px_rgba(47,111,78,0.12)] hover:-translate-y-2 hover:border-accent/30 transition-all duration-500 relative z-10 w-full lg:w-[280px] min-h-[280px] overflow-hidden cursor-default"
               >
-                {/* Subtle top border highlight on hover */}
+
                 <div className="absolute top-0 left-0 w-full h-[3px] bg-linear-to-r from-accent to-accent-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                {/* Large Background Watermark Number */}
+
                 <div className="absolute -top-4 -right-2 text-[100px] font-black text-accent-soft group-hover:text-accent/10 transition-colors duration-500 pointer-events-none select-none z-0">
                   {step.number}
                 </div>
 
-                {/* Step Icon Container */}
+
                 <div className="relative mb-6 mt-2 z-10">
                   <div className="relative w-16 h-16 bg-accent-soft border-2 border-accent/20 text-accent rounded-2xl flex items-center justify-center transition-all duration-500 shadow-sm group-hover:border-accent/50 overflow-hidden">
 
-                    {/* Background fill animation on hover */}
+
                     <div className="absolute inset-0 bg-linear-to-br from-accent to-accent-2 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
 
                     <div className="relative z-10 group-hover:text-accent-ink group-hover:scale-110 transition-all duration-500">
@@ -127,13 +127,13 @@ export default function HowItWorks() {
                     </div>
                   </div>
 
-                  {/* Number Badge */}
+
                   <span className="absolute -top-3 -right-3 bg-surface text-accent group-hover:text-accent-ink group-hover:bg-accent border border-accent/20 text-xs font-black w-7 h-7 rounded-full flex items-center justify-center shadow-sm transition-all duration-500">
                     {step.number}
                   </span>
                 </div>
 
-                {/* Step Info */}
+
                 <h3 className="text-xl font-bold text-ink mb-3 group-hover:text-accent transition-colors duration-300 z-10 tracking-tight">
                   {step.title}
                 </h3>
@@ -142,11 +142,11 @@ export default function HowItWorks() {
                 </p>
               </motion.div>
 
-              {/* Modern Animated Connecting Arrow Indicator */}
+
               {idx !== steps.length - 1 && (
                 <div className="flex items-center justify-center z-0 my-4 lg:my-0 text-accent/30 shrink-0">
 
-                  {/* Horizontal Arrow for Desktop Screens */}
+
                   <motion.svg
                     animate={{ x: [0, 8, 0] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -159,7 +159,7 @@ export default function HowItWorks() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </motion.svg>
 
-                  {/* Vertical Arrow for Mobile/Tablet Screens */}
+
                   <motion.svg
                     animate={{ y: [0, 8, 0] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}

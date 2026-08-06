@@ -36,10 +36,7 @@ const CATEGORIES = [
   "Student"
 ];
 
-// Live platform metrics — populated from real user data below, no placeholders.
-
-function Shimmer({ className = "" }) {
-  return <div className={`shimmer rounded-md ${className}`} />;
+function Shimmer({ className = "" }) {  return <div className={`shimmer rounded-md ${className}`} />;
 }
 
 export default function ExploreUsers() {
@@ -118,7 +115,6 @@ export default function ExploreUsers() {
       });
   }, [users, searchQuery, selectedFilter, sortBy]);
 
-  // Real, live numbers only — no placeholder platform stats.
   const liveStats = useMemo(() => {
     const totalProjects = users.reduce((sum, u) => sum + (u.totalProjects || 0), 0);
     const totalReviews = users.reduce((sum, u) => sum + (u.totalReviews || 0), 0);
@@ -238,34 +234,34 @@ export default function ExploreUsers() {
         }
       `}</style>
 
-      {/* --- CONTINUOUS BACKGROUND LIGHTS & ANIMATIONS --- (disabled on mobile) */}
+
       <div className="hidden md:block fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* Top Left Animated Blob */}
+
         <motion.div
           animate={{ x: [0, 100, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
           className="absolute -top-[10%] -left-[5%] w-[500px] h-[500px] bg-accent/20 rounded-full blur-[100px]"
         />
-        {/* Center Right Animated Blob */}
+
         <motion.div
           animate={{ x: [0, -100, 0], y: [0, 100, 0], scale: [1, 1.3, 1] }}
           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
           className="absolute top-[30%] -right-[10%] w-[600px] h-[600px] bg-accent-2/20 rounded-full blur-[120px]"
         />
-        {/* Bottom Left Animated Blob */}
+
         <motion.div
           animate={{ x: [-50, 50, -50], y: [50, -50, 50], scale: [1, 1.2, 1] }}
           transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
           className="absolute -bottom-[20%] left-[10%] w-[600px] h-[600px] bg-accent/15 rounded-full blur-[120px]"
         />
-        {/* Minimal Dotted Background Overlay */}
+
         <div
           className="absolute inset-0 opacity-[0.3]"
           style={{ backgroundImage: `radial-gradient(var(--color-muted) 1px, transparent 1px)`, backgroundSize: "28px 28px" }}
         />
       </div>
 
-      {/* Floating Sticky Search Bar */}
+
       <AnimatePresence>
         {isPinned && (
           <motion.div
@@ -293,7 +289,7 @@ export default function ExploreUsers() {
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-12 relative z-10">
         
-        {/* MATCHED HERO SECTION */}
+
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center pt-2 mb-10 lg:mb-20">
           <motion.div 
             className="lg:col-span-7 space-y-3 lg:space-y-6 text-center lg:text-left relative z-10"
@@ -343,11 +339,11 @@ export default function ExploreUsers() {
             </motion.div>
           </motion.div>
 
-          {/* Animated Hero Illustration */}
+
           <div className="lg:col-span-5 relative hidden lg:flex items-center justify-center select-none perspective-1000">
             <div className="absolute w-[420px] h-[420px] bg-gradient-to-tr from-accent/20 via-accent-2/15 to-accent/10 rounded-full blur-3xl -z-10 animate-pulse" />
 
-            {/* Floating rating chip */}
+
             <motion.div
               animate={{ y: [-6, 6, -6] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
@@ -358,7 +354,7 @@ export default function ExploreUsers() {
               <span className="text-[10px] font-semibold text-muted">rating</span>
             </motion.div>
 
-            {/* Floating commits chip */}
+
             <motion.div
               animate={{ y: [6, -6, 6] }}
               transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
@@ -430,7 +426,7 @@ export default function ExploreUsers() {
           </div>
         </section>
 
-        {/* Search & Filters */}
+
         <section className="max-w-4xl mx-auto w-full mb-4 sm:mb-8 relative z-20">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center">
             <div className="relative flex-1 w-full group">
@@ -475,7 +471,7 @@ export default function ExploreUsers() {
           </div>
         </section>
 
-        {/* Dynamic Category Pills */}
+
         <section className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 max-w-4xl mx-auto mb-6 sm:mb-12 px-2">
           {CATEGORIES.map((category) => {
             const isActive = selectedFilter === category;
@@ -502,7 +498,7 @@ export default function ExploreUsers() {
           })}
         </section>
 
-        {/* Main Grid Area */}
+
         <section className="space-y-4 sm:space-y-6 relative z-10">
           <div className="flex items-center justify-between pb-2 sm:pb-4">
             <h3 className="font-extrabold text-xl sm:text-2xl flex items-center text-ink tracking-tight">
@@ -522,7 +518,7 @@ export default function ExploreUsers() {
 
           <AnimatePresence mode="wait">
             
-            {/* Error State */}
+
             {error && !loading && (
               <motion.div
                 key="error-state"
@@ -545,7 +541,7 @@ export default function ExploreUsers() {
               </motion.div>
             )}
 
-            {/* Loading Skeletons */}
+
             {loading && !error && (
               <motion.div
                 key="skeleton-grid"
@@ -580,7 +576,7 @@ export default function ExploreUsers() {
               </motion.div>
             )}
 
-            {/* Empty State */}
+
             {!loading && !error && filteredDevelopers.length === 0 && (
               <motion.div
                 key="empty-state"
@@ -607,7 +603,7 @@ export default function ExploreUsers() {
               </motion.div>
             )}
 
-            {/* Populated Grid */}
+
             {!loading && !error && filteredDevelopers.length > 0 && (
               <motion.div
                 key="real-grid"
@@ -626,10 +622,9 @@ export default function ExploreUsers() {
                       key={dev._id}
                       variants={itemVariants}
                       whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                      // STRICT FORMATTING: flex-col with explicit height and mt-auto guarantees alignment
                       className="card-glow group bg-surface/95 md:backdrop-blur-sm border border-line hover:border-transparent rounded-[24px] flex flex-col transition-all duration-300 relative shadow-sm hover:shadow-2xl hover:shadow-accent/20 h-[480px] overflow-hidden"
                     >
-                      {/* Top Banner */}
+
                       <div className="h-20 bg-gradient-to-b from-accent to-accent-2 relative overflow-hidden transition-colors">
                         <motion.div
                           animate={{ opacity: [0.15, 0.4, 0.15] }}
@@ -639,7 +634,7 @@ export default function ExploreUsers() {
                       </div>
 
                       <div className="px-4 sm:px-5 flex-1 flex flex-col relative z-10">
-                        {/* Avatar */}
+
                         <div className="relative mx-auto w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-4 sm:border-[5px] border-surface shadow-md -mt-8 sm:-mt-10 mb-2 sm:mb-3 bg-surface group-hover:shadow-lg group-hover:shadow-accent/20 transition-shadow">
                           <Image
                             src={dev.profileImage || defaultAvatar}
@@ -653,7 +648,7 @@ export default function ExploreUsers() {
                           />
                         </div>
 
-                        {/* Centered Name & Username */}
+
                         <div className="text-center space-y-0.5 mb-2 sm:mb-3">
                           <div className="flex items-center justify-center gap-1.5">
                             <h3 
@@ -669,7 +664,7 @@ export default function ExploreUsers() {
                           
                           <div className="flex items-center justify-center gap-3">
                             <span className="text-xs font-semibold text-muted">@{dev.username || "user"}</span>
-                            {/* Hover Social Links */}
+
                             <div className="flex items-center gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
                               {dev.githubUrl && (
                                 <a 
@@ -700,12 +695,12 @@ export default function ExploreUsers() {
                           </div>
                         </div>
 
-                        {/* Bio */}
+
                         <p className="text-xs sm:text-[13px] text-muted font-medium leading-relaxed line-clamp-2 min-h-[32px] sm:min-h-[40px] mb-3 sm:mb-5 text-center px-1 sm:px-2">
                           {dev.bio || "Software engineer passionate about building scalable, production-ready applications."}
                         </p>
 
-                        {/* Stats Grid */}
+
                         <div className="grid grid-cols-3 gap-1.5 sm:gap-2 bg-page rounded-xl p-2 sm:p-3 text-center mb-3 sm:mb-5 border border-surface-2 group-hover:border-accent/25 group-hover:bg-accent-soft/60 transition-colors">
                           {[
                             { label: "repos", val: dev.totalProjects || 0 },
@@ -719,7 +714,7 @@ export default function ExploreUsers() {
                           ))}
                         </div>
 
-                        {/* Skills */}
+
                         <div className="flex flex-wrap justify-center gap-1 sm:gap-1.5 pb-1 sm:pb-2">
                           {devSkills.length > 0 ? (
                             <>
@@ -742,7 +737,7 @@ export default function ExploreUsers() {
                           )}
                         </div>
 
-                        {/* Button Actions - ALWAYS sticks to bottom due to mt-auto */}
+
                         <div className="mt-auto pb-3 sm:pb-5 pt-1 sm:pt-2">
                           <div className="grid grid-cols-2 gap-2 sm:gap-3">
                             <motion.button

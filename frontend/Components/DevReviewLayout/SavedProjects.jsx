@@ -3,27 +3,24 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Bookmark, ArrowRight, Heart } from 'lucide-react';
-import { useRouter } from 'next/navigation'; // Routing ke liye
+import { useRouter } from 'next/navigation';
 import { getSavedProjects } from '@/services/savedProjectsApi';
 
 export default function SavedProjects() {
-  const router = useRouter(); // Initialize router
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [savedProjects, setSavedProjects] = useState([]);
 
   const getSavedProj = async () => {
     try {
       const res = await getSavedProjects();
-      console.log("API Response:", res);
-      // Agar response me success true hai, toh savedProjects state me data daal do
       if (res && res.success) {
         setSavedProjects(res.savedProjects);
       }
     } catch (error) {
       console.error("Failed to fetch saved projects:", error);
     } finally {
-      // API call poori hone ke baad loading false kardo
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -31,7 +28,6 @@ export default function SavedProjects() {
     getSavedProj();
   }, []);
 
-  // Loading State UI (Skeleton)
   if (loading) {
     return (
       <div className="p-8 bg-page min-h-screen space-y-6 animate-pulse">
@@ -81,7 +77,6 @@ export default function SavedProjects() {
               animate={{ opacity: 1, y: 0 }}
               className="bg-surface border border-line rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col"
             >
-              {/* Project Thumbnail */}
               <div className="h-48 w-full bg-surface-2 overflow-hidden relative">
                 {project.thumbnail ? (
                   <Image
@@ -98,7 +93,6 @@ export default function SavedProjects() {
                 )}
               </div>
               
-              {/* Card Content */}
               <div className="p-5 flex flex-col flex-grow">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-lg font-bold text-ink line-clamp-1">{project.title}</h3>
@@ -112,7 +106,6 @@ export default function SavedProjects() {
                   {project.description}
                 </p>
                 
-                {/* Tech Stack Tags */}
                 <div className="flex flex-wrap gap-2 mb-4">
                   {project.techStack?.map((tech, idx) => (
                     <span key={idx} className="px-2 py-1 bg-accent-soft text-accent text-xs font-medium rounded-md">
@@ -123,7 +116,6 @@ export default function SavedProjects() {
 
                 <hr className="border-surface-2 mb-4" />
 
-                {/* Footer: Owner Info & Action Button */}
                 <div className="flex items-center justify-between mt-auto">
                   <div className="flex items-center space-x-2">
                     <Image
@@ -138,7 +130,6 @@ export default function SavedProjects() {
                     </span>
                   </div>
                   
-                  {/* Open Project Button */}
                   <button 
                     onClick={() => router.push(`/projects/${project._id}`)}
                     className="flex items-center text-sm font-medium text-accent-ink bg-accent hover:brightness-110 px-3 py-1.5 rounded-lg transition-colors"

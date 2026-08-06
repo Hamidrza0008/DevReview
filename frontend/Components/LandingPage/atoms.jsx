@@ -4,14 +4,12 @@ import React from 'react';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 
-// DevReview Premium Logo - Meaningful Code Bracket & Checkmark Design
 export const DevReviewLogo = () => (
   <div className="flex items-center gap-2 select-none cursor-pointer">
     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Premium Dark Background Node */}
+
       <rect width="28" height="28" rx="8" className="fill-ink"/>
 
-      {/* Code Terminal Bracket Element (<) in Accent Green */}
       <path
         d="M11 10L7 14L11 18"
         className="stroke-accent-2"
@@ -20,7 +18,6 @@ export const DevReviewLogo = () => (
         strokeLinejoin="round"
       />
 
-      {/* Review Verified Checkmark in Accent Ink */}
       <path
         d="M15 15L18 18L22 11"
         className="stroke-accent-ink"
@@ -35,8 +32,6 @@ export const DevReviewLogo = () => (
   </div>
 );
 
-
-// Premium Primary Button
 export const PrimaryButton = ({ children, onClick, className = '' }) => (
   <button
     onClick={onClick}
@@ -46,7 +41,6 @@ export const PrimaryButton = ({ children, onClick, className = '' }) => (
   </button>
 );
 
-// Premium Secondary Button
 export const SecondaryButton = ({ children, onClick, className = '' }) => (
   <button
     onClick={onClick}
@@ -56,14 +50,12 @@ export const SecondaryButton = ({ children, onClick, className = '' }) => (
   </button>
 );
 
-// Tech Stack Tag Badge
 export const TechBadge = ({ name }) => (
   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-surface-2 text-muted border border-line">
     {name}
   </span>
 );
 
-// Light/Dark theme toggle — used in Navbar and Sidebar
 export const ThemeToggle = ({ className = '' }) => {
   const theme = useTheme();
   if (!theme) return null;

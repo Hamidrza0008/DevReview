@@ -55,11 +55,11 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen bg-page flex text-ink font-sans antialiased relative overflow-hidden">
-      {/* Decorative Blur Backgrounds */}
+
       <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-accent-2/10 rounded-full blur-3xl" />
       <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-accent/5 rounded-full blur-3xl" />
 
-      {/* Left Branding Panel */}
+
       <div className="hidden lg:flex lg:w-1/2 bg-accent relative items-center justify-center p-12 overflow-hidden border-r border-line/10">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
 
@@ -87,7 +87,7 @@ export default function ResetPassword() {
         </div>
       </div>
 
-      {/* Right Form Panel */}
+
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -129,7 +129,7 @@ export default function ResetPassword() {
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.12 }}
               >
-                {/* Normal Plain OTP Input */}
+
                 <div>
                   <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Verification Matrix OTP</label>
                   <input
@@ -143,7 +143,7 @@ export default function ResetPassword() {
                   />
                 </div>
 
-                {/* New Password Input */}
+
                 <div className="relative">
                   <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">New Access Key</label>
                   <div className="relative">
@@ -169,7 +169,7 @@ export default function ResetPassword() {
                   </div>
                 </div>
 
-                {/* Confirm Password Input */}
+
                 <div className="relative">
                   <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Confirm Access Key</label>
                   <div className="relative">
@@ -195,7 +195,7 @@ export default function ResetPassword() {
                   </div>
                 </div>
 
-                {/* Submit Button */}
+
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -250,7 +250,7 @@ export default function ResetPassword() {
             )}
           </AnimatePresence>
 
-          {/* Bottom Link */}
+
           <div className="mt-6 pt-6 border-t border-line text-center">
             <a href="/auth/login" className="inline-flex items-center space-x-2 text-sm font-bold text-accent hover:brightness-110">
               <span>Return to Core Login</span>

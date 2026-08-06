@@ -54,11 +54,11 @@ export default function VerifyOtp() {
 
     return (
         <div className="h-screen bg-page flex text-ink font-sans antialiased relative overflow-hidden">
-            {/* Background Decorative Blurs */}
+
             <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-accent-2/10 rounded-full blur-3xl" />
             <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-accent/5 rounded-full blur-3xl" />
 
-            {/* Left Panel */}
+
             <div className="hidden lg:flex lg:w-1/2 bg-accent relative items-center justify-center p-12 overflow-hidden border-r border-line/10">
                 <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
 
@@ -91,7 +91,7 @@ export default function VerifyOtp() {
                 </motion.div>
             </div>
 
-            {/* Right Panel */}
+
             <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10">
                 <motion.div
                     initial={{ opacity: 0, y: 12 }}
