@@ -9,6 +9,7 @@ const projectRoutes = require("./routes/projectRoutes")
 const statsRoute = require("./routes/stats.routes");
 const userProjectRoute = require("./routes/userProject.routes")
 const uploadRoute = require("./routes/upload.routes")
+const notificationsRoute = require("./routes/notifications.routes");
 
 
 
@@ -40,6 +41,8 @@ app.get("/", (req, res) => {
 app.use("/api/projects", projectRoutes);
 app.use("/api/user/projects", userProjectRoute);
 app.use("/api/upload", uploadRoute);
+
+app.use("/api" , notificationsRoute);
 
 
 

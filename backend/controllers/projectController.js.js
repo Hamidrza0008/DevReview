@@ -1,3 +1,4 @@
+const Notification = require("../models/Notification");
 const Projects = require("../models/Projects");
 const Reviews = require("../models/Review");
 const Users = require("../models/Users")
@@ -343,6 +344,13 @@ const toggleLikes = async (req, res) => {
         }
         else {
             project.likes.push(userId);
+
+            await Notification.create({
+                recipient:project.owner,
+                sender:userId,
+                type:"like",
+                project:project._id,
+            })
         }
 
         await project.save();
