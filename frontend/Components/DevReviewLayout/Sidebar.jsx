@@ -15,7 +15,8 @@ import {
   LogOut,
   Menu,
   X,
-  Home
+  Home,
+  Bell
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
@@ -27,6 +28,7 @@ const menuItems = [
   { name: "Users", icon: Users, path: "/users/explore" },
   { name: "My Projects", icon: FolderGit2, path: "/projects/my" },
   { name: "Reviews Received", icon: MessageSquare, path: "/review", badge: "New" },
+  { name: "Notifications", icon: Bell, path: "/notifications" },
   { name: "Saved Projects", icon: Bookmark, path: "/projects/saved" },
   { name: "Community", icon: Users, path: "/community" },
   { name: "Profile", icon: User, path: "/profile/my" },
@@ -57,6 +59,8 @@ function isMenuActive(item, pathname) {
       return pathname.startsWith("/review");
     case "Community":
       return pathname.startsWith("/community");
+    case "Notifications":
+      return pathname.startsWith("/notifications");
     default:
       return pathname === item.path;
   }
