@@ -1,6 +1,7 @@
 const Reviews = require("../models/Review");
 const Projects = require("../models/Projects");
 const mongoose = require("mongoose");
+const Notification = require("../models/Notification");
 
 const addReviews = async (req, res) => {
     try {
@@ -54,6 +55,13 @@ const addReviews = async (req, res) => {
             user: userId,
             rating,
             review
+        })
+        
+        await Notification.create({
+            recipient:project.owner,
+            sender:userId,
+            type:"review",
+            project:project._id
         })
 
         return res.status(201).json({
