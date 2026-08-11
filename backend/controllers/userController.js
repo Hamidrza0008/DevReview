@@ -1,6 +1,7 @@
 const Users = require("../models/Users");
 const Projects = require("../models/Projects");
 const Review = require("../models/Review");
+const Notification = require("../models/Notification");
 
 const getUserProfile = async (req, res) => {
     try {
@@ -85,6 +86,11 @@ const toggleFollow = async (req, res) => {
         } else {
             targetUser.followers.push(currentUserId);
             currentUser.following.push(targetUser._id);
+            await Notification.create({
+                recipient:targetUser._id,
+                sender:currentUserId,
+                type:"follow",
+            })
         }
 
         await targetUser.save();
