@@ -101,6 +101,15 @@ body {
   border-radius: 999px;
 }
 
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ==========================
    Theme Toggle — circular reveal
    Powered by the View Transitions API; the JS side animates

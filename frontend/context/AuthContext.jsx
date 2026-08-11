@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/context/ToastContext";
 
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [initialized, setInitialized] = useState(false);
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
             setUser(null);
         } finally {
             setLoading(false);
-            setInitialized(true); 
+            setInitialized(true);
         }
     };
 
