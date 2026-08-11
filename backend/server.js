@@ -10,6 +10,8 @@ const statsRoute = require("./routes/stats.routes");
 const userProjectRoute = require("./routes/userProject.routes")
 const uploadRoute = require("./routes/upload.routes")
 const notificationsRoute = require("./routes/notifications.routes");
+const supportRoutes = require("./routes/support.routes");
+
 
 
 
@@ -44,6 +46,7 @@ app.use("/api/upload", uploadRoute);
 
 app.use("/api" , notificationsRoute);
 
+app.use("/api/support", supportRoutes);
 
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
