@@ -6,6 +6,7 @@ import { Plus, Heart, MessageSquare, ExternalLink, GitBranch, FolderGit2, Eye } 
 import { useRouter } from 'next/navigation';
 import { getMyProjects } from '@/services/getMyProjectsApi';
 import { toggleLikes } from '@/services/toggleLikesApi';
+import { getProjectLikesCount, getProjectReviewsCount } from '@/utils/projectCounts';
 
 const getFallbackGradient = (title) => {
   const gradients = [
@@ -228,15 +229,15 @@ export default function MyProjects() {
                         : "fill-none text-current group-hover/like:fill-like group-hover/like:text-like"
                         }`}
                     />
-                    {project.likes.length || 0}
+                    {getProjectLikesCount(project)}
                   </span>
                   <span className="flex items-center space-x-1 cursor-pointer group/msg transition-colors">
                     <MessageSquare className="w-3.5 h-3.5 text-muted group-hover/msg:text-accent transition-colors" />
-                    <span className="text-ink font-semibold">{project.reviewsCount || 0}</span>
+                    <span className="text-ink font-semibold">{getProjectReviewsCount(project)}</span>
                   </span>
                   <span className="flex items-center space-x-1 text-muted/60 select-none">
                     <Eye className="w-3.5 h-3.5" />
-                    <span>{Math.floor(((project.likes.length || 0) * 4) + ((project.reviewsCount || 0) * 3) + 12)}</span>
+                    <span>{Math.floor((getProjectLikesCount(project) * 4) + (getProjectReviewsCount(project) * 3) + 12)}</span>
                   </span>
                 </div>
 

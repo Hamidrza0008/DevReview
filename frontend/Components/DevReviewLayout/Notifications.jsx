@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { Bell, Check, CheckCheck, Heart, MessageSquareText, UserPlus } from "lucide-react";
 import { getNotifications } from "@/services/getNotificationsApi";
 
@@ -26,18 +27,35 @@ function formatTime(date) {
 }
 
 function NotificationItem({ item, index, compact = false }) {
+  const router = useRouter();
   const style = typeStyles[item.type];
   if (!style) return null;
   const Icon = style.icon;
   const name = item.sender?.name || "A developer";
   const initials = name.split(" ").map((word) => word[0]).join("").slice(0, 2).toUpperCase();
+  const destination = item.type === "follow"
+    ? item.sender?.username && `/users/${item.sender.username}`
+    : item.project?._id && `/projects/${item.project._id}`;
+
+  const openNotification = () => {
+    if (destination) router.push(destination);
+  };
 
   return (
     <motion.article
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04 }}
-      className={`relative flex gap-3 sm:gap-4 transition-colors group ${compact ? "p-4" : "p-4 sm:p-5"} ${!item.isRead ? "bg-accent-soft/35" : "hover:bg-page/70"}`}
+      onClick={openNotification}
+      onKeyDown={(event) => {
+        if (destination && (event.key === "Enter" || event.key === " ")) {
+          event.preventDefault();
+          openNotification();
+        }
+      }}
+      role={destination ? "link" : undefined}
+      tabIndex={destination ? 0 : undefined}
+      className={`relative flex gap-3 sm:gap-4 transition-colors group ${destination ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-inset focus:ring-accent" : ""} ${compact ? "p-4" : "p-4 sm:p-5"} ${!item.isRead ? "bg-accent-soft/35" : "hover:bg-page/70"}`}
     >
       {!item.isRead && <span className="absolute left-0 top-4 bottom-4 w-1 rounded-r-full bg-accent" />}
       <div className="relative shrink-0">

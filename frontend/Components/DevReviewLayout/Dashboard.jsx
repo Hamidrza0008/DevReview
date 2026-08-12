@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getMyReviews } from "@/services/reviewApis";
+import { getProjectLikesCount, getProjectReviewsCount } from "@/utils/projectCounts";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -316,10 +317,10 @@ export default function Dashboard() {
                                     <div className="flex items-center justify-between pt-2.5 sm:pt-3 border-t border-line text-[10px] sm:text-[11px] font-semibold text-muted">
                                       <div className="flex items-center gap-3 sm:gap-4">
                                         <span className="flex items-center gap-1 sm:gap-1.5 hover:text-like transition-colors">
-                                          <ThumbsUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-like/80" /> {project.likes?.length || 0}
+                                          <ThumbsUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-like/80" /> {getProjectLikesCount(project)}
                                         </span>
                                         <span className="flex items-center gap-1 sm:gap-1.5 hover:text-accent transition-colors">
-                                          <MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-accent/80" /> {project.reviews?.length || 0}
+                                          <MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-accent/80" /> {getProjectReviewsCount(project)}
                                         </span>
                                       </div>
                                     </div>

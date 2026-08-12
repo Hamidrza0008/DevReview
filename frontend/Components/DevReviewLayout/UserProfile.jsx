@@ -16,6 +16,7 @@ import { toggleLikes } from "@/services/toggleLikesApi";
 import { toggleFollow } from "@/services/followApi";
 import { useAuth } from "@/context/AuthContext";
 import { formatSkill } from "@/utils/formatSkill";
+import { getProjectLikesCount, getProjectReviewsCount } from "@/utils/projectCounts";
 
 export default function UserProfile() {
   const router = useRouter();
@@ -536,13 +537,13 @@ export default function UserProfile() {
                                       }`}
                                   />
 
-                                  {(project.likes?.length > 0 || project.isLiked) && (
-                                    <span>{project.likes?.length || 0}</span>
+                                  {(getProjectLikesCount(project) > 0 || project.isLiked) && (
+                                    <span>{getProjectLikesCount(project)}</span>
                                   )}
                                 </motion.span>
                                 <span className="flex items-center space-x-1.5">
                                   <MessageSquare className="w-4 h-4" />
-                                  <span>{project.reviewsCount || 0}</span>
+                                  <span>{getProjectReviewsCount(project)}</span>
                                 </span>
                               </div>
                               <div className="flex items-center space-x-3">
