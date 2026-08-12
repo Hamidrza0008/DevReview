@@ -22,6 +22,7 @@ import {
 import { getAllUsers } from "@/services/usersApi";
 import { toggleFollow as followUnfollowUser } from "@/services/followApi";
 import { useRouter } from "next/navigation";
+import { formatSkill } from "@/utils/formatSkill";
 
 const CATEGORIES = [
   "All",
@@ -723,7 +724,7 @@ export default function ExploreUsers() {
                                   key={skill}
                                   className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-surface text-accent text-[10px] sm:text-[11px] font-bold border border-line group-hover:border-accent/40 group-hover:bg-accent-soft transition-colors"
                                 >
-                                  {skill}
+                                  {formatSkill(skill)}
                                 </span>
                               ))}
                               {devSkills.length > 3 && (

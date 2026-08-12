@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { updateProfile } from "@/services/authApis";
 import { getMyProjects } from "@/services/getMyProjectsApi";
+import { formatSkill } from "@/utils/formatSkill";
 
 export default function MyProfile() {
   const router = useRouter();
@@ -135,7 +136,7 @@ export default function MyProfile() {
       
       const parsedSkills = formData.skillsString
         .split(",")
-        .map((skill) => skill.trim())
+        .map(formatSkill)
         .filter((skill) => skill !== "");
 
       const { skillsString, profileImage, ...restOfData } = formData;
@@ -327,7 +328,7 @@ export default function MyProfile() {
                           key={index}
                           className="text-xs bg-surface text-accent border border-accent-2/30 px-3 py-1.5 rounded-lg font-bold shadow-sm hover:bg-accent hover:text-accent-ink transition-colors cursor-default"
                         >
-                          {skill}
+                          {formatSkill(skill)}
                         </span>
                       ))
                     ) : (
@@ -709,7 +710,7 @@ export default function MyProfile() {
                   <h4 className="text-xs font-bold text-muted uppercase tracking-wider mb-3">Core Competencies</h4>
                   <div className="flex flex-wrap gap-2">
                     {user.skills?.length > 0 ? user.skills.map((skill, idx) => (
-                       <span key={idx} className="bg-page border border-line text-ink px-3 py-1.5 rounded-lg text-xs font-bold">{skill}</span>
+                       <span key={idx} className="bg-page border border-line text-ink px-3 py-1.5 rounded-lg text-xs font-bold">{formatSkill(skill)}</span>
                     )) : (
                       <span className="text-sm text-muted italic">No competencies listed.</span>
                     )}

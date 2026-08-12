@@ -15,6 +15,7 @@ import { getProjectByUsername } from "@/services/getProjectsByUsernameApi";
 import { toggleLikes } from "@/services/toggleLikesApi";
 import { toggleFollow } from "@/services/followApi";
 import { useAuth } from "@/context/AuthContext";
+import { formatSkill } from "@/utils/formatSkill";
 
 export default function UserProfile() {
   const router = useRouter();
@@ -337,7 +338,7 @@ export default function UserProfile() {
                     whileHover={{ y: -2, scale: 1.05 }}
                     className="text-xs bg-surface text-ink border border-line hover:border-accent/40 hover:bg-accent-soft hover:text-accent px-3 py-1.5 rounded-xl font-semibold shadow-sm transition-colors cursor-default"
                   >
-                    {skill}
+                    {formatSkill(skill)}
                   </motion.span>
                 ))}
               </div>
@@ -582,7 +583,7 @@ export default function UserProfile() {
                         whileHover={{ y: -2, scale: 1.05 }}
                         className="bg-page border border-line hover:border-accent/40 hover:bg-accent-soft hover:text-accent text-ink px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-default"
                       >
-                        {skill}
+                        {formatSkill(skill)}
                       </motion.span>
                     )) : (
                       <span className="text-sm text-muted italic">No skills listed.</span>
