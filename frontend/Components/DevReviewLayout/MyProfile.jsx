@@ -13,7 +13,8 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { updateProfile } from "@/services/authApis";
 import { getMyProjects } from "@/services/getMyProjectsApi";
-import { getSavedProjects } from "@/services/savedProjectsApi";
+import { getSavedProjects, toggleSaveProject } from "@/services/savedProjectsApi";
+import { toggleLikes } from "@/services/toggleLikesApi";
 import { formatSkill } from "@/utils/formatSkill";
 
 export default function MyProfile() {
@@ -63,6 +64,44 @@ export default function MyProfile() {
       console.error("Failed to fetch saved projects:", err);
     } finally {
       setSavedProjectsLoading(false);
+    }
+  };
+
+  const handleProjectLike = async (event, projectId) => {
+    event.stopPropagation();
+    const previousProjects = myProjects;
+
+    setMyProjects((projects) => projects.map((project) => {
+      if ((project._id || project.id) !== projectId) return project;
+      const isLiked = Boolean(project.isLiked);
+      return {
+        ...project,
+        isLiked: !isLiked,
+        likesCount: Math.max(0, (project.likesCount ?? project.likes?.length ?? 0) + (isLiked ? -1 : 1)),
+      };
+    }));
+
+    try {
+      const res = await toggleLikes(projectId);
+      if (!res?.success) throw new Error("Failed to update like");
+    } catch (err) {
+      setMyProjects(previousProjects);
+      showToast("error", "Could not update the project like.");
+    }
+  };
+
+  const handleUnsaveProject = async (event, projectId) => {
+    event.stopPropagation();
+    const previousSavedProjects = savedProjects;
+    setSavedProjects((projects) => projects.filter((project) => project._id !== projectId));
+
+    try {
+      const res = await toggleSaveProject(projectId);
+      if (!res?.success || res.saved !== false) throw new Error("Failed to remove saved project");
+      showToast("success", "Project removed from saved projects.");
+    } catch (err) {
+      setSavedProjects(previousSavedProjects);
+      showToast("error", "Could not remove the saved project.");
     }
   };
 
@@ -688,18 +727,32 @@ export default function MyProfile() {
 
                             <div className="pt-4 border-t border-surface-2 flex justify-between items-center text-xs font-bold text-muted">
                               <div className="flex space-x-4">
-                                <span className="flex items-center space-x-1.5">
-                                  <Heart className="w-4 h-4 text-danger" /> 
-                                  <span>{project.likesCount || 0}</span>
-                                </span>
+                                <motion.button
+                                  type="button"
+                                  whileTap={{ scale: 0.85 }}
+                                  onClick={(event) => handleProjectLike(event, project._id || project.id)}
+                                  className={`flex items-center space-x-1.5 cursor-pointer transition-colors ${project.isLiked ? "text-danger" : "text-muted hover:text-danger"}`}
+                                  aria-label={project.isLiked ? "Unlike project" : "Like project"}
+                                >
+                                  <Heart className={`w-4 h-4 ${project.isLiked ? "fill-current" : ""}`} />
+                                  <span>{project.likesCount ?? project.likes?.length ?? 0}</span>
+                                </motion.button>
                                 <span className="flex items-center space-x-1.5">
                                   <MessageSquare className="w-4 h-4 text-accent" /> 
                                   <span>{project.reviewsCount || 0}</span>
                                 </span>
                               </div>
                               <div className="flex items-center space-x-3">
-                                {project.githubUrl && <GitBranch className="w-4 h-4 hover:text-ink transition-colors" />}
-                                {project.liveUrl && <ExternalLink className="w-4 h-4 hover:text-ink transition-colors" />}
+                                {project.githubUrl && (
+                                  <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()} aria-label="Open GitHub repository" className="hover:text-ink transition-colors">
+                                    <GitBranch className="w-4 h-4" />
+                                  </a>
+                                )}
+                                {project.liveUrl && (
+                                  <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()} aria-label="Open live project" className="hover:text-ink transition-colors">
+                                    <ExternalLink className="w-4 h-4" />
+                                  </a>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -784,6 +837,15 @@ export default function MyProfile() {
                         className="bg-surface border border-line rounded-[24px] overflow-hidden group shadow-sm hover:shadow-xl hover:shadow-accent/5 hover:border-accent/30 cursor-pointer transition-all duration-300"
                       >
                         <div className="h-44 bg-surface-2 border-b border-line relative overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={(event) => handleUnsaveProject(event, project._id)}
+                            className="absolute top-3 right-3 z-10 w-9 h-9 rounded-xl bg-surface/90 border border-line text-accent flex items-center justify-center shadow-sm hover:bg-accent hover:text-accent-ink transition-colors"
+                            aria-label="Remove from saved projects"
+                            title="Remove from saved"
+                          >
+                            <Bookmark className="w-4 h-4 fill-current" />
+                          </button>
                           {project.thumbnail ? (
                             <Image
                               fill

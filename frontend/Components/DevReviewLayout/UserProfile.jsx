@@ -546,8 +546,16 @@ export default function UserProfile() {
                                 </span>
                               </div>
                               <div className="flex items-center space-x-3">
-                                {project.githubUrl && <GitBranch className="w-4 h-4 hover:text-accent transition-colors" />}
-                                {project.liveUrl && <ExternalLink className="w-4 h-4 hover:text-accent transition-colors" />}
+                                {project.githubUrl && (
+                                  <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} aria-label="Open GitHub repository" className="hover:text-accent transition-colors">
+                                    <GitBranch className="w-4 h-4" />
+                                  </a>
+                                )}
+                                {project.liveUrl && (
+                                  <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} aria-label="Open live project" className="hover:text-accent transition-colors">
+                                    <ExternalLink className="w-4 h-4" />
+                                  </a>
+                                )}
                               </div>
                             </div>
                           </div>

@@ -611,7 +611,14 @@ export default function ExploreProjects() {
                             <div className="text-[10px] font-mono text-muted tracking-tight max-w-[140px] truncate font-bold">
                               {project.title.toLowerCase().replace(/\s+/g, "-")}.io
                             </div>
-                            <Bookmark className="w-4 h-4 text-muted opacity-50 hover:opacity-100 hover:text-accent transition-all" onClick={(e) => e.stopPropagation()} />
+                            <button
+                              type="button"
+                              onClick={(e) => handleSaveButton(e, project._id)}
+                              className="p-1 -m-1 rounded-md hover:bg-accent-soft transition-colors cursor-pointer"
+                              aria-label={project.isSaved ? "Remove from saved projects" : "Save project"}
+                            >
+                              <Bookmark className={`w-4 h-4 transition-all ${project.isSaved ? "fill-accent text-accent opacity-100" : "text-muted opacity-50 hover:opacity-100 hover:text-accent"}`} />
+                            </button>
                           </div>
 
                           <div className="absolute inset-0 bg-ink/50 opacity-0 group-hover/thumb:opacity-100 backdrop-blur-[3px] transition-all duration-300 z-20 flex items-center justify-center">
