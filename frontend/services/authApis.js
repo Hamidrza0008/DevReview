@@ -107,3 +107,13 @@ export const updateProfile = async (formData) => {
         console.log("Update Profile Error:", error);
     }
 }
+
+export const changePassword = async (passwords) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me/password`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(passwords),
+    });
+    return response.json();
+};

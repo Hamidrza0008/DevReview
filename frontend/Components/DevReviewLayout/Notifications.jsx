@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Bell, Check, CheckCheck, Heart, MessageSquareText, UserPlus } from "lucide-react";
-import { getNotifications } from "@/services/getNotificationsApi";
+import { getNotifications, markAllNotificationsRead, markNotificationRead } from "@/services/getNotificationsApi";
 
 const typeStyles = {
   like: { icon: Heart, color: "text-like", bg: "bg-like/10", label: "Like", message: "liked your project" },
@@ -26,7 +26,7 @@ function formatTime(date) {
   return new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
-function NotificationItem({ item, index, compact = false }) {
+function NotificationItem({ item, index, compact = false, onRead }) {
   const router = useRouter();
   const style = typeStyles[item.type];
   if (!style) return null;
@@ -37,7 +37,8 @@ function NotificationItem({ item, index, compact = false }) {
     ? item.sender?.username && `/users/${item.sender.username}`
     : item.project?._id && `/projects/${item.project._id}`;
 
-  const openNotification = () => {
+  const openNotification = async () => {
+    if (!item.isRead) await onRead(item._id);
     if (destination) router.push(destination);
   };
 
@@ -103,6 +104,21 @@ export default function Notifications() {
   const projectActivity = filtered.filter((item) => item.type === "like" || item.type === "review");
   const follows = filtered.filter((item) => item.type === "follow");
 
+  const handleRead = async (id) => {
+    setNotifications((items) => items.map((item) => item._id === id ? { ...item, isRead: true } : item));
+    const res = await markNotificationRead(id);
+    if (!res?.success) {
+      setNotifications((items) => items.map((item) => item._id === id ? { ...item, isRead: false } : item));
+    }
+  };
+
+  const handleReadAll = async () => {
+    const previous = notifications;
+    setNotifications((items) => items.map((item) => ({ ...item, isRead: true })));
+    const res = await markAllNotificationsRead();
+    if (!res?.success) setNotifications(previous);
+  };
+
   return (
     <div className="min-h-screen bg-page text-ink p-4 sm:p-6 lg:p-8">
       <div className="w-full">
@@ -115,6 +131,7 @@ export default function Notifications() {
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Notifications</h1>
             <p className="text-sm text-muted mt-1">Your latest project and community activity.</p>
           </div>
+          {unreadCount > 0 && <button type="button" onClick={handleReadAll} className="ml-auto text-xs font-bold text-accent hover:underline">Mark all as read</button>}
         </motion.header>
 
         <div className="border-b border-line flex items-center gap-6 mb-6">
@@ -133,13 +150,13 @@ export default function Notifications() {
             <section className="xl:col-span-2">
               <div className="flex items-center gap-2 mb-3 px-1"><Heart className="w-4 h-4 text-like" /><h2 className="text-sm font-extrabold">Likes &amp; Reviews</h2><span className="text-[10px] font-bold text-muted bg-surface border border-line rounded-full px-2 py-0.5">{projectActivity.length}</span></div>
               <div className="bg-surface border border-line rounded-2xl overflow-hidden divide-y divide-line">
-                {projectActivity.length ? projectActivity.map((item, index) => <NotificationItem key={item._id} item={item} index={index} />) : <p className="p-10 text-center text-sm text-muted">No likes or reviews yet.</p>}
+                {projectActivity.length ? projectActivity.map((item, index) => <NotificationItem key={item._id} item={item} index={index} onRead={handleRead} />) : <p className="p-10 text-center text-sm text-muted">No likes or reviews yet.</p>}
               </div>
             </section>
             <section>
               <div className="flex items-center gap-2 mb-3 px-1"><UserPlus className="w-4 h-4 text-info" /><h2 className="text-sm font-extrabold">New Followers</h2><span className="text-[10px] font-bold text-muted bg-surface border border-line rounded-full px-2 py-0.5">{follows.length}</span></div>
               <div className="bg-surface border border-line rounded-2xl overflow-hidden divide-y divide-line">
-                {follows.length ? follows.map((item, index) => <NotificationItem key={item._id} item={item} index={index} compact />) : <p className="p-10 text-center text-sm text-muted">No new followers yet.</p>}
+                {follows.length ? follows.map((item, index) => <NotificationItem key={item._id} item={item} index={index} compact onRead={handleRead} />) : <p className="p-10 text-center text-sm text-muted">No new followers yet.</p>}
               </div>
             </section>
           </div>

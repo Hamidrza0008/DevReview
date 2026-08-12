@@ -78,6 +78,10 @@ const userSchema = new mongoose.Schema({
             ref: "Users",
         },
     ],
+    notificationPreferences: {
+        reviewAlerts: { type: Boolean, default: true },
+        weeklyDigest: { type: Boolean, default: true },
+    },
 },
     {
         timestamps: true

@@ -2,6 +2,7 @@ const Reviews = require("../models/Review");
 const Projects = require("../models/Projects");
 const mongoose = require("mongoose");
 const Notification = require("../models/Notification");
+const Users = require("../models/Users");
 
 const addReviews = async (req, res) => {
     try {
@@ -57,12 +58,15 @@ const addReviews = async (req, res) => {
             review
         })
         
-        await Notification.create({
-            recipient:project.owner,
-            sender:userId,
-            type:"review",
-            project:project._id
-        })
+        const projectOwner = await Users.findById(project.owner).select("notificationPreferences");
+        if (projectOwner?.notificationPreferences?.reviewAlerts !== false) {
+            await Notification.create({
+                recipient:project.owner,
+                sender:userId,
+                type:"review",
+                project:project._id
+            })
+        }
 
         return res.status(201).json({
             success: true,

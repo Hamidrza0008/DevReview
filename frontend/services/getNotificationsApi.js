@@ -14,3 +14,19 @@ export const getNotifications = async () => {
     }
 }
 
+export const markNotificationRead = async (id) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notifications/${id}/read`, {
+        method: "PATCH",
+        credentials: "include",
+    });
+    return response.json();
+};
+
+export const markAllNotificationsRead = async () => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notifications/read-all`, {
+        method: "PATCH",
+        credentials: "include",
+    });
+    return response.json();
+};
+

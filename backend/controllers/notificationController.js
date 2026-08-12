@@ -27,4 +27,19 @@ const getNotifications = async(req, res) => {
     }
 }
 
-module.exports = getNotifications
+const markNotificationRead = async (req, res) => {
+    const notification = await Notification.findOneAndUpdate(
+        { _id: req.params.id, recipient: req.user.id },
+        { $set: { isRead: true } },
+        { new: true }
+    );
+    if (!notification) return res.status(404).json({ success: false, message: "Notification not found" });
+    return res.status(200).json({ success: true, notification });
+};
+
+const markAllNotificationsRead = async (req, res) => {
+    await Notification.updateMany({ recipient: req.user.id, isRead: false }, { $set: { isRead: true } });
+    return res.status(200).json({ success: true });
+};
+
+module.exports = { getNotifications, markNotificationRead, markAllNotificationsRead }

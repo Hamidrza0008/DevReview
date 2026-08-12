@@ -8,9 +8,9 @@ import {
   Heart, MessageSquare, ExternalLink, GitBranch,
   Globe, Mail, CheckCircle2, UserCheck, UserPlus,
   Calendar, Layers, User, Activity,
-  AlertCircle, Code2, ArrowUpRight, ArrowLeft
+  AlertCircle, Code2, ArrowUpRight, ArrowLeft, Star, X
 } from "lucide-react";
-import { getUserProfile } from "@/services/usersApi";
+import { getFollowers, getFollowing, getUserProfile } from "@/services/usersApi";
 import { getProjectByUsername } from "@/services/getProjectsByUsernameApi";
 import { toggleLikes } from "@/services/toggleLikesApi";
 import { toggleFollow } from "@/services/followApi";
@@ -39,6 +39,10 @@ export default function UserProfile() {
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [followLoading, setFollowLoading] = useState(false);
+  const [activity, setActivity] = useState([]);
+  const [connectionsModal, setConnectionsModal] = useState(null);
+  const [connections, setConnections] = useState([]);
+  const [connectionsLoading, setConnectionsLoading] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -68,6 +72,7 @@ export default function UserProfile() {
           setIsFollowing(userRes.isFollowing || false);
           setFollowersCount(userRes.followersCount || 0);
           setFollowingCount(userRes.followingCount || 0);
+          setActivity(userRes.activity || []);
 
           setProjects(projectsRes?.projects || []);
         }
@@ -118,6 +123,18 @@ export default function UserProfile() {
       setProjects(freshProjects.projects);
     } catch (err) {
       setProjects(previousProjects);
+    }
+  };
+
+  const openConnections = async (type) => {
+    setConnectionsModal(type);
+    setConnectionsLoading(true);
+    setConnections([]);
+    try {
+      const res = type === "followers" ? await getFollowers(username) : await getFollowing(username);
+      setConnections(res?.success ? res[type] || [] : []);
+    } finally {
+      setConnectionsLoading(false);
     }
   };
 
@@ -364,10 +381,10 @@ export default function UserProfile() {
                 { label: "followers", val: followersCount },
                 { label: "following", val: followingCount }
               ].map((st, idx) => (
-                <div key={idx} className="flex flex-col items-center lg:items-start group cursor-default">
+                <button key={idx} type="button" onClick={() => openConnections(st.label)} className="flex flex-col items-center lg:items-start group cursor-pointer rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
                   <span className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-ink group-hover:text-accent transition-colors tabular-nums">{st.val}</span>
                   <span className="text-[11px] sm:text-xs font-semibold text-muted lowercase">{st.label}</span>
-                </div>
+                </button>
               ))}
             </div>
 
@@ -608,15 +625,35 @@ export default function UserProfile() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-surface border border-line rounded-3xl p-8 space-y-3 shadow-sm text-center"
+                className="space-y-4"
               >
-                <div className="w-12 h-12 bg-page border border-line rounded-2xl flex items-center justify-center mx-auto text-muted">
-                  <Activity className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-ink">No activity yet</h3>
-                <p className="text-sm text-muted max-w-sm mx-auto">
-                  Activity like new project uploads and reviews will show up here as {user.name} uses the platform.
-                </p>
+                {activity.length ? activity.map((item, index) => (
+                  <button
+                    type="button"
+                    key={`${item.type}-${item.project?._id}-${item.createdAt}-${index}`}
+                    onClick={() => item.project?._id && router.push(`/projects/${item.project._id}`)}
+                    className="w-full bg-surface border border-line rounded-2xl p-5 flex items-center gap-4 text-left hover:border-accent/40 hover:shadow-md transition-all cursor-pointer"
+                  >
+                    <span className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${item.type === "review" ? "bg-star/10 text-star" : "bg-accent-soft text-accent"}`}>
+                      {item.type === "review" ? <Star className="w-5 h-5 fill-current" /> : <Code2 className="w-5 h-5" />}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-bold text-ink">
+                        {item.type === "review" ? `Reviewed ${item.project?.title || "a project"}` : `Published ${item.project?.title || "a project"}`}
+                      </span>
+                      <span className="block text-xs text-muted mt-1">
+                        {item.type === "review" && `${item.rating}/5 rating - `}{new Date(item.createdAt).toLocaleDateString()}
+                      </span>
+                    </span>
+                    <ArrowUpRight className="w-4 h-4 text-muted" />
+                  </button>
+                )) : (
+                  <div className="bg-surface border border-line rounded-3xl p-8 space-y-3 shadow-sm text-center">
+                    <Activity className="w-6 h-6 text-muted mx-auto" />
+                    <h3 className="text-base font-bold text-ink">No activity yet</h3>
+                    <p className="text-sm text-muted">New project uploads and reviews will appear here.</p>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -644,6 +681,27 @@ export default function UserProfile() {
         </div>
 
       </div>
+
+      <AnimatePresence>
+        {connectionsModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setConnectionsModal(null)} className="fixed inset-0 z-50 bg-ink/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div initial={{ scale: 0.96, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.96, y: 10 }} onClick={(event) => event.stopPropagation()} className="bg-surface border border-line rounded-3xl w-full max-w-md max-h-[70vh] overflow-hidden shadow-2xl">
+              <div className="p-5 border-b border-line flex items-center justify-between">
+                <h2 className="font-bold text-lg capitalize">{connectionsModal}</h2>
+                <button type="button" onClick={() => setConnectionsModal(null)} className="p-2 rounded-lg hover:bg-page"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="p-3 overflow-y-auto max-h-[55vh]">
+                {connectionsLoading ? <p className="p-8 text-sm text-muted text-center">Loading...</p> : connections.length ? connections.map((person) => (
+                  <button key={person._id} type="button" onClick={() => { setConnectionsModal(null); router.push(`/users/${person.username}`); }} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-page text-left transition-colors">
+                    {person.profileImage ? <Image src={person.profileImage} alt={person.name} width={42} height={42} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-accent-soft text-accent flex items-center justify-center font-bold">{person.name?.[0] || "U"}</div>}
+                    <span className="min-w-0"><span className="block text-sm font-bold truncate">{person.name}</span><span className="block text-xs text-muted truncate">@{person.username}</span></span>
+                  </button>
+                )) : <p className="p-8 text-sm text-muted text-center">No {connectionsModal} yet.</p>}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

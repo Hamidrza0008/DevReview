@@ -423,7 +423,8 @@ const updateMe = async (req, res) => {
             "skills",
             "profileImage",
             "githubUrl",
-            "portfolioUrl"
+            "portfolioUrl",
+            "notificationPreferences"
         ]
 
         const updates = {};
@@ -457,5 +458,28 @@ const updateMe = async (req, res) => {
     }
 }
 
+const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        if (!currentPassword || !newPassword || newPassword.length < 6) {
+            return res.status(400).json({ success: false, message: "Current password and a new password of at least 6 characters are required" });
+        }
 
-module.exports = { signUp, login, googleAuth, verifyOTP, forgotPassword, resetPassword, getMe, logout, updateMe }
+        const user = await Users.findById(req.user.id).select("+password authProvider");
+        if (!user || user.authProvider !== "local" || !user.password) {
+            return res.status(400).json({ success: false, message: "Password changes are only available for email and password accounts" });
+        }
+
+        const matches = await bcrypt.compare(currentPassword, user.password);
+        if (!matches) return res.status(400).json({ success: false, message: "Current password is incorrect" });
+
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+        return res.status(200).json({ success: true, message: "Password updated successfully" });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+
+module.exports = { signUp, login, googleAuth, verifyOTP, forgotPassword, resetPassword, getMe, logout, updateMe, changePassword }

@@ -22,3 +22,13 @@ export const getAllUsers = async() => {
         console.log(error);
     }
 }
+
+export const getFollowers = async (username) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${username}/followers`);
+    return response.json();
+};
+
+export const getFollowing = async (username) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${username}/following`);
+    return response.json();
+};

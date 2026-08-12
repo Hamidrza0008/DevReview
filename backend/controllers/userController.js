@@ -22,6 +22,18 @@ const getUserProfile = async (req, res) => {
                 $in: projectIds
             }
         })
+        const authoredReviews = await Review.find({ user: user._id })
+            .populate("project", "title")
+            .sort({ createdAt: -1 })
+            .limit(10);
+        const recentProjects = projects
+            .slice()
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 10);
+        const activity = [
+            ...recentProjects.map((project) => ({ type: "project", createdAt: project.createdAt, project: { _id: project._id, title: project.title } })),
+            ...authoredReviews.map((review) => ({ type: "review", createdAt: review.createdAt, rating: review.rating, project: review.project })),
+        ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 15);
 
         if (!user) {
             return res.status(400).json({
@@ -42,6 +54,7 @@ const getUserProfile = async (req, res) => {
             followersCount: user.followers.length,
             followingCount: user.following.length,
             isFollowing,
+            activity,
         })
     } catch (error) {
         res.status(500).json({
