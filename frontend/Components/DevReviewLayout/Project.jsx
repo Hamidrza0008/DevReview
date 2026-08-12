@@ -335,7 +335,7 @@ export default function SingleProject() {
                 <h2 className="text-xl font-extrabold text-ink mb-2 tracking-tight">Workspace Unavailable</h2>
                 <p className="text-sm text-muted mb-6 font-medium">{error || "This project may have been deleted or set to private."}</p>
                 <button 
-                  onClick={() => router.push('/explore')}
+                  onClick={() => router.push('/projects/explore')}
                   className="bg-ink text-page px-6 py-3 rounded-xl font-bold hover:brightness-125 transition-colors w-full shadow-md cursor-pointer"
                 >
                   Return to Explore

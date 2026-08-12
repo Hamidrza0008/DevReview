@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Star, MessageSquare, ArrowDownLeft, ArrowUpRight, Heart, Activity } from 'lucide-react';
 import { getMyReviews } from '@/services/reviewApis';
+import { useRouter } from 'next/navigation';
 
 export default function ReviewsDashboard() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({
     stats: { totalProjects: 0, totalLikes: 0, totalGivenReviews: 0, totalReceivedReviews: 0 },
@@ -120,7 +122,19 @@ export default function ReviewsDashboard() {
             </h3>
             <div className="space-y-4">
               {data.receivedReviews.length > 0 ? data.receivedReviews.map((rev, i) => (
-                <div key={rev._id || i} className="p-4 rounded-xl border border-surface-2 bg-surface-2 hover:bg-surface hover:border-accent/40 hover:shadow-md transition-all duration-300">
+                <div
+                  key={rev._id || i}
+                  role={rev.project?._id ? "link" : undefined}
+                  tabIndex={rev.project?._id ? 0 : undefined}
+                  onClick={() => rev.project?._id && router.push(`/projects/${rev.project._id}`)}
+                  onKeyDown={(event) => {
+                    if (rev.project?._id && (event.key === "Enter" || event.key === " ")) {
+                      event.preventDefault();
+                      router.push(`/projects/${rev.project._id}`);
+                    }
+                  }}
+                  className={`p-4 rounded-xl border border-surface-2 bg-surface-2 hover:bg-surface hover:border-accent/40 hover:shadow-md transition-all duration-300 ${rev.project?._id ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent" : ""}`}
+                >
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h4 className="font-bold text-sm text-ink">Project: {rev.project?.title || "Unknown"}</h4>
@@ -148,7 +162,19 @@ export default function ReviewsDashboard() {
             </h3>
             <div className="space-y-4">
               {data.givenReviews.length > 0 ? data.givenReviews.map((rev, i) => (
-                <div key={rev._id || i} className="p-4 rounded-xl border border-surface-2 bg-surface-2 hover:bg-surface hover:border-star/40 hover:shadow-md transition-all duration-300">
+                <div
+                  key={rev._id || i}
+                  role={rev.project?._id ? "link" : undefined}
+                  tabIndex={rev.project?._id ? 0 : undefined}
+                  onClick={() => rev.project?._id && router.push(`/projects/${rev.project._id}`)}
+                  onKeyDown={(event) => {
+                    if (rev.project?._id && (event.key === "Enter" || event.key === " ")) {
+                      event.preventDefault();
+                      router.push(`/projects/${rev.project._id}`);
+                    }
+                  }}
+                  className={`p-4 rounded-xl border border-surface-2 bg-surface-2 hover:bg-surface hover:border-star/40 hover:shadow-md transition-all duration-300 ${rev.project?._id ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-star" : ""}`}
+                >
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h4 className="font-bold text-sm text-ink">Project: {rev.project?.title || "Unknown"}</h4>

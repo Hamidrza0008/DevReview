@@ -340,7 +340,19 @@ export default function Dashboard() {
                         >
                           {data.receivedReviews && data.receivedReviews.length > 0 ? (
                             data.receivedReviews.map((feedback, fIdx) => (
-                              <div key={feedback._id || fIdx} className="bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2.5 sm:space-y-3 transition-all hover:border-accent/20 hover:shadow-sm">
+                              <div
+                                key={feedback._id || fIdx}
+                                role={feedback.project?._id ? "link" : undefined}
+                                tabIndex={feedback.project?._id ? 0 : undefined}
+                                onClick={() => feedback.project?._id && router.push(`/projects/${feedback.project._id}`)}
+                                onKeyDown={(event) => {
+                                  if (feedback.project?._id && (event.key === "Enter" || event.key === " ")) {
+                                    event.preventDefault();
+                                    router.push(`/projects/${feedback.project._id}`);
+                                  }
+                                }}
+                                className={`bg-surface border border-line rounded-2xl p-4 sm:p-5 shadow-2xs space-y-2.5 sm:space-y-3 transition-all hover:border-accent/20 hover:shadow-sm ${feedback.project?._id ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent" : ""}`}
+                              >
                                 <div className="flex justify-between items-start gap-3">
                                   <div className="flex items-center gap-2.5 sm:gap-3">
                                     <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-linear-to-tr from-accent/10 to-accent-2/10 border border-line flex items-center justify-center text-xs sm:text-sm font-bold text-accent shrink-0">
@@ -349,7 +361,7 @@ export default function Dashboard() {
                                     <div className="min-w-0">
                                       <h4 className="font-bold text-xs sm:text-sm text-ink truncate">{feedback.user?.name || "Community Member"}</h4>
                                       <p className="text-[10px] sm:text-[11px] text-muted font-medium mt-0.5 truncate">
-                                        Reviewed <span className="text-accent hover:underline cursor-pointer">{feedback.project?.title || "Project"}</span>
+                                        Reviewed <span className="text-accent group-hover:underline">{feedback.project?.title || "Project"}</span>
                                       </p>
                                     </div>
                                   </div>
