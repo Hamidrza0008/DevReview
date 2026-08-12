@@ -2,14 +2,20 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, User, Mail, Tag, FileText, MessageSquare, Send, CheckCircle2, LifeBuoy, ChevronDown } from "lucide-react";
+import { X, User, Mail, Tag, FileText, MessageSquare, Send, CheckCircle2, LifeBuoy, ChevronDown, LoaderCircle } from "lucide-react";
+import { supportRequestsApi } from "@/services/supportApis";
 
-const CATEGORIES = ["Bug Report", "Feature Request", "Feedback", "Contact Support"];
+const CATEGORIES = [
+  { label: "Bug", value: "bug" },
+  { label: "Feature", value: "feature" },
+  { label: "Feedback", value: "feedback" },
+  { label: "Support", value: "support" },
+];
 
 const buildInitialForm = (user) => ({
   name: user?.name || "",
   email: user?.email || "",
-  category: CATEGORIES[0],
+  category: CATEGORIES[0].value,
   subject: "",
   message: "",
 });
@@ -18,14 +24,17 @@ export default function SupportModal({ isOpen, onClose, user }) {
   const [formData, setFormData] = useState(() => buildInitialForm(user));
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
-
   if (isOpen !== prevIsOpen) {
     setPrevIsOpen(isOpen);
     if (isOpen) {
       setFormData(buildInitialForm(user));
       setErrors({});
       setSubmitted(false);
+      setIsSubmitting(false);
+      setSubmitError("");
     }
   }
 
@@ -51,6 +60,7 @@ export default function SupportModal({ isOpen, onClose, user }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setSubmitError("");
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -65,14 +75,22 @@ export default function SupportModal({ isOpen, onClose, user }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate() || isSubmitting) return;
 
-    const { name, email, category, subject, message } = formData;
-    console.log({ name, email, category, subject, message });
+    setIsSubmitting(true);
+    setSubmitError("");
 
-    setSubmitted(true);
+    try {
+      const res = await supportRequestsApi(formData);
+      console.log(res)
+      setSubmitted(true);
+    } catch (error) {
+      setSubmitError(error.message || "Unable to send your support request");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -158,9 +176,8 @@ export default function SupportModal({ isOpen, onClose, user }) {
                         </label>
                         <div className="relative group">
                           <User
-                            className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${
-                              errors.name ? "text-danger" : "text-muted group-focus-within:text-accent"
-                            }`}
+                            className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${errors.name ? "text-danger" : "text-muted group-focus-within:text-accent"
+                              }`}
                           />
                           <input
                             type="text"
@@ -168,9 +185,8 @@ export default function SupportModal({ isOpen, onClose, user }) {
                             value={formData.name}
                             onChange={handleChange}
                             placeholder="Your name"
-                            className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
-                              errors.name ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
-                            }`}
+                            className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${errors.name ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
+                              }`}
                           />
                         </div>
                         {errors.name && <p className="text-[11px] text-danger font-semibold mt-1">{errors.name}</p>}
@@ -182,9 +198,8 @@ export default function SupportModal({ isOpen, onClose, user }) {
                         </label>
                         <div className="relative group">
                           <Mail
-                            className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${
-                              errors.email ? "text-danger" : "text-muted group-focus-within:text-accent"
-                            }`}
+                            className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${errors.email ? "text-danger" : "text-muted group-focus-within:text-accent"
+                              }`}
                           />
                           <input
                             type="email"
@@ -192,9 +207,8 @@ export default function SupportModal({ isOpen, onClose, user }) {
                             value={formData.email}
                             onChange={handleChange}
                             placeholder="you@example.com"
-                            className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
-                              errors.email ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
-                            }`}
+                            className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${errors.email ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
+                              }`}
                           />
                         </div>
                         {errors.email && <p className="text-[11px] text-danger font-semibold mt-1">{errors.email}</p>}
@@ -211,9 +225,9 @@ export default function SupportModal({ isOpen, onClose, user }) {
                           onChange={handleChange}
                           className="w-full pl-9 pr-8 py-2 bg-page border border-line rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:border-accent focus:ring-2 focus:ring-accent/20 appearance-none cursor-pointer"
                         >
-                          {CATEGORIES.map((cat) => (
-                            <option key={cat} value={cat}>
-                              {cat}
+                          {CATEGORIES.map((category) => (
+                            <option key={category.value} value={category.value}>
+                              {category.label}
                             </option>
                           ))}
                         </select>
@@ -227,9 +241,8 @@ export default function SupportModal({ isOpen, onClose, user }) {
                       </label>
                       <div className="relative group">
                         <FileText
-                          className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${
-                            errors.subject ? "text-danger" : "text-muted group-focus-within:text-accent"
-                          }`}
+                          className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${errors.subject ? "text-danger" : "text-muted group-focus-within:text-accent"
+                            }`}
                         />
                         <input
                           type="text"
@@ -237,9 +250,8 @@ export default function SupportModal({ isOpen, onClose, user }) {
                           value={formData.subject}
                           onChange={handleChange}
                           placeholder="Brief summary of your request"
-                          className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
-                            errors.subject ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
-                          }`}
+                          className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${errors.subject ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
+                            }`}
                         />
                       </div>
                       {errors.subject && <p className="text-[11px] text-danger font-semibold mt-1">{errors.subject}</p>}
@@ -251,9 +263,8 @@ export default function SupportModal({ isOpen, onClose, user }) {
                       </label>
                       <div className="relative group">
                         <MessageSquare
-                          className={`absolute top-2.5 left-3 w-4 h-4 transition-colors ${
-                            errors.message ? "text-danger" : "text-muted group-focus-within:text-accent"
-                          }`}
+                          className={`absolute top-2.5 left-3 w-4 h-4 transition-colors ${errors.message ? "text-danger" : "text-muted group-focus-within:text-accent"
+                            }`}
                         />
                         <textarea
                           name="message"
@@ -261,13 +272,18 @@ export default function SupportModal({ isOpen, onClose, user }) {
                           value={formData.message}
                           onChange={handleChange}
                           placeholder="Tell us more..."
-                          className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm resize-none transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
-                            errors.message ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
-                          }`}
+                          className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm resize-none transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${errors.message ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
+                            }`}
                         />
                       </div>
                       {errors.message && <p className="text-[11px] text-danger font-semibold mt-1">{errors.message}</p>}
                     </div>
+
+                    {submitError && (
+                      <p role="alert" className="text-sm font-semibold text-danger">
+                        {submitError}
+                      </p>
+                    )}
 
                     <div className="flex items-center justify-end gap-3 pt-2">
                       <button
@@ -281,9 +297,15 @@ export default function SupportModal({ isOpen, onClose, user }) {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         type="submit"
-                        className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-accent-ink bg-accent rounded-lg shadow-sm hover:brightness-110 transition-all cursor-pointer"
+                        disabled={isSubmitting}
+                        className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-accent-ink bg-accent rounded-lg shadow-sm hover:brightness-110 transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        <Send className="w-4 h-4" /> Send Message
+                        {isSubmitting ? (
+                          <LoaderCircle className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Send className="w-4 h-4" />
+                        )}
+                        {isSubmitting ? "Sending..." : "Send Message"}
                       </motion.button>
                     </div>
                   </motion.form>

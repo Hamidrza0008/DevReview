@@ -5,7 +5,7 @@ const {
   createSupportRequest,
 } = require("../controllers/support.controller");
 
-const authMiddleware = require("../middlewares/authMiddleware");
+const authMiddleware = require("../middleware/auth.middleware");
 
 router.post("/", authMiddleware, createSupportRequest);
 
