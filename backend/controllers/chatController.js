@@ -52,6 +52,30 @@ const sendMessage = async (req, res) => {
     }
 }
 
+const getConversations = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const conversation = await Conversation.find({
+            participants: userId
+        })
+            .populate("participants", "username name profileImage")
+            .sort({ lastMessageAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            data: conversations,
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+
+    }
+}
+
+
+
 module.exports = {
-    sendMessage,
+    sendMessage,getConversations
 };
