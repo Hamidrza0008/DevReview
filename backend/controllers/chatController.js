@@ -74,8 +74,32 @@ const getConversations = async (req, res) => {
     }
 }
 
+const getMessages = async (req, res) => {
+    try {
+        const { conversationId } = req.params;
+
+        const conversations = await Message.find({
+            conversationId
+        })
+            .populate("sender", "username name profileImage")
+            .sort({ createdAt: 1 });
+
+        return res.status(200).json({
+            success: true,
+            data: messages,
+        });
+
+    } catch (error) {
+        console.error("Get Messages Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+}
 
 
 module.exports = {
-    sendMessage,getConversations
+    sendMessage, getConversations , getMessages
 };
