@@ -1,6 +1,7 @@
 "use client"
 import { getConversationsApi } from "@/services/conversationsApis";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const conversations = [
   { id: 1, name: "Ava Chen", initials: "AC", online: true, lastMessage: "That refactor looks clean, nice work!", time: "2m", unread: 2 },
@@ -9,6 +10,7 @@ const conversations = [
 ];
 
 export default function ConversationList() {
+  const router = useRouter();
 
   useEffect(() => {
     getConversations();
@@ -31,7 +33,11 @@ export default function ConversationList() {
 
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {conversations.map((conversation) => (
-          <div key={conversation.id} className="w-full flex items-center gap-3 px-4 py-3 border-b border-line/60">
+          <div
+            key={conversation.id}
+            onClick={() => router.push(`/messages/${conversation.id}`)}
+            className="w-full flex items-center gap-3 px-4 py-3 border-b border-line/60 cursor-pointer hover:bg-surface-2"
+          >
             <div className="relative shrink-0">
               <div className="w-11 h-11 rounded-full bg-linear-to-br from-accent/15 to-accent-2/15 border border-line flex items-center justify-center text-sm font-extrabold text-accent">
                 {conversation.initials}

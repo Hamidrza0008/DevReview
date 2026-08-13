@@ -1,23 +1,31 @@
 import { Send } from "lucide-react";
 
+const conversations = {
+  1: { name: "Ava Chen", initials: "AC" },
+  2: { name: "Marcus Lee", initials: "ML" },
+  3: { name: "Priya Sharma", initials: "PS" },
+};
+
 const messages = [
   { id: 1, sender: "them", text: "Hey! I checked out your latest commit.", time: "09:12 AM" },
   { id: 2, sender: "them", text: "That refactor looks clean, nice work!", time: "09:13 AM" },
   { id: 3, sender: "me", text: "Thanks! Took a while to untangle the old state logic.", time: "09:20 AM" },
 ];
 
-export default function Chat() {
+export default function Chat({ conversationId }) {
+  const conversation = conversations[conversationId] || { name: "Unknown", initials: "?" };
+
   return (
     <div className="flex flex-col h-full flex-1 min-w-0">
       <div className="flex items-center gap-3 px-4 py-3 border-b border-line">
         <div className="relative shrink-0">
           <div className="w-10 h-10 rounded-full bg-linear-to-br from-accent/15 to-accent-2/15 border border-line flex items-center justify-center text-xs font-extrabold text-accent">
-            AC
+            {conversation.initials}
           </div>
           <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-ok ring-2 ring-surface" />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-bold text-ink truncate">Ava Chen</p>
+          <p className="text-sm font-bold text-ink truncate">{conversation.name}</p>
           <p className="text-xs text-muted">Online</p>
         </div>
       </div>

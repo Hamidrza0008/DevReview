@@ -1,13 +1,13 @@
-import ConversationList from "@/Components/DevReviewLayout/chat/ConversationList";
-import Chat from "@/Components/DevReviewLayout/chat/Chat";
+import { MessageSquare } from "lucide-react";
 
 export default function MessagesPage() {
   return (
-    <div className="h-[calc(100vh-3.5rem)] md:h-screen p-4 sm:p-6 lg:p-8">
-      <div className="h-full bg-surface border border-line rounded-2xl overflow-hidden flex">
-        <ConversationList />
-        <Chat />
+    <div className="hidden md:flex flex-col items-center justify-center flex-1 min-w-0 text-center px-6">
+      <div className="w-14 h-14 rounded-2xl bg-surface-2 border border-line flex items-center justify-center mb-4">
+        <MessageSquare className="w-6 h-6 text-muted" />
       </div>
+      <h2 className="text-base font-bold text-ink">Select a conversation</h2>
+      <p className="text-sm text-muted mt-1">Choose a conversation from the list to start chatting.</p>
     </div>
   );
 }
