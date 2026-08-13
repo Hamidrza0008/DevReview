@@ -8,7 +8,8 @@ import {
   Heart, MessageSquare, ExternalLink, GitBranch,
   Globe, Mail, CheckCircle2, UserCheck, UserPlus,
   Calendar, Layers, User, Activity,
-  AlertCircle, Code2, ArrowUpRight, ArrowLeft, Star, X
+  AlertCircle, Code2, ArrowUpRight, ArrowLeft, Star, X,
+  MessageCircle, ChevronDown
 } from "lucide-react";
 import { getFollowers, getFollowing, getUserProfile } from "@/services/usersApi";
 import { getProjectByUsername } from "@/services/getProjectsByUsernameApi";
@@ -95,6 +96,17 @@ export default function UserProfile() {
       abortController.abort();
     };
   }, [username]);
+
+  useEffect(() => {
+    if (connectionsModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [connectionsModal]);
 
   const handleLikeButton = async (e, projectId) => {
     e.stopPropagation();
@@ -363,39 +375,25 @@ export default function UserProfile() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 h-full justify-center lg:border-l lg:border-surface-2 lg:pl-10">
-            <div className="grid grid-cols-3 gap-x-4 gap-y-3">
-              {[
-                { label: "posts", val: stats.totalProjects },
-                { label: "reviews", val: stats.totalReviews },
-                { label: "likes", val: stats.totalLikes }
-              ].map((st, idx) => (
-                <div key={idx} className="flex flex-col items-center lg:items-start group cursor-default">
-                  <span className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-ink group-hover:text-accent transition-colors tabular-nums">{st.val}</span>
-                  <span className="text-[11px] sm:text-xs font-semibold text-muted lowercase">{st.label}</span>
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-              {[
-                { label: "followers", val: followersCount },
-                { label: "following", val: followingCount }
-              ].map((st, idx) => (
-                <button key={idx} type="button" onClick={() => openConnections(st.label)} className="flex flex-col items-center lg:items-start group cursor-pointer rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
-                  <span className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-ink group-hover:text-accent transition-colors tabular-nums">{st.val}</span>
-                  <span className="text-[11px] sm:text-xs font-semibold text-muted lowercase">{st.label}</span>
-                </button>
-              ))}
-            </div>
-
+          <div className="flex flex-col gap-5 h-full justify-center lg:border-l lg:border-surface-2 lg:pl-10">
             {authUser?._id !== user?._id && (
-              <div className="w-full pt-1">
+              <div className="flex items-center gap-3 justify-center lg:justify-start">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push("/messages")}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm bg-surface border border-line text-ink hover:border-accent/40 hover:text-accent transition-colors cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Message</span>
+                </motion.button>
+
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   disabled={followLoading}
                   onClick={handleFollowToggle}
-                  className={`w-full py-2.5 rounded-xl font-bold flex items-center justify-center space-x-2 shadow-md text-sm transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold shadow-md text-sm transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ${
                     isFollowing
                       ? "bg-surface border border-line text-ink hover:border-danger/40 hover:text-danger shadow-none"
                       : "bg-linear-to-r from-accent to-accent-2 hover:from-accent hover:to-accent text-accent-ink shadow-accent/25"
@@ -403,9 +401,39 @@ export default function UserProfile() {
                 >
                   {isFollowing ? <UserCheck className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
                   <span>{isFollowing ? "Following" : "Follow"}</span>
+                  <ChevronDown className="w-3.5 h-3.5 opacity-70" />
                 </motion.button>
               </div>
             )}
+
+            <div className="grid grid-cols-3 gap-x-5 gap-y-4">
+              {[
+                { label: "Posts", val: stats.totalProjects },
+                { label: "Reviews", val: stats.totalReviews },
+                { label: "Likes", val: stats.totalLikes }
+              ].map((st, idx) => (
+                <div key={idx} className="flex flex-col items-center lg:items-start group cursor-default">
+                  <span className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-ink group-hover:text-accent transition-colors tabular-nums">{st.val}</span>
+                  <span className="text-[11px] sm:text-xs font-semibold text-muted">{st.label}</span>
+                </div>
+              ))}
+              {[
+                { label: "Followers", val: followersCount, key: "followers" },
+                { label: "Following", val: followingCount, key: "following" }
+              ].map((st) => (
+                <motion.button
+                  key={st.key}
+                  type="button"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => openConnections(st.key)}
+                  className="flex flex-col items-center lg:items-start group cursor-pointer rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+                >
+                  <span className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-ink group-hover:text-accent transition-colors tabular-nums">{st.val}</span>
+                  <span className="text-[11px] sm:text-xs font-semibold text-muted">{st.label}</span>
+                </motion.button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -688,14 +716,14 @@ export default function UserProfile() {
             <motion.div initial={{ scale: 0.96, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.96, y: 10 }} onClick={(event) => event.stopPropagation()} className="bg-surface border border-line rounded-3xl w-full max-w-md max-h-[70vh] overflow-hidden shadow-2xl">
               <div className="p-5 border-b border-line flex items-center justify-between">
                 <h2 className="font-bold text-lg capitalize">{connectionsModal}</h2>
-                <button type="button" onClick={() => setConnectionsModal(null)} className="p-2 rounded-lg hover:bg-page"><X className="w-4 h-4" /></button>
+                <motion.button whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.9 }} type="button" onClick={() => setConnectionsModal(null)} className="p-2 rounded-lg hover:bg-page cursor-pointer"><X className="w-4 h-4" /></motion.button>
               </div>
-              <div className="p-3 overflow-y-auto max-h-[55vh]">
+              <div className="p-3 overflow-y-auto max-h-[55vh] overscroll-contain">
                 {connectionsLoading ? <p className="p-8 text-sm text-muted text-center">Loading...</p> : connections.length ? connections.map((person) => (
-                  <button key={person._id} type="button" onClick={() => { setConnectionsModal(null); router.push(`/users/${person.username}`); }} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-page text-left transition-colors">
+                  <motion.button key={person._id} whileHover={{ x: 3 }} whileTap={{ scale: 0.97 }} type="button" onClick={() => { setConnectionsModal(null); router.push(`/users/${person.username}`); }} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-page text-left transition-colors cursor-pointer">
                     {person.profileImage ? <Image src={person.profileImage} alt={person.name} width={42} height={42} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-accent-soft text-accent flex items-center justify-center font-bold">{person.name?.[0] || "U"}</div>}
                     <span className="min-w-0"><span className="block text-sm font-bold truncate">{person.name}</span><span className="block text-xs text-muted truncate">@{person.username}</span></span>
-                  </button>
+                  </motion.button>
                 )) : <p className="p-8 text-sm text-muted text-center">No {connectionsModal} yet.</p>}
               </div>
             </motion.div>
