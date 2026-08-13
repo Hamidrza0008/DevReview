@@ -55,7 +55,7 @@ const sendMessage = async (req, res) => {
 const getConversations = async (req, res) => {
     try {
         const userId = req.user.id;
-        const conversation = await Conversation.find({
+        const conversations = await Conversation.find({
             participants: userId
         })
             .populate("participants", "username name profileImage")
@@ -66,6 +66,9 @@ const getConversations = async (req, res) => {
             data: conversations,
         })
     } catch (error) {
+        console.error("Send Message Error:", error);
+
+
         return res.status(500).json({
             success: false,
             message: "Internal server error",
@@ -78,7 +81,7 @@ const getMessages = async (req, res) => {
     try {
         const { conversationId } = req.params;
 
-        const conversations = await Message.find({
+        const messages = await Message.find({
             conversationId
         })
             .populate("sender", "username name profileImage")
@@ -101,5 +104,5 @@ const getMessages = async (req, res) => {
 
 
 module.exports = {
-    sendMessage, getConversations , getMessages
+    sendMessage, getConversations, getMessages
 };
