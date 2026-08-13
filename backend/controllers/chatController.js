@@ -1,5 +1,5 @@
 const Conversation = require("../models/Conversation");
-
+const Message = require("../models/Message");
 const sendMessage = async (req, res) => {
     try {
         const { receiverId, text } = req.body;
@@ -13,19 +13,45 @@ const sendMessage = async (req, res) => {
         }
 
         const conversation = await Conversation.findOne({
-            participants:{
-                $all:[senderId , receiverId]
+            participants: {
+                $all: [senderId, receiverId]
             }
         })
 
-        if(!conversation){
+        if (!conversation) {
             conversation = await Conversation.create({
-                participants:[senderId , receiverId]
+                participants: [senderId, receiverId]
             })
         }
 
+        const message = await Message.create({
+            conversationId: conversation._id,
+            sender: senderId,
+            text: text.trim()
+        })
+
+        conversation.lastMessage = text.trim();
+        conversation.lastMessageSender = senderId;
+        conversation.lastMessageAt = new Date();
+
+        return res.status(200).json({
+            success: true,
+            message: "Message sent successfully",
+            data: message,
+        })
+
 
     } catch (error) {
+        console.error("Send Message Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
 
     }
 }
+
+module.exports = {
+    sendMessage,
+};
