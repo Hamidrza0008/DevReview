@@ -12,7 +12,7 @@ const sendMessage = async (req, res) => {
             });
         }
 
-        const conversation = await Conversation.findOne({
+        let conversation = await Conversation.findOne({
             participants: {
                 $all: [senderId, receiverId]
             }
@@ -33,6 +33,8 @@ const sendMessage = async (req, res) => {
         conversation.lastMessage = text.trim();
         conversation.lastMessageSender = senderId;
         conversation.lastMessageAt = new Date();
+
+        await conversation.save();
 
         return res.status(200).json({
             success: true,

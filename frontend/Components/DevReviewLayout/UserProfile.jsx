@@ -177,6 +177,10 @@ export default function UserProfile() {
     }
   };
 
+  const handleMessageButton = async() => {
+    
+  }
+
   const joinedDate = user?.createdAt
     ? `Joined ${new Date(user.createdAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })}`
     : "New member";
@@ -381,7 +385,7 @@ export default function UserProfile() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => router.push("/messages")}
+                  onClick={handleMessageButton}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm bg-surface border border-line text-ink hover:border-accent/40 hover:text-accent transition-colors cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4" />
