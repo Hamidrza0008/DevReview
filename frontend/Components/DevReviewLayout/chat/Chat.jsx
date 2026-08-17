@@ -12,7 +12,7 @@ const messages = [
   { id: 3, sender: "me", text: "Thanks! Took a while to untangle the old state logic.", time: "09:20 AM" },
 ];
 
-export default function Chat({ conversationId }) {
+export default function Chat({ receiverId ,conversationId }) {
   const conversation = conversations[conversationId] || { name: "Unknown", initials: "?" };
 
   return (
