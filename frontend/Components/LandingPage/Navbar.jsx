@@ -98,7 +98,7 @@ export default function Navbar() {
         </div>
 
 
-        <div className="hidden lg:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => {
             const isActive = activeSection === link.href.replace('#', '');
             return (
@@ -123,7 +123,7 @@ export default function Navbar() {
         </div>
 
 
-        <div className="hidden lg:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3">
           <ThemeToggle />
 
           {loggedIn ? (
@@ -159,7 +159,7 @@ export default function Navbar() {
         </div>
 
 
-        <div className="lg:hidden flex items-center gap-2">
+        <div className="md:hidden flex items-center gap-2">
           <ThemeToggle />
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -180,7 +180,7 @@ export default function Navbar() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="lg:hidden overflow-hidden border-t border-line bg-page/95 md:backdrop-blur-2xl absolute w-full left-0 shadow-xl"
+            className="md:hidden overflow-hidden border-t border-line bg-page/95 md:backdrop-blur-2xl absolute w-full left-0 shadow-xl"
           >
             <div className="px-6 py-6 flex flex-col gap-5">
               {navLinks.map((link) => {

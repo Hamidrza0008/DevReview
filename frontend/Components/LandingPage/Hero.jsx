@@ -55,7 +55,7 @@ export default function Hero() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="flex w-full flex-col gap-6 lg:col-span-6 z-10 text-center lg:text-left items-center lg:items-start"
+        className="flex flex-col gap-6 lg:col-span-6 z-10 text-center lg:text-left items-center lg:items-start"
       >
 
         <motion.div
@@ -70,8 +70,8 @@ export default function Hero() {
         </motion.div>
 
 
-        <h1 className="w-full text-4xl sm:text-5xl md:text-[52px] lg:text-[58px] font-extrabold text-ink tracking-tight leading-[1.1]">
-          Showcase your projects. <br className="hidden sm:block" />
+        <h1 className="text-4xl sm:text-5xl md:text-[52px] lg:text-[58px] font-extrabold text-ink tracking-tight leading-[1.1]">
+          Showcase your projects. <br />
           Get feedback from <br className="hidden md:block" />
           <span className="text-transparent bg-clip-text bg-linear-to-r from-accent to-accent-2 drop-shadow-sm">
             developers.
