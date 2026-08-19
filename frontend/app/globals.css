@@ -133,6 +133,24 @@ body {
 }
 
 /* ==========================
+   Custom Cursor (Landing Page)
+   Native cursor is hidden only on devices with a fine pointer.
+========================== */
+
+@media (pointer: fine) {
+  .custom-cursor-page,
+  .custom-cursor-page * {
+    cursor: none !important;
+  }
+}
+
+@media (pointer: coarse) {
+  [data-cursor-aura] {
+    display: none;
+  }
+}
+
+/* ==========================
    Accessibility
 ========================== */
 

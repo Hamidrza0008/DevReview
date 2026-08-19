@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Preloader from '@/Components/LandingPage/Preloader';
+import CustomCursor from '@/Components/LandingPage/CustomCursor';
 import Navbar from '@/Components/LandingPage/Navbar';
 import Hero from '@/Components/LandingPage/Hero';
 import Features from '@/Components/LandingPage/Features';
@@ -16,8 +17,11 @@ export default function DevReviewLandingPage() {
   const [showLoader, setShowLoader] = useState(true);
 
   return (
-    <div className="relative w-full min-h-screen bg-page font-sans antialiased text-ink">
+    <div className="custom-cursor-page relative w-full min-h-screen bg-page font-sans antialiased text-ink">
       
+      {/* 0. Custom Cursor */}
+      <CustomCursor />
+
       {/* 1. Preloader Slide-Up Layer */}
       {showLoader && (
         <Preloader onComplete={() => setShowLoader(false)} />
