@@ -138,13 +138,40 @@ export default function MyProfile() {
     }
   }, [toast.show]);
 
-  const stats = {
+const stats = {
     projectsCount: myProjects?.length || user?.projects?.length || 0,
     reviews: myProjects.reduce((acc, curr) => acc + getProjectReviewsCount(curr), 0),
     likes: myProjects.reduce((acc, curr) => acc + getProjectLikesCount(curr), 0),
     followers: user?.followers?.length || 0,
     following: user?.following?.length || 0
   };
+
+  /* Profile completion — har field ka weight (importance) hota hai, sab milake 100 */
+  const profileFields = [
+    { key: "profileImage", label: "Profile Photo", weight: 20 },
+    { key: "bio", label: "Professional Bio", weight: 20 },
+    { key: "skills", label: "Skills / Tech Stack", weight: 20 },
+    { key: "role", label: "Professional Role", weight: 10 },
+    { key: "githubUrl", label: "GitHub Link", weight: 10 },
+    { key: "portfolioUrl", label: "Portfolio Link", weight: 10 },
+    { key: "name", label: "Name", weight: 5 },
+    { key: "username", label: "Username", weight: 5 }
+  ];
+
+  /* Check karta hai ki field bhara hai ya nahi (array ya string dono handle) */
+  const isFieldFilled = (key) => {
+    const value = user?.[key];
+    if (Array.isArray(value)) return value.length > 0;
+    return typeof value === "string" && value.trim().length > 0;
+  };
+
+  /* Filled fields ke weights ka sum = completion % */
+  const profilePercent = profileFields.reduce(
+    (sum, field) => sum + (isFieldFilled(field.key) ? field.weight : 0),
+    0
+  );
+
+  const missingFields = profileFields.filter((field) => !isFieldFilled(field.key));
 
   const joinedDate = user?.createdAt
     ? `Joined ${new Date(user.createdAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })}`
@@ -827,6 +854,88 @@ export default function MyProfile() {
 
 
         <div className="space-y-6">
+          {/* Profile Completion Card */}
+          <div className="bg-surface border border-line rounded-3xl p-6 space-y-5 shadow-sm relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 w-36 h-36 bg-linear-to-br from-accent/15 to-accent-2/15 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="flex items-start justify-between gap-3 relative">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted">Profile Completion</h3>
+                <div className="mt-1 flex items-end gap-1.5">
+                  <span className="text-4xl font-extrabold text-ink tabular-nums">{profilePercent}%</span>
+                  <span className={`text-sm font-bold mb-1.5 ${profilePercent === 100 ? "text-ok" : "text-accent"}`}>
+                    {profilePercent === 100 ? "Complete!" : "Complete your profile"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Circular progress ring */}
+              <div className="relative h-14 w-14 shrink-0">
+                <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
+                  <circle cx="18" cy="18" r="15.5" fill="none" className="stroke-surface-2" strokeWidth="3.5" />
+                  <motion.circle
+                    cx="18"
+                    cy="18"
+                    r="15.5"
+                    fill="none"
+                    className="stroke-accent"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeDasharray="97.4"
+                    initial={{ strokeDashoffset: 97.4 }}
+                    animate={{ strokeDashoffset: 97.4 - (97.4 * profilePercent) / 100 }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                  />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-[11px] font-extrabold text-ink">
+                  {profilePercent}%
+                </span>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="relative h-2.5 bg-surface-2 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-linear-to-r from-accent to-accent-2 rounded-full shadow-sm shadow-accent/30"
+                initial={{ width: 0 }}
+                animate={{ width: `${profilePercent}%` }}
+                transition={{ duration: 1, ease: "easeOut" }}
+              />
+            </div>
+
+            <p className="text-sm font-medium text-muted leading-relaxed relative">
+              {profilePercent === 100
+                ? "Your profile is fully complete. Keep shipping projects to grow your presence!"
+                : "Complete your profile to boost your visibility to recruiters and reviewers."}
+            </p>
+
+            {/* Missing fields checklist */}
+            {missingFields.length > 0 && (
+              <ul className="space-y-2 relative">
+                {missingFields.slice(0, 4).map((field) => (
+                  <li key={field.key} className="flex items-center gap-2 text-xs font-semibold text-muted">
+                    <X className="w-3.5 h-3.5 text-danger shrink-0" />
+                    {field.label}
+                  </li>
+                ))}
+                {missingFields.length > 4 && (
+                  <li className="text-xs font-bold text-muted pl-5">+{missingFields.length - 4} more</li>
+                )}
+              </ul>
+            )}
+
+            {/* Complete Now button — seedha edit mode kholta hai */}
+            {profilePercent !== 100 && (
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setIsEditing(true)}
+                className="w-full bg-accent text-accent-ink py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 text-sm shadow-md shadow-accent/30 hover:brightness-110 transition-all relative"
+              >
+                <Edit3 className="w-4 h-4" /> Complete Now
+              </motion.button>
+            )}
+          </div>
+
           <div className="bg-surface border border-line rounded-3xl p-6 space-y-5 shadow-sm">
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted">Profile Details</h3>
             <div className="space-y-4 text-sm font-semibold">
