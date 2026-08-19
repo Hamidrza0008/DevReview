@@ -1,3 +1,5 @@
+"use client";
+
 import Chat from "@/Components/DevReviewLayout/chat/Chat";
 import { useParams } from "next/navigation"
 
