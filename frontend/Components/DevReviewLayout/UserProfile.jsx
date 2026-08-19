@@ -178,7 +178,7 @@ export default function UserProfile() {
   };
 
   const handleMessageButton = async() => {
-    
+    console.log("clicked")
   }
 
   const joinedDate = user?.createdAt
