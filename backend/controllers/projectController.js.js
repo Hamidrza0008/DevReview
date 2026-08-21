@@ -84,7 +84,6 @@ const getMyProjects = async (req, res) => {
             projects: updatedProjects,
         })
     } catch (error) {
-        console.error(error);
 
         res.status(500).json({
             success: false,
@@ -131,7 +130,6 @@ const getProjectById = async (req, res) => {
 
         })
     } catch (error) {
-        console.error(error);
 
         return res.status(500).json({
             success: false,
@@ -216,7 +214,6 @@ const getProjectForEdit = async (req, res) => {
             project,
         })
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             success: false,
@@ -266,7 +263,6 @@ const updateProject = async (req, res) => {
 
         await project.save();
 
-        console.log("✅ Project saved");
 
         return res.status(200).json({
             success: true,
@@ -274,7 +270,6 @@ const updateProject = async (req, res) => {
             project
         })
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             success: false,
@@ -312,7 +307,6 @@ const deleteProject = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             success: false,
@@ -364,7 +358,6 @@ const toggleLikes = async (req, res) => {
             likesCount: project.likes.length
         })
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             success: false,
@@ -432,7 +425,6 @@ const getProjectByUsername = async (req, res) => {
             projects: updatedProjects,
         });
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             success: false,
@@ -484,7 +476,6 @@ const toggleSaveProject = async (req, res) => {
             message: "Project saved successfully",
         });
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             success: false,
@@ -510,7 +501,6 @@ const getSavedProjects = async (req, res) => {
             savedProjects: user.savedProjects,
         });
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             success: false,

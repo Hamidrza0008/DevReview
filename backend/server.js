@@ -52,4 +52,4 @@ app.use("/api/support", supportRoutes);
 app.use("/api/chat", chatRoutes);
 
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {});

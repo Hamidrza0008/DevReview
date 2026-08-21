@@ -26,7 +26,6 @@ const createSupportRequest = async (req, res) => {
       data: supportRequest,
     });
   } catch (error) {
-    console.error("Create Support Request Error:", error);
 
     return res.status(500).json({
       success: false,

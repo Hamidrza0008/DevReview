@@ -44,7 +44,6 @@ const sendMessage = async (req, res) => {
 
 
     } catch (error) {
-        console.error("Send Message Error:", error);
 
         return res.status(500).json({
             success: false,
@@ -68,7 +67,6 @@ const getConversations = async (req, res) => {
             data: conversations,
         })
     } catch (error) {
-        console.error("Send Message Error:", error);
 
 
         return res.status(500).json({
@@ -95,7 +93,6 @@ const getMessages = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Get Messages Error:", error);
 
         return res.status(500).json({
             success: false,

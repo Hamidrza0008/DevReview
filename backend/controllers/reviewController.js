@@ -76,7 +76,6 @@ const addReviews = async (req, res) => {
 
 
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             success: false,
@@ -111,7 +110,6 @@ const getReviews = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             success: false,
@@ -160,7 +158,6 @@ const deleteReview = async (req, res) => {
             }
         )
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             success: false,
@@ -201,7 +198,6 @@ const getReviewForEdit = async (req, res) => {
 
 
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             success: false,
@@ -214,7 +210,6 @@ const editReview = async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.user.id;
-        console.log(res.body)
         const { reviewRating, reviewComment} = req.body;
 
         if (!reviewComment || !reviewRating || reviewRating < 1 || reviewRating > 5 || reviewComment.trim() === "") {
@@ -265,7 +260,6 @@ const editReview = async (req, res) => {
 
 
     } catch (error) {
-        console.log(error)
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
@@ -332,7 +326,6 @@ const getCurrentUserReview = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             success: false,

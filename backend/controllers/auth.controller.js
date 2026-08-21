@@ -67,7 +67,6 @@ const signUp = async (req, res) => {
 
 
     } catch (error) {
-        console.log(error.message);
 
         return res.status(500).json({
             message: error.message
@@ -113,7 +112,6 @@ const verifyOTP = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error.message);
 
         return res.status(500).json({
             message: error.message
@@ -176,7 +174,6 @@ const login = async (req, res) => {
             }
         })
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: error.message,
@@ -260,7 +257,6 @@ const googleAuth = async (req, res) => {
             }
         });
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: "Google sign-in failed. Please try again."
@@ -302,7 +298,6 @@ const forgotPassword = async (req, res) => {
             success: true,
         })
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             success: false,
             message: error.message,
@@ -355,7 +350,6 @@ const resetPassword = async (req, res) => {
             success: true
         })
     } catch (error) {
-        console.log(error)
         return res.status(500).json({
             success: false,
             message: error.message,
@@ -381,7 +375,6 @@ const getMe = async (req, res) => {
             user,
         })
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             message: "Server error"
@@ -403,7 +396,6 @@ const logout = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
 
         return res.status(500).json({
             message: "Server error"
@@ -451,7 +443,6 @@ const updateMe = async (req, res) => {
             user: updateUser
         })
     } catch (error) {
-        console.log(error);
         return res.status(500).json({
             message: "Server error"
         });

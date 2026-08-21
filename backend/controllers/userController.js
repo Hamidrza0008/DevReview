@@ -219,7 +219,6 @@ const getAllUsers = async (req, res) => {
             users: usersWithStats
         });
     } catch (error) {
-        console.log(error);
     }
 }
 
