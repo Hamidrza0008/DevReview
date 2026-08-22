@@ -17,10 +17,13 @@ import {
   Menu,
   X,
   Home,
-  Bell
+  Bell,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
+import { useSidebar } from "@/context/SidebarContext";
 import { ThemeToggle } from "@/Components/LandingPage/atoms";
 
 const menuItems = [
@@ -73,6 +76,7 @@ function isMenuActive(item, pathname) {
 function NavList({ onNavigate }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { collapsed } = useSidebar();
 
   return (
     <nav className="p-4 space-y-1.5">
@@ -88,7 +92,7 @@ function NavList({ onNavigate }) {
               isActive
                 ? "font-bold shadow-sm border border-accent/15 bg-surface/80 md:backdrop-blur-sm"
                 : "text-muted hover:bg-surface/80 md:backdrop-blur-sm hover:text-ink hover:shadow-sm hover:border-line/60 border border-transparent"
-            }`}
+            } ${collapsed ? "justify-center px-2" : ""}`}
           >
             {isActive && (
               <motion.div
@@ -106,18 +110,20 @@ function NavList({ onNavigate }) {
               />
             )}
 
-            <div className="flex items-center gap-3 transition-transform duration-200 group-hover:translate-x-0.5">
+            <div className={`flex items-center gap-3 transition-transform duration-200 group-hover:translate-x-0.5 ${collapsed ? "gap-0" : ""}`}>
               <Icon
                 className={`w-4 h-4 transition-all duration-200 ${
                   isActive ? "text-accent" : "text-muted group-hover:text-accent"
                 }`}
               />
-              <span className={`tracking-wide transition-colors ${isActive ? "text-accent" : ""}`}>
-                {item.name}
-              </span>
+              {!collapsed && (
+                <span className={`tracking-wide transition-colors ${isActive ? "text-accent" : ""}`}>
+                  {item.name}
+                </span>
+              )}
             </div>
 
-            {item.badge && (
+            {item.badge && !collapsed && (
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold tracking-wide uppercase transition-all duration-300 ${
                 isActive
                   ? "bg-accent text-accent-ink shadow-md"
@@ -135,35 +141,49 @@ function NavList({ onNavigate }) {
 
 function ProfileFooter() {
   const { user, logout } = useAuth();
+  const { collapsed } = useSidebar();
   return (
-    <div className="p-4 border-t border-line bg-surface/60 md:backdrop-blur-xl flex items-center justify-between gap-2 group/profile relative z-10">
-      <div className="flex items-center gap-3 min-w-0 transition-transform duration-200 group-hover/profile:translate-x-0.5">
+    <div className={`border-t border-line bg-surface/60 md:backdrop-blur-xl ${collapsed ? "flex flex-col items-center py-4 gap-3" : "flex items-center justify-between gap-2 px-4 py-3"}`}>
+      {!collapsed ? (
+        <div className="flex items-center gap-3 min-w-0 transition-transform duration-200 group-hover/profile:translate-x-0.5">
+          <div className="relative shrink-0">
+            <Image
+              src={user?.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=2F6F4E&color=fff`}
+              alt="Profile avatar"
+              width={36}
+              height={36}
+              className="w-9 h-9 rounded-full object-cover ring-2 ring-surface shadow-sm border border-line transition-all duration-300 group-hover/profile:ring-accent-2/50"
+            />
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-ok rounded-full ring-2 ring-surface shadow-[0_0_8px_rgba(47,111,78,0.5)] animate-pulse" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-ink truncate tracking-wide group-hover/profile:text-accent transition-colors">
+              {user?.username || "Guest User"}
+            </p>
+            <p className="text-[10px] text-muted font-medium truncate tracking-tight">
+              {user?.email || "guest@devreview.com"}
+            </p>
+          </div>
+        </div>
+      ) : (
         <div className="relative shrink-0">
           <Image
             src={user?.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=2F6F4E&color=fff`}
             alt="Profile avatar"
             width={36}
             height={36}
-            className="w-9 h-9 rounded-full object-cover ring-2 ring-surface shadow-sm border border-line transition-all duration-300 group-hover/profile:ring-accent-2/50"
+            className="w-9 h-9 rounded-full object-cover ring-2 ring-surface shadow-sm border border-line"
           />
           <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-ok rounded-full ring-2 ring-surface shadow-[0_0_8px_rgba(47,111,78,0.5)] animate-pulse" />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-ink truncate tracking-wide group-hover/profile:text-accent transition-colors">
-            {user?.username || "Guest User"}
-          </p>
-          <p className="text-[10px] text-muted font-medium truncate tracking-tight">
-            {user?.email || "guest@devreview.com"}
-          </p>
-        </div>
-      </div>
+      )}
 
       <button
         onClick={() => logout()}
-        className="p-2 text-muted hover:text-danger hover:bg-danger/10 rounded-xl transition-all duration-200 shrink-0 group/logout cursor-pointer hover:scale-110 active:scale-95"
+        className={`p-2 text-muted hover:text-danger hover:bg-danger/10 rounded-xl transition-all duration-200 shrink-0 cursor-pointer hover:scale-110 active:scale-95 ${collapsed ? "" : "group/logout"}`}
         title="Log Out"
       >
-        <LogOut className="w-4 h-4 transition-transform duration-200 group-hover/logout:-translate-x-0.5" />
+        <LogOut className={`w-4 h-4 transition-transform duration-200 ${collapsed ? "" : "group-hover/logout:-translate-x-0.5"}`} />
       </button>
     </div>
   );
@@ -172,6 +192,7 @@ function ProfileFooter() {
 export default function Sidebar() {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { collapsed, toggle } = useSidebar();
 
   return (
     <>
@@ -261,23 +282,32 @@ export default function Sidebar() {
       </AnimatePresence>
 
       {/* ---- DESKTOP SIDEBAR ---- */}
-      <aside className="w-64 bg-page/80 border-r border-line fixed top-0 bottom-0 left-0 z-30 flex-col justify-between hidden md:flex shadow-[4px_0_24px_rgba(0,0,0,0.02)] md:backdrop-blur-2xl">
-
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-          <motion.div
-            animate={{ y: [0, 40, 0], scale: [1, 1.2, 1], opacity: [0.12, 0.2, 0.12] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-16 -left-16 w-64 h-64 bg-accent rounded-full blur-[80px]"
-          />
-          <motion.div
-            animate={{ y: [0, -50, 0], scale: [1, 1.3, 1], opacity: [0.08, 0.16, 0.08] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/2 -right-20 w-64 h-64 bg-accent-2 rounded-full blur-[80px]"
-          />
-        </div>
+      <aside
+        className={`bg-page/80 border-r border-line fixed top-0 bottom-0 left-0 z-30 flex-col justify-between shadow-[4px_0_24px_rgba(0,0,0,0.02)] md:backdrop-blur-2xl transition-all duration-300 hidden md:flex ${
+          collapsed ? "w-16" : "w-64"
+        }`}
+      >
+        {!collapsed && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+            <motion.div
+              animate={{ y: [0, 40, 0], scale: [1, 1.2, 1], opacity: [0.12, 0.2, 0.12] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-16 -left-16 w-64 h-64 bg-accent rounded-full blur-[80px]"
+            />
+            <motion.div
+              animate={{ y: [0, -50, 0], scale: [1, 1.3, 1], opacity: [0.08, 0.16, 0.08] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-1/2 -right-20 w-64 h-64 bg-accent-2 rounded-full blur-[80px]"
+            />
+          </div>
+        )}
 
         <div className="flex-1 overflow-y-auto custom-scrollbar relative z-10">
-          <div className="h-16 flex items-center justify-between px-6 border-b border-line bg-surface/40 md:backdrop-blur-md sticky top-0 z-20">
+          <div
+            className={`h-16 flex items-center border-b border-line bg-surface/40 md:backdrop-blur-md sticky top-0 z-20 ${
+              collapsed ? "justify-center px-3" : "justify-between px-6"
+            }`}
+          >
             <div
               className="flex items-center gap-2.5 cursor-pointer group"
               onClick={() => router.push("/dashboard")}
@@ -285,26 +315,57 @@ export default function Sidebar() {
               <div className="w-8 h-8 rounded-lg bg-linear-to-br from-accent to-accent-2 flex items-center justify-center shadow-lg shadow-accent/20 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6">
                 <Terminal className="w-4 h-4 text-accent-ink" />
               </div>
-              <span className="text-xl font-black tracking-tight text-ink">
-                Dev<span className="bg-linear-to-r from-accent to-accent-2 bg-clip-text text-transparent">Review</span>
-              </span>
+              {!collapsed && (
+                <span className="text-xl font-black tracking-tight text-ink">
+                  Dev<span className="bg-linear-to-r from-accent to-accent-2 bg-clip-text text-transparent">Review</span>
+                </span>
+              )}
             </div>
 
-            <button
-              onClick={() => router.push("/")}
-              aria-label="Back to home"
-              title="Back to Home"
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-page hover:scale-110 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
-            >
-              <Home className="w-4 h-4" />
-            </button>
+            {!collapsed && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => router.push("/")}
+                  aria-label="Back to home"
+                  title="Back to Home"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-page hover:scale-110 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
+                >
+                  <Home className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={toggle}
+                  aria-label="Collapse sidebar"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-page hover:scale-110 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
+                >
+                  <PanelLeftClose className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {collapsed && (
+              <button
+                onClick={toggle}
+                aria-label="Expand sidebar"
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-accent hover:bg-page hover:scale-110 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
+              >
+                <PanelLeftOpen className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           <NavList />
         </div>
 
-        <div className="flex items-center justify-between gap-2 px-4 py-3 border-t border-line relative z-10">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted">Appearance</span>
+        <div
+          className={`border-t border-line relative z-10 ${
+            collapsed
+              ? "flex flex-col items-center py-3 gap-2 px-2"
+              : "flex items-center justify-between gap-2 px-4 py-3"
+          }`}
+        >
+          {!collapsed && (
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted">Appearance</span>
+          )}
           <ThemeToggle />
         </div>
 
