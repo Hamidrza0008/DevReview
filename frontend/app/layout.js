@@ -25,6 +25,7 @@ export default function RootLayout({ children }) {
           id="theme-init"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
+          suppressHydrationWarning
         />
       </head>
       <body className="min-h-full flex flex-col bg-page text-ink">
