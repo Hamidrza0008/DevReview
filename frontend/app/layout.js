@@ -20,16 +20,21 @@ export default function RootLayout({ children }) {
       lang="en"
       suppressHydrationWarning
     >
-      <head>
+      <head />
+      <body
+        className="min-h-full flex flex-col bg-page text-ink"
+        suppressHydrationWarning
+      >
+        {/* beforeInteractive script must live outside <head> when using app router */}
         <Script
           id="theme-init"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
-          suppressHydrationWarning
         />
-      </head>
-      <body className="min-h-full flex flex-col bg-page text-ink">
-        <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
+        <Script
+          src="https://accounts.google.com/gsi/client"
+          strategy="afterInteractive"
+        />
         <ThemeProvider>
           <ToastProvider>
             <AuthProvider>
