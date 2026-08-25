@@ -1,45 +1,66 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 const INTERACTIVE_SELECTOR =
   'a, button, [role="button"], input, textarea, select, label, [data-cursor], iframe';
 
+// Spring configs — tuned for buttery smooth feel
+const DOT_SPRING   = { stiffness: 2500, damping: 50,  mass: 0.08 };
+const RING_SPRING  = { stiffness: 500,  damping: 28,  mass: 0.25 };
+const AURA_SPRING  = { stiffness: 100,  damping: 22,  mass: 0.6  };
+
 export default function CustomCursor() {
-  const [enabled, setEnabled] = useState(false);
-  const [hovering, setHovering] = useState(false);
-  const [pressed, setPressed] = useState(false);
-  const [visible, setVisible] = useState(false);
+  // Motion values — never cause React re-renders
+  const mouseX = useMotionValue(-300);
+  const mouseY = useMotionValue(-300);
 
-  const mouseX = useMotionValue(-200);
-  const mouseY = useMotionValue(-200);
+  const dotX  = useSpring(mouseX, DOT_SPRING);
+  const dotY  = useSpring(mouseY, DOT_SPRING);
 
-  // Dot — near-instant, almost no lag
-  const dotX = useSpring(mouseX, { stiffness: 3000, damping: 60, mass: 0.1 });
-  const dotY = useSpring(mouseY, { stiffness: 3000, damping: 60, mass: 0.1 });
+  const ringX = useSpring(mouseX, RING_SPRING);
+  const ringY = useSpring(mouseY, RING_SPRING);
 
-  // Ring — snappy but with a slight trail feel
-  const ringX = useSpring(mouseX, { stiffness: 600, damping: 30, mass: 0.3 });
-  const ringY = useSpring(mouseY, { stiffness: 600, damping: 30, mass: 0.3 });
+  const auraX = useSpring(mouseX, AURA_SPRING);
+  const auraY = useSpring(mouseY, AURA_SPRING);
 
-  // Aura — smooth and floaty, but noticeably faster now
-  const auraX = useSpring(mouseX, { stiffness: 120, damping: 20, mass: 0.8 });
-  const auraY = useSpring(mouseY, { stiffness: 120, damping: 20, mass: 0.8 });
+  // Refs for DOM nodes — avoid React re-renders for hover/press/visible
+  const dotRef    = useRef(null);
+  const ringRef   = useRef(null);
+  const auraRef   = useRef(null);
+  const wrapRef   = useRef(null);
 
-  // rAF ref for throttling mousemove
-  const rafRef = useRef(null);
-  const pendingPos = useRef({ x: -200, y: -200 });
+  // rAF throttle
+  const rafRef     = useRef(null);
+  const pendingPos = useRef({ x: -300, y: -300 });
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     if (!window.matchMedia('(pointer: fine)').matches) return;
 
-    setEnabled(true);
+    // Show the cursor wrapper
+    if (wrapRef.current) wrapRef.current.style.display = 'block';
 
+    /* ── helpers that directly mutate DOM classes ── */
+    const setHover = (on) => {
+      dotRef.current?.classList.toggle('cur-hover', on);
+      ringRef.current?.classList.toggle('cur-hover', on);
+    };
+    const setPress = (on) => {
+      dotRef.current?.classList.toggle('cur-press', on);
+      ringRef.current?.classList.toggle('cur-press', on);
+    };
+    const setVisible = (on) => {
+      dotRef.current?.classList.toggle('cur-hidden', !on);
+      ringRef.current?.classList.toggle('cur-hidden', !on);
+      auraRef.current?.classList.toggle('cur-hidden', !on);
+    };
+
+    /* ── event handlers ── */
     const onMove = (e) => {
       pendingPos.current.x = e.clientX;
       pendingPos.current.y = e.clientY;
-
       if (!rafRef.current) {
         rafRef.current = requestAnimationFrame(() => {
           mouseX.set(pendingPos.current.x);
@@ -47,100 +68,148 @@ export default function CustomCursor() {
           rafRef.current = null;
         });
       }
-
       setVisible(true);
     };
 
     const onOver = (e) => {
-      setHovering(
-        !!(e.target && e.target.closest && e.target.closest(INTERACTIVE_SELECTOR))
-      );
+      setHover(!!(e.target?.closest?.(INTERACTIVE_SELECTOR)));
     };
 
-    const onDown = () => setPressed(true);
-    const onUp = () => setPressed(false);
+    const onDown  = () => setPress(true);
+    const onUp    = () => setPress(false);
     const onLeave = () => setVisible(false);
     const onEnter = () => setVisible(true);
 
-    window.addEventListener('mousemove', onMove, { passive: true });
-    window.addEventListener('mouseover', onOver, { passive: true });
-    window.addEventListener('mousedown', onDown, { passive: true });
-    window.addEventListener('mouseup', onUp, { passive: true });
+    window.addEventListener('mousemove',  onMove,  { passive: true });
+    window.addEventListener('mouseover',  onOver,  { passive: true });
+    window.addEventListener('mousedown',  onDown,  { passive: true });
+    window.addEventListener('mouseup',    onUp,    { passive: true });
     document.addEventListener('mouseleave', onLeave);
     document.addEventListener('mouseenter', onEnter);
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseover', onOver);
-      window.removeEventListener('mousedown', onDown);
-      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('mousemove',  onMove);
+      window.removeEventListener('mouseover',  onOver);
+      window.removeEventListener('mousedown',  onDown);
+      window.removeEventListener('mouseup',    onUp);
       document.removeEventListener('mouseleave', onLeave);
       document.removeEventListener('mouseenter', onEnter);
     };
   }, [mouseX, mouseY]);
 
-  if (!enabled) return null;
-
   return (
-    <div className="hidden md:block" aria-hidden="true">
-      {/* Slow-following aura glow */}
-      <motion.div
-        style={{ x: auraX, y: auraY, translateX: '-50%', translateY: '-50%' }}
-        animate={{
-          opacity: visible ? (hovering ? 0.22 : 0.12) : 0,
-          scale: hovering ? 1.25 : 1,
-        }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="fixed top-0 left-0 z-[9990] pointer-events-none w-[340px] h-[340px] rounded-full"
-        data-cursor-aura
-      >
-        <div
-          className="w-full h-full rounded-full blur-[70px]"
-          style={{
-            background:
-              'radial-gradient(circle, var(--color-accent) 0%, var(--color-accent-2) 45%, transparent 70%)',
-          }}
-        />
-      </motion.div>
+    <>
+      {/* Inject cursor CSS once — no JS animation overhead */}
+      <style>{`
+        .cur-root { display: none; }
 
-      {/* Trailing ring */}
-      <motion.div
-        style={{ x: ringX, y: ringY, translateX: '-50%', translateY: '-50%' }}
-        animate={{
-          scale: pressed ? 0.75 : hovering ? 1.9 : 1,
-        }}
-        transition={{ type: 'spring', stiffness: 500, damping: 28, mass: 0.2 }}
-        className="fixed top-0 left-0 z-[9991] pointer-events-none"
-      >
+        /* ── aura ── */
+        .cur-aura {
+          position: fixed; top: 0; left: 0;
+          width: 320px; height: 320px;
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 9990;
+          translate: -50% -50%;
+          opacity: 0.12;
+          transition: opacity 0.35s ease, scale 0.35s ease;
+          will-change: transform, opacity;
+        }
+        .cur-aura.cur-hidden  { opacity: 0 !important; }
+        .cur-aura .cur-aura-inner {
+          width: 100%; height: 100%;
+          border-radius: 50%;
+          filter: blur(60px);
+          background: radial-gradient(
+            circle,
+            var(--color-accent) 0%,
+            var(--color-accent-2) 45%,
+            transparent 70%
+          );
+        }
+
+        /* ── ring ── */
+        .cur-ring {
+          position: fixed; top: 0; left: 0;
+          width: 36px; height: 36px;
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 9991;
+          translate: -50% -50%;
+          mix-blend-mode: difference;
+          /* conic ring via mask */
+          background: conic-gradient(
+            from 0deg,
+            transparent 0deg, #fff 70deg,
+            transparent 180deg, #fff 260deg,
+            transparent 360deg
+          );
+          -webkit-mask: radial-gradient(
+            farthest-side,
+            transparent calc(100% - 2px),
+            #000 calc(100% - 2px)
+          );
+          mask: radial-gradient(
+            farthest-side,
+            transparent calc(100% - 2px),
+            #000 calc(100% - 2px)
+          );
+          transition: scale 0.22s cubic-bezier(0.34,1.56,0.64,1),
+                      opacity 0.2s ease;
+          will-change: transform, scale, opacity;
+        }
+        .cur-ring.cur-hover  { scale: 1.9; animation: cur-spin 3s linear infinite; }
+        .cur-ring.cur-press  { scale: 0.75 !important; }
+        .cur-ring.cur-hidden { opacity: 0; }
+
+        @keyframes cur-spin { to { rotate: 360deg; } }
+
+        /* ── dot ── */
+        .cur-dot {
+          position: fixed; top: 0; left: 0;
+          width: 8px; height: 8px;
+          border-radius: 50%;
+          background: #fff;
+          pointer-events: none;
+          z-index: 9992;
+          translate: -50% -50%;
+          mix-blend-mode: difference;
+          transition: scale 0.18s cubic-bezier(0.34,1.56,0.64,1),
+                      opacity 0.18s ease;
+          will-change: transform, scale, opacity;
+        }
+        .cur-dot.cur-hover  { scale: 0.5; }
+        .cur-dot.cur-press  { scale: 0.35 !important; }
+        .cur-dot.cur-hidden { opacity: 0; }
+      `}</style>
+
+      <div ref={wrapRef} className="cur-root hidden md:block" aria-hidden="true">
+
+        {/* Aura — slowest spring follow */}
         <motion.div
-          animate={{ rotate: hovering ? 360 : 0 }}
-          transition={
-            hovering
-              ? { duration: 3, repeat: Infinity, ease: 'linear' }
-              : { duration: 0.3, ease: 'easeOut' }
-          }
-          className="w-9 h-9 rounded-full mix-blend-difference"
-          style={{
-            background:
-              'conic-gradient(from 0deg, transparent 0deg, #fff 70deg, transparent 180deg, #fff 260deg, transparent 360deg)',
-            WebkitMask:
-              'radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px))',
-            mask: 'radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px))',
-          }}
-        />
-      </motion.div>
+          ref={auraRef}
+          className="cur-aura cur-hidden"
+          style={{ x: auraX, y: auraY }}
+        >
+          <div className="cur-aura-inner" />
+        </motion.div>
 
-      {/* Instant dot */}
-      <motion.div
-        style={{ x: dotX, y: dotY, translateX: '-50%', translateY: '-50%' }}
-        animate={{
-          opacity: visible ? 1 : 0,
-          scale: pressed ? 0.4 : hovering ? 0.5 : 1,
-        }}
-        transition={{ type: 'spring', stiffness: 800, damping: 30, mass: 0.1 }}
-        className="fixed top-0 left-0 z-[9992] pointer-events-none w-2 h-2 rounded-full bg-white mix-blend-difference"
-      />
-    </div>
+        {/* Ring — medium spring follow */}
+        <motion.div
+          ref={ringRef}
+          className="cur-ring cur-hidden"
+          style={{ x: ringX, y: ringY }}
+        />
+
+        {/* Dot — fastest spring, near-instant */}
+        <motion.div
+          ref={dotRef}
+          className="cur-dot cur-hidden"
+          style={{ x: dotX, y: dotY }}
+        />
+
+      </div>
+    </>
   );
 }
