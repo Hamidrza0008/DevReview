@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Bell, Check, CheckCheck, Heart, MessageSquareText, UserPlus } from "lucide-react";
+import { Bell, Check, CheckCheck, Heart, MessageSquareText, UserPlus, AlertCircle } from "lucide-react";
 import { getNotifications, markAllNotificationsRead, markNotificationRead } from "@/services/getNotificationsApi";
 
 const typeStyles = {
@@ -91,11 +91,19 @@ function NotificationItem({ item, index, compact = false, onRead }) {
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filter, setFilter] = useState("All");
 
   useEffect(() => {
     getNotifications()
-      .then((response) => setNotifications(response?.success && Array.isArray(response.notifications) ? response.notifications : []))
+      .then((response) => {
+        if (response?.success && Array.isArray(response.notifications)) {
+          setNotifications(response.notifications);
+        } else {
+          setError("Failed to load notifications.");
+        }
+      })
+      .catch(() => setError("Failed to load notifications. Please try again."))
       .finally(() => setLoading(false));
   }, []);
 
@@ -145,6 +153,12 @@ export default function Notifications() {
 
         {loading ? (
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 animate-pulse"><div className="xl:col-span-2 h-64 rounded-2xl bg-surface border border-line" /><div className="h-40 rounded-2xl bg-surface border border-line" /></div>
+        ) : error ? (
+          <div className="py-16 text-center">
+            <AlertCircle className="w-7 h-7 text-danger mx-auto mb-3" />
+            <h2 className="font-bold text-danger">{error}</h2>
+            <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 bg-accent text-accent-ink text-xs font-bold rounded-xl">Retry</button>
+          </div>
         ) : filtered.length ? (
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
             <section className="xl:col-span-2">

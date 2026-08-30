@@ -24,6 +24,7 @@ import { getProjectLikesCount, getProjectReviewsCount } from "@/utils/projectCou
 export default function Dashboard() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("My Projects");
   const [projects, setProjects] = useState([]);
   const { user } = useAuth();
@@ -65,6 +66,7 @@ export default function Dashboard() {
         }
       } catch (error) {
         console.error("Dashboard loading error:", error);
+        setError("Failed to load dashboard data.");
       } finally {
         setIsLoading(false);
       }
@@ -142,6 +144,25 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
+              </motion.div>
+            ) : error ? (
+              <motion.div
+                key="error-view"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center justify-center py-24 text-center"
+              >
+                <div className="w-14 h-14 bg-danger/10 rounded-2xl flex items-center justify-center mb-4">
+                  <AlertCircle className="w-7 h-7 text-danger" />
+                </div>
+                <h3 className="font-bold text-ink mb-2">Something went wrong</h3>
+                <p className="text-sm text-muted mb-6 max-w-sm">{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-5 py-2.5 bg-accent text-accent-ink text-sm font-bold rounded-xl hover:brightness-110 transition-colors"
+                >
+                  Try Again
+                </button>
               </motion.div>
             ) : (
               <motion.div

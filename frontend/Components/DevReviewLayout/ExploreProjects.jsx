@@ -586,8 +586,14 @@ export default function ExploreProjects() {
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
               >
                 {filteredProjects.map((project, index) => {
-                  const badgeTypes = ["Trending", "New", "Staff Pick"];
-                  const cardBadge = badgeTypes[index % badgeTypes.length];
+                  const getProjectBadge = (p) => {
+                    if ((p.likes?.length || 0) >= 5 || parseFloat(p.averageRating || 0) >= 4.5) return "Trending";
+                    const created = new Date(p.createdAt);
+                    const daysSince = (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24);
+                    if (daysSince <= 7) return "New";
+                    return null;
+                  };
+                  const cardBadge = getProjectBadge(project);
 
                   return (
                     <motion.div
@@ -627,19 +633,19 @@ export default function ExploreProjects() {
                             </span>
                           </div>
 
+                          {cardBadge && (
                           <div className="absolute top-12 left-4 z-20 pointer-events-none">
                             <span
                               className={`text-[10px] font-extrabold px-3 py-1.5 rounded-lg shadow-md tracking-wide text-accent-ink ${
                                 cardBadge === "Trending"
                                   ? "bg-star"
-                                  : cardBadge === "New"
-                                  ? "bg-linear-to-r from-accent to-accent-2"
-                                  : "bg-info"
+                                  : "bg-linear-to-r from-accent to-accent-2"
                               }`}
                             >
                               {cardBadge}
                             </span>
                           </div>
+                          )}
 
                           {project.thumbnail ? (
                             <Image

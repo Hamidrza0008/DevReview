@@ -55,6 +55,8 @@ const projectSchema = new mongoose.Schema({
     ],
 }, { timestamps: true })
 
+projectSchema.index({ owner: 1, createdAt: -1 });
+
 const projects = mongoose.model("projects", projectSchema);
 
 module.exports = projects;

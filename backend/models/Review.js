@@ -50,6 +50,10 @@ reviewSchema.index(
     }
 )
 
+reviewSchema.index({ project: 1, createdAt: -1 });
+reviewSchema.index({ user: 1, createdAt: -1 });
+reviewSchema.index({ project: 1, isRead: 1 });
+
 const Reviews = mongoose.model("Reviews" , reviewSchema);
 
 module.exports = Reviews;

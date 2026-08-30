@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Plus, Heart, MessageSquare, ExternalLink, GitBranch, FolderGit2, Eye } from 'lucide-react';
+import { Plus, Heart, MessageSquare, ExternalLink, GitBranch, FolderGit2, Eye, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getMyProjects } from '@/services/getMyProjectsApi';
 import { toggleLikes } from '@/services/toggleLikesApi';
@@ -21,6 +21,7 @@ const getFallbackGradient = (title) => {
 
 export default function MyProjects() {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [projects, setProjects] = useState([]);
   const router = useRouter();
 
@@ -34,9 +35,12 @@ export default function MyProjects() {
       const res = await getMyProjects();
       if (res && res.projects) {
         setProjects(res.projects);
+      } else {
+        setError("Failed to load projects.");
       }
     } catch (error) {
       console.error("Error fetching projects:", error);
+      setError("Failed to load projects. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -62,6 +66,18 @@ export default function MyProjects() {
             <div key={i} className="h-72 bg-surface border border-line rounded-2xl shadow-2xs"></div>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 md:p-8 bg-page min-h-screen flex flex-col items-center justify-center text-center">
+        <div className="w-12 h-12 bg-danger/10 rounded-xl flex items-center justify-center mb-4">
+          <AlertCircle className="w-6 h-6 text-danger" />
+        </div>
+        <p className="text-sm text-danger font-semibold mb-4">{error}</p>
+        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-accent text-accent-ink text-sm font-bold rounded-xl">Retry</button>
       </div>
     );
   }

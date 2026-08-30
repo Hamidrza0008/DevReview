@@ -3,6 +3,7 @@ const Projects = require("../models/Projects");
 const Reviews = require("../models/Review");
 const Users = require("../models/Users")
 const mongoose = require("mongoose");
+const { calculateAverageRating, getReviewStats } = require("../utils/calculateRating");
 
 
 
@@ -54,31 +55,41 @@ const getMyProjects = async (req, res) => {
 
         const userId = req.user.id;
 
-        const updatedProjects = await Promise.all(
-            projects.map(async (proj) => {
+        const projectIds = projects.map((p) => p._id);
 
-                const reviews = await Reviews.find({
-                    project: proj._id
-                });
+        const reviewsData = await Reviews.aggregate([
+            { $match: { project: { $in: projectIds } } },
+            {
+                $group: {
+                    _id: "$project",
+                    count: { $sum: 1 },
+                    totalRating: { $sum: "$rating" },
+                },
+            },
+        ]);
 
-                const likesCount = proj.likes.length;
-                const isLiked = proj.likes.some((id) => id.toString() === userId);
+        const reviewsMap = new Map();
+        for (const r of reviewsData) {
+            reviewsMap.set(r._id.toString(), {
+                reviewsCount: r.count,
+                averageRating: Number((r.totalRating / r.count).toFixed(1)),
+            });
+        }
 
-                const reviewsCount = reviews.length;
-                const totalRating = reviews.reduce((acc, curr) => acc + curr.rating, 0);
-                const averageRating = reviewsCount > 0 ? Number((totalRating / reviewsCount).toFixed(1)) : 0;
+        const updatedProjects = projects.map((proj) => {
+            const likesCount = proj.likes.length;
+            const isLiked = proj.likes.some((id) => id.toString() === userId);
+            const stats = reviewsMap.get(proj._id.toString()) || { reviewsCount: 0, averageRating: 0 };
 
-                return {
-                    ...proj.toObject(),
-                    likesCount,
-                    isLiked,
-                    reviewsCount,
-                    averageRating
-                }
-            })
+            return {
+                ...proj.toObject(),
+                likesCount,
+                isLiked,
+                reviewsCount: stats.reviewsCount,
+                averageRating: stats.averageRating,
+            }
+        })
 
-
-        )
         return res.status(200).json({
             success: true,
             projects: updatedProjects,
@@ -115,9 +126,7 @@ const getProjectById = async (req, res) => {
         const isLiked = project.likes.some((id) => id.toString() === userId);
 
         const reviews = await Reviews.find({ project: id });
-        const reviewsCount = reviews.length
-        const totalRating = reviews.reduce((acc, curr) => acc + curr.rating, 0);
-        const avgRating = reviewsCount > 0 ? Number(totalRating / reviewsCount).toFixed(1) : 0;
+        const stats = getReviewStats(reviews);
 
 
         return res.status(200).json({
@@ -125,8 +134,8 @@ const getProjectById = async (req, res) => {
             isLiked,
             likesCount: project.likes.length,
             project,
-            averageRating: avgRating,
-            reviewsCount: reviewsCount
+            averageRating: stats.averageRating,
+            reviewsCount: stats.reviewsCount
 
         })
     } catch (error) {
@@ -406,39 +415,44 @@ const getProjectByUsername = async (req, res) => {
             owner: user._id,
         }).sort({ createdAt: -1 });
 
-        const updatedProjects = await Promise.all(
-            projects.map(async (proj) => {
-                const reviews = await Reviews.find({
-                    project: proj._id,
-                });
+        const projectIds = projects.map((p) => p._id);
 
-                const likesCount = proj.likes.length;
+        const reviewsData = await Reviews.aggregate([
+            { $match: { project: { $in: projectIds } } },
+            {
+                $group: {
+                    _id: "$project",
+                    count: { $sum: 1 },
+                    totalRating: { $sum: "$rating" },
+                },
+            },
+        ]);
 
-                const isLiked = proj.likes.some(
-                    (id) => id.toString() === loggedInUserId
-                );
+        const reviewsMap = new Map();
+        for (const r of reviewsData) {
+            reviewsMap.set(r._id.toString(), {
+                reviewsCount: r.count,
+                averageRating: Number((r.totalRating / r.count).toFixed(1)),
+            });
+        }
 
-                const reviewsCount = reviews.length;
+        const updatedProjects = projects.map((proj) => {
+            const likesCount = proj.likes.length;
 
-                const totalRating = reviews.reduce(
-                    (acc, curr) => acc + curr.rating,
-                    0
-                );
+            const isLiked = proj.likes.some(
+                (id) => id.toString() === loggedInUserId
+            );
 
-                const averageRating =
-                    reviewsCount > 0
-                        ? Number((totalRating / reviewsCount).toFixed(1))
-                        : 0;
+            const stats = reviewsMap.get(proj._id.toString()) || { reviewsCount: 0, averageRating: 0 };
 
-                return {
-                    ...proj.toObject(),
-                    likesCount,
-                    isLiked,
-                    reviewsCount,
-                    averageRating,
-                };
-            })
-        );
+            return {
+                ...proj.toObject(),
+                likesCount,
+                isLiked,
+                reviewsCount: stats.reviewsCount,
+                averageRating: stats.averageRating,
+            };
+        });
 
         return res.status(200).json({
             success: true,

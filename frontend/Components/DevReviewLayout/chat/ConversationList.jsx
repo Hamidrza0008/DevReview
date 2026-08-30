@@ -11,6 +11,7 @@ export default function ConversationList() {
   const { user: authUser } = useAuth();
 
   const [conversations, setConversations] = useState(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -19,9 +20,11 @@ export default function ConversationList() {
         const res = await getConversationsApi();
         if (!cancelled && res?.success && res.data) {
           setConversations(res.data);
+        } else if (!cancelled) {
+          setError(true);
         }
       } catch {
-        // silent
+        if (!cancelled) setError(true);
       }
     };
     fetchConversations();
@@ -90,7 +93,21 @@ export default function ConversationList() {
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        {loaded && list.length === 0 && (
+        {!loaded && (
+          <div className="p-8 text-center space-y-3">
+            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-xs text-muted">Loading conversations...</p>
+          </div>
+        )}
+
+        {loaded && error && (
+          <div className="p-8 text-center space-y-3">
+            <p className="text-xs text-danger font-semibold">Failed to load conversations.</p>
+            <button onClick={() => window.location.reload()} className="text-xs text-accent font-bold hover:underline">Retry</button>
+          </div>
+        )}
+
+        {loaded && !error && list.length === 0 && (
           <div className="p-8 text-center">
             <p className="text-sm text-muted">No conversations yet.</p>
           </div>

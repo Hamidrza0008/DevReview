@@ -1,13 +1,14 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, MessageSquare, ArrowDownLeft, ArrowUpRight, Heart, Activity } from 'lucide-react';
+import { Star, MessageSquare, ArrowDownLeft, ArrowUpRight, Heart, Activity, AlertCircle } from 'lucide-react';
 import { getMyReviews, markReviewAsReadApi } from '@/services/reviewApis';
 import { useRouter } from 'next/navigation';
 
 export default function ReviewsDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [data, setData] = useState({
     stats: { totalProjects: 0, totalLikes: 0, totalGivenReviews: 0, totalReceivedReviews: 0 },
     projectLikes: [],
@@ -25,9 +26,12 @@ export default function ReviewsDashboard() {
           receivedReviews: res.receivedReviews || [],
           givenReviews: res.givenReviews || []
         });
+      } else {
+        setError("Failed to load review data.");
       }
     } catch (error) {
       console.error("Error fetching reviews:", error);
+      setError("Failed to load reviews. Please try again.");
     }
   };
 
@@ -76,6 +80,18 @@ export default function ReviewsDashboard() {
           <div className="h-64 bg-surface rounded-xl border border-line"></div>
           <div className="h-64 bg-surface rounded-xl border border-line"></div>
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 md:p-8 bg-page min-h-screen flex flex-col items-center justify-center text-center">
+        <div className="w-12 h-12 bg-danger/10 rounded-xl flex items-center justify-center mb-4">
+          <AlertCircle className="w-6 h-6 text-danger" />
+        </div>
+        <p className="text-sm text-danger font-semibold mb-4">{error}</p>
+        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-accent text-accent-ink text-sm font-bold rounded-xl">Retry</button>
       </div>
     );
   }
