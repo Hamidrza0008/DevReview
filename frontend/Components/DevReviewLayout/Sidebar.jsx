@@ -26,6 +26,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useSidebar } from "@/context/SidebarContext";
 import { ThemeToggle } from "@/Components/LandingPage/atoms";
 import { getUnreadCountApi } from "@/services/conversationsApis";
+import { getUnreadNotificationCountApi } from "@/services/getNotificationsApi";
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
@@ -79,6 +80,7 @@ function NavList({ onNavigate }) {
   const pathname = usePathname();
   const { collapsed } = useSidebar();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [notificationUnreadCount, setNotificationUnreadCount] = useState(0);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -96,12 +98,32 @@ function NavList({ onNavigate }) {
     return () => { cancelled = true; };
   }, [pathname]);
 
+  React.useEffect(() => {
+    let cancelled = false;
+    const fetchNotificationUnread = async () => {
+      try {
+        const res = await getUnreadNotificationCountApi();
+        if (!cancelled && res?.success && res.data) {
+          setNotificationUnreadCount(res.data.unreadCount);
+        }
+      } catch {
+        // silent
+      }
+    };
+    fetchNotificationUnread();
+    return () => { cancelled = true; };
+  }, [pathname]);
+
   return (
     <nav className="p-4 space-y-1.5">
       {menuItems.map((item) => {
         const Icon = item.icon;
         const isActive = isMenuActive(item, pathname);
-        const badgeValue = item.name === "Messages" && unreadCount > 0 ? unreadCount : item.badge;
+        const badgeValue = item.name === "Messages" && unreadCount > 0
+          ? unreadCount
+          : item.name === "Notifications" && notificationUnreadCount > 0
+            ? notificationUnreadCount
+            : item.badge;
 
         return (
           <button

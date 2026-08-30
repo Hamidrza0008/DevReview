@@ -41,4 +41,19 @@ const markAllNotificationsRead = async (req, res) => {
     return res.status(200).json({ success: true });
 };
 
-module.exports = { getNotifications, markNotificationRead, markAllNotificationsRead }
+const getUnreadNotificationCount = async (req, res) => {
+    try {
+        const count = await Notification.countDocuments({ recipient: req.user.id, isRead: false });
+        return res.status(200).json({
+            success: true,
+            data: { unreadCount: count },
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
+    }
+};
+
+module.exports = { getNotifications, markNotificationRead, markAllNotificationsRead, getUnreadNotificationCount }

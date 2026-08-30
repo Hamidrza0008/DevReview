@@ -30,3 +30,11 @@ export const markAllNotificationsRead = async () => {
     return response.json();
 };
 
+export const getUnreadNotificationCountApi = async () => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notifications/unread-count`, {
+        method: "GET",
+        credentials: "include",
+    });
+    return response.json();
+};
+
