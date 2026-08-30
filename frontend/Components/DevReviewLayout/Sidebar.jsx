@@ -25,6 +25,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useSidebar } from "@/context/SidebarContext";
 import { ThemeToggle } from "@/Components/LandingPage/atoms";
+import { getUnreadCountApi } from "@/services/conversationsApis";
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
@@ -77,12 +78,30 @@ function NavList({ onNavigate }) {
   const router = useRouter();
   const pathname = usePathname();
   const { collapsed } = useSidebar();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const fetchUnread = async () => {
+      try {
+        const res = await getUnreadCountApi();
+        if (!cancelled && res?.success && res.data) {
+          setUnreadCount(res.data.totalUnread);
+        }
+      } catch {
+        // silent
+      }
+    };
+    fetchUnread();
+    return () => { cancelled = true; };
+  }, [pathname]);
 
   return (
     <nav className="p-4 space-y-1.5">
       {menuItems.map((item) => {
         const Icon = item.icon;
         const isActive = isMenuActive(item, pathname);
+        const badgeValue = item.name === "Messages" && unreadCount > 0 ? unreadCount : item.badge;
 
         return (
           <button
@@ -123,13 +142,13 @@ function NavList({ onNavigate }) {
               )}
             </div>
 
-            {item.badge && !collapsed && (
+            {badgeValue && !collapsed && (
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold tracking-wide uppercase transition-all duration-300 ${
                 isActive
                   ? "bg-accent text-accent-ink shadow-md"
                   : "bg-accent-soft text-accent group-hover:bg-accent group-hover:text-accent-ink"
               }`}>
-                {item.badge}
+                {badgeValue}
               </span>
             )}
           </button>

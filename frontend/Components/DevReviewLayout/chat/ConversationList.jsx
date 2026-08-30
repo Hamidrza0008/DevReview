@@ -131,6 +131,11 @@ export default function ConversationList() {
                   <p className="text-xs text-muted truncate">
                     {conversation.lastMessage || "No messages yet"}
                   </p>
+                  {conversation.unreadCount > 0 && (
+                    <span className="shrink-0 min-w-5 h-5 px-1.5 rounded-full bg-accent text-accent-ink text-[10px] font-extrabold flex items-center justify-center">
+                      {conversation.unreadCount}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

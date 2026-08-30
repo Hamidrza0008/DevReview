@@ -9,6 +9,7 @@ import {
   getMessagesApi,
   getConversationsApi,
   getUserByIdApi,
+  markConversationAsReadApi,
 } from "@/services/conversationsApis";
 
 export default function Chat({ receiverId, conversationId }) {
@@ -49,6 +50,8 @@ export default function Chat({ receiverId, conversationId }) {
           if (msgRes?.success && msgRes.data) {
             setMessages(msgRes.data);
           }
+
+          markConversationAsReadApi(conversationId);
         } else if (receiverId) {
           const userRes = await getUserByIdApi(receiverId);
           if (userRes?.success && userRes.data) {

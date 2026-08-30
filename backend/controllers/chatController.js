@@ -95,11 +95,51 @@ const sendMessage = async (req, res) => {
 const getConversations = async (req, res) => {
     try {
         const userId = req.user.id;
-        const conversations = await Conversation.find({
-            participants: userId,
-        })
-            .populate("participants", "username name profileImage")
-            .sort({ lastMessageAt: -1 });
+
+        const conversations = await Conversation.aggregate([
+            { $match: { participants: new mongoose.Types.ObjectId(userId) } },
+            {
+                $lookup: {
+                    from: "messages",
+                    let: { convId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$conversationId", "$$convId"] },
+                                        { $eq: ["$isRead", false] },
+                                        { $ne: ["$sender", new mongoose.Types.ObjectId(userId)] },
+                                    ],
+                                },
+                            },
+                        },
+                        { $count: "count" },
+                    ],
+                    as: "unreadDocs",
+                },
+            },
+            {
+                $addFields: {
+                    unreadCount: {
+                        $ifNull: [{ $arrayElemAt: ["$unreadDocs.count", 0] }, 0],
+                    },
+                },
+            },
+            { $unset: "unreadDocs" },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "participants",
+                    foreignField: "_id",
+                    as: "participants",
+                    pipeline: [
+                        { $project: { username: 1, name: 1, profileImage: 1 } },
+                    ],
+                },
+            },
+            { $sort: { lastMessageAt: -1 } },
+        ]);
 
         return res.status(200).json({
             success: true,
@@ -160,6 +200,100 @@ const getMessages = async (req, res) => {
     }
 };
 
+const getUnreadCount = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const result = await Message.aggregate([
+            {
+                $match: {
+                    isRead: false,
+                    sender: { $ne: new mongoose.Types.ObjectId(userId) },
+                },
+            },
+            {
+                $lookup: {
+                    from: "conversations",
+                    localField: "conversationId",
+                    foreignField: "_id",
+                    as: "conversation",
+                },
+            },
+            { $unwind: "$conversation" },
+            {
+                $match: {
+                    "conversation.participants": new mongoose.Types.ObjectId(userId),
+                },
+            },
+            { $count: "total" },
+        ]);
+
+        const totalUnread = result.length > 0 ? result[0].total : 0;
+
+        return res.status(200).json({
+            success: true,
+            data: { totalUnread },
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
+
+const markAsRead = async (req, res) => {
+    try {
+        const { conversationId } = req.params;
+
+        if (!conversationId || !mongoose.Types.ObjectId.isValid(conversationId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid conversation ID",
+            });
+        }
+
+        const conversation = await Conversation.findById(conversationId).select("participants");
+
+        if (!conversation) {
+            return res.status(404).json({
+                success: false,
+                message: "Conversation not found",
+            });
+        }
+
+        const isParticipant = conversation.participants.some(
+            (id) => id.toString() === req.user.id
+        );
+
+        if (!isParticipant) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not a participant in this conversation",
+            });
+        }
+
+        const result = await Message.updateMany(
+            {
+                conversationId: conversationId,
+                sender: { $ne: new mongoose.Types.ObjectId(req.user.id) },
+                isRead: false,
+            },
+            { $set: { isRead: true } }
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: { modifiedCount: result.modifiedCount },
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
+
 const getUserById = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -196,5 +330,7 @@ module.exports = {
     sendMessage,
     getConversations,
     getMessages,
+    getUnreadCount,
+    markAsRead,
     getUserById,
 };

@@ -53,3 +53,29 @@ export const getUserByIdApi = async (userId) => {
         console.log(error);
     }
 };
+
+export const getUnreadCountApi = async () => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat/unread-count`, {
+            method: "GET",
+            credentials: "include",
+        });
+
+        return await response.json();
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const markConversationAsReadApi = async (conversationId) => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat/messages/${conversationId}/read`, {
+            method: "PATCH",
+            credentials: "include",
+        });
+
+        return await response.json();
+    } catch (error) {
+        console.log(error);
+    }
+};
