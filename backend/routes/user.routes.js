@@ -10,8 +10,8 @@ router.get("/:username" , optionalAuth, getUserProfile);
 router.get("/" ,authMiddleware, getAllUsers);
 
 router.post("/:username/follow", authMiddleware, toggleFollow);
-router.get("/:username/followers", getFollowers);
-router.get("/:username/following", getFollowing);
+router.get("/:username/followers", authMiddleware, getFollowers);
+router.get("/:username/following", authMiddleware, getFollowing);
 
 
 module.exports = router;

@@ -181,44 +181,84 @@ const getAllUsers = async (req, res) => {
             _id: { $ne: req.user.id }
         }).select("name username bio profileImage skills githubUrl portfolioUrl followers");
 
-        const usersWithStats = await Promise.all(
-            users.map(async (user) => {
+        const userIds = users.map((u) => u._id);
 
-                const projects = await Projects.find({ owner: user._id });
+        const [projectsData, reviewsData] = await Promise.all([
+            Projects.aggregate([
+                { $match: { owner: { $in: userIds } } },
+                {
+                    $group: {
+                        _id: "$owner",
+                        totalProjects: { $sum: 1 },
+                        totalLikes: { $sum: { $size: "$likes" } },
+                    },
+                },
+            ]),
+            Review.aggregate([
+                {
+                    $lookup: {
+                        from: "projects",
+                        localField: "project",
+                        foreignField: "_id",
+                        as: "projectInfo",
+                    },
+                },
+                { $unwind: "$projectInfo" },
+                { $match: { "projectInfo.owner": { $in: userIds } } },
+                {
+                    $group: {
+                        _id: "$projectInfo.owner",
+                        totalReviews: { $sum: 1 },
+                    },
+                },
+            ]),
+        ]);
 
-                const totalLikes = projects.reduce(
-                    (acc, curr) => acc + curr.likes.length,
-                    0
-                );
+        const projectsMap = new Map();
+        for (const p of projectsData) {
+            projectsMap.set(p._id.toString(), {
+                totalProjects: p.totalProjects,
+                totalLikes: p.totalLikes,
+            });
+        }
 
-                const projectIds = projects.map(project => project._id);
+        const reviewsMap = new Map();
+        for (const r of reviewsData) {
+            reviewsMap.set(r._id.toString(), r.totalReviews);
+        }
 
-                const totalReviews = await Review.countDocuments({
-                    project: { $in: projectIds }
-                });
+        const usersWithStats = users.map((user) => {
+            const stats = projectsMap.get(user._id.toString()) || {
+                totalProjects: 0,
+                totalLikes: 0,
+            };
+            const totalReviews = reviewsMap.get(user._id.toString()) || 0;
 
-                const isFollowing = user.followers.some(
-                    (id) => id.toString() === req.user.id
-                );
+            const isFollowing = user.followers.some(
+                (id) => id.toString() === req.user.id
+            );
 
-                const { followers, ...userObj } = user.toObject();
+            const { followers, ...userObj } = user.toObject();
 
-                return {
-                    ...userObj,
-                    totalProjects: projects.length,
-                    totalLikes,
-                    totalReviews,
-                    followersCount: followers.length,
-                    isFollowing,
-                };
-            })
-        );
+            return {
+                ...userObj,
+                totalProjects: stats.totalProjects,
+                totalLikes: stats.totalLikes,
+                totalReviews,
+                followersCount: followers.length,
+                isFollowing,
+            };
+        });
 
         return res.status(200).json({
             success: true,
             users: usersWithStats
         });
     } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
     }
 }
 

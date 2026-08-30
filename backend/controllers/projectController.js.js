@@ -143,39 +143,55 @@ const getExploreProjects = async (req, res) => {
     try {
         const userId = req.user.id;
 
-        const projects = await Projects.find({})
-            .populate("owner", "username fullName profileImage")
-            .sort({ createdAt: -1 }
-            );
+        const [projects, currentUser] = await Promise.all([
+            Projects.find({})
+                .populate("owner", "username fullName profileImage")
+                .sort({ createdAt: -1 }),
+            Users.findById(userId).select("savedProjects"),
+        ]);
 
+        const savedProjectIds = new Set(
+            (currentUser?.savedProjects || []).map((id) => id.toString())
+        );
 
+        const projectIds = projects.map((p) => p._id);
 
+        const reviewsData = await Reviews.aggregate([
+            { $match: { project: { $in: projectIds } } },
+            {
+                $group: {
+                    _id: "$project",
+                    count: { $sum: 1 },
+                    totalRating: { $sum: "$rating" },
+                },
+            },
+        ]);
 
-        const updatedProject = await Promise.all(
-            projects.map(async (proj) => {
+        const reviewsMap = new Map();
+        for (const r of reviewsData) {
+            reviewsMap.set(r._id.toString(), {
+                reviewsCount: r.count,
+                averageRating: Number((r.totalRating / r.count).toFixed(1)),
+            });
+        }
 
-                const reviews = await Reviews.find({
-                    project: proj._id
-                });
+        const updatedProject = projects.map((proj) => {
+            const likesCount = proj.likes.length;
+            const isLiked = proj.likes.some((id) => id.toString() === userId);
+            const reviewStats = reviewsMap.get(proj._id.toString()) || {
+                reviewsCount: 0,
+                averageRating: 0,
+            };
 
-                const likesCount = proj.likes.length;
-                const isLiked = proj.likes.some((id) => id.toString() === userId);
-
-                const reviewsCount = reviews.length;
-                const totalRating = reviews.reduce((acc, curr) => acc + curr.rating, 0);
-                const averageRating = reviewsCount > 0 ? Number((totalRating / reviewsCount).toFixed(1)) : 0;
-
-                return {
-                    ...proj.toObject(),
-                    likesCount,
-                    isLiked,
-                    reviewsCount,
-                    averageRating
-                }
-            })
-
-
-        )
+            return {
+                ...proj.toObject(),
+                likesCount,
+                isLiked,
+                isSaved: savedProjectIds.has(proj._id.toString()),
+                reviewsCount: reviewStats.reviewsCount,
+                averageRating: reviewStats.averageRating,
+            };
+        });
 
         return res.status(200).json({
             success: true,
@@ -300,6 +316,11 @@ const deleteProject = async (req, res) => {
         }
 
         await project.deleteOne();
+
+        await Users.updateMany(
+            { savedProjects: id },
+            { $pull: { savedProjects: id } }
+        );
 
         return res.status(200).json({
             success: true,
@@ -496,9 +517,19 @@ const getSavedProjects = async (req, res) => {
             },
         });
 
+        const validSavedProjects = user.savedProjects.filter(
+            (project) => project && project._id
+        );
+
+        if (validSavedProjects.length !== user.savedProjects.length) {
+            const validIds = validSavedProjects.map((p) => p._id);
+            user.savedProjects = validIds;
+            await user.save();
+        }
+
         return res.status(200).json({
             success: true,
-            savedProjects: user.savedProjects,
+            savedProjects: validSavedProjects,
         });
     } catch (error) {
 

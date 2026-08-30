@@ -166,46 +166,6 @@ const deleteReview = async (req, res) => {
     }
 }
 
-const getReviewForEdit = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const userId = req.user.id;
-
-        const project = await Projects.findById(id);
-        if (!project) {
-            return res.status(404).json({
-                success: false,
-                message: "Project Not Found",
-            })
-        }
-
-        const review = await Reviews.findOne({
-            project: id,
-            user: userId
-        })
-
-        if (!review) {
-            return res.status(404).json({
-                success: false,
-                message: "Review Not Found",
-            })
-        }
-
-        return res.status(200).json({
-            success: true,
-            review,
-        })
-
-
-    } catch (error) {
-
-        return res.status(500).json({
-            success: false,
-            message: "Internal Server Error"
-        });
-    }
-}
-
 const editReview = async (req, res) => {
     try {
         const { id } = req.params;
@@ -408,4 +368,4 @@ const markReviewAsRead = async (req, res) => {
     }
 };
 
-module.exports = { addReviews, getReviews, deleteReview, getReviewForEdit, editReview , getCurrentUserReview, getUnreadReviewCount, markReviewAsRead };
+module.exports = { addReviews, getReviews, deleteReview, editReview , getCurrentUserReview, getUnreadReviewCount, markReviewAsRead };
