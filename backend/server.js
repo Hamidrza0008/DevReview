@@ -12,6 +12,7 @@ const uploadRoute = require("./routes/upload.routes")
 const notificationsRoute = require("./routes/notifications.routes");
 const supportRoutes = require("./routes/support.routes");
 const chatRoutes = require("./routes/chatRoutes");
+const reviewsRoute = require("./routes/reviews.routes");
 
 
 
@@ -48,6 +49,8 @@ app.use("/api/upload", uploadRoute);
 app.use("/api" , notificationsRoute);
 
 app.use("/api/support", supportRoutes);
+
+app.use("/api", reviewsRoute);
 
 app.use("/api/chat", chatRoutes);
 

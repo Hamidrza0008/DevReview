@@ -27,6 +27,7 @@ import { useSidebar } from "@/context/SidebarContext";
 import { ThemeToggle } from "@/Components/LandingPage/atoms";
 import { getUnreadCountApi } from "@/services/conversationsApis";
 import { getUnreadNotificationCountApi } from "@/services/getNotificationsApi";
+import { getUnreadReviewCountApi } from "@/services/reviewApis";
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
@@ -34,7 +35,7 @@ const menuItems = [
   { name: "Users", icon: Users, path: "/users/explore" },
   { name: "My Projects", icon: FolderGit2, path: "/projects/my" },
   { name: "Messages", icon: MessageCircle, path: "/messages" },
-  { name: "Reviews Received", icon: MessageSquare, path: "/review", badge: "New" },
+  { name: "Reviews Received", icon: MessageSquare, path: "/review" },
   { name: "Notifications", icon: Bell, path: "/notifications" },
   { name: "Saved Projects", icon: Bookmark, path: "/projects/saved" },
   { name: "Community", icon: Users, path: "/community" },
@@ -81,6 +82,7 @@ function NavList({ onNavigate }) {
   const { collapsed } = useSidebar();
   const [unreadCount, setUnreadCount] = useState(0);
   const [notificationUnreadCount, setNotificationUnreadCount] = useState(0);
+  const [reviewUnreadCount, setReviewUnreadCount] = useState(0);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -114,6 +116,22 @@ function NavList({ onNavigate }) {
     return () => { cancelled = true; };
   }, [pathname]);
 
+  React.useEffect(() => {
+    let cancelled = false;
+    const fetchReviewUnread = async () => {
+      try {
+        const res = await getUnreadReviewCountApi();
+        if (!cancelled && res?.success && res.data) {
+          setReviewUnreadCount(res.data.unreadCount);
+        }
+      } catch {
+        // silent
+      }
+    };
+    fetchReviewUnread();
+    return () => { cancelled = true; };
+  }, [pathname]);
+
   return (
     <nav className="p-4 space-y-1.5">
       {menuItems.map((item) => {
@@ -123,7 +141,9 @@ function NavList({ onNavigate }) {
           ? unreadCount
           : item.name === "Notifications" && notificationUnreadCount > 0
             ? notificationUnreadCount
-            : item.badge;
+            : item.name === "Reviews Received" && reviewUnreadCount > 0
+              ? reviewUnreadCount
+              : item.badge;
 
         return (
           <button

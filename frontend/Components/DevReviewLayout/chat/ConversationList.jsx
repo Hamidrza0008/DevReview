@@ -101,7 +101,12 @@ export default function ConversationList() {
           return (
             <div
               key={conversation._id}
-              onClick={() => router.push(`/messages/${conversation._id}`)}
+              onClick={() => {
+                setConversations(prev => prev ? prev.map(c =>
+                  c._id === conversation._id ? { ...c, unreadCount: 0 } : c
+                ) : prev);
+                router.push(`/messages/${conversation._id}`);
+              }}
               className="w-full flex items-center gap-3 px-4 py-3 border-b border-line/60 cursor-pointer hover:bg-surface-2"
             >
               <div className="relative shrink-0">

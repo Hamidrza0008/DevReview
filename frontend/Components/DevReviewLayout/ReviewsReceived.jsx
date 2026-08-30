@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Star, MessageSquare, ArrowDownLeft, ArrowUpRight, Heart, Activity } from 'lucide-react';
-import { getMyReviews } from '@/services/reviewApis';
+import { getMyReviews, markReviewAsReadApi } from '@/services/reviewApis';
 import { useRouter } from 'next/navigation';
 
 export default function ReviewsDashboard() {
@@ -29,6 +29,16 @@ export default function ReviewsDashboard() {
     } catch (error) {
       console.error("Error fetching reviews:", error);
     }
+  };
+
+  const handleReviewRead = async (reviewId) => {
+    setData(prev => ({
+      ...prev,
+      receivedReviews: prev.receivedReviews.map(r =>
+        r._id === reviewId ? { ...r, isRead: true } : r
+      )
+    }));
+    markReviewAsReadApi(reviewId);
   };
 
   useEffect(() => {
@@ -126,22 +136,30 @@ export default function ReviewsDashboard() {
                   key={rev._id || i}
                   role={rev.project?._id ? "link" : undefined}
                   tabIndex={rev.project?._id ? 0 : undefined}
-                  onClick={() => rev.project?._id && router.push(`/projects/${rev.project._id}`)}
+                  onClick={() => {
+                    if (!rev.isRead) handleReviewRead(rev._id);
+                    if (rev.project?._id) router.push(`/projects/${rev.project._id}`);
+                  }}
                   onKeyDown={(event) => {
                     if (rev.project?._id && (event.key === "Enter" || event.key === " ")) {
                       event.preventDefault();
+                      if (!rev.isRead) handleReviewRead(rev._id);
                       router.push(`/projects/${rev.project._id}`);
                     }
                   }}
-                  className={`p-4 rounded-xl border border-surface-2 bg-surface-2 hover:bg-surface hover:border-accent/40 hover:shadow-md transition-all duration-300 ${rev.project?._id ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent" : ""}`}
+                  className={`relative p-4 rounded-xl border transition-all duration-300 ${rev.project?._id ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent" : ""} ${!rev.isRead ? "bg-accent-soft/35 border-accent/20" : "bg-surface-2 border-surface-2 hover:bg-surface hover:border-accent/40 hover:shadow-md"}`}
                 >
+                  {!rev.isRead && <span className="absolute left-0 top-3 bottom-3 w-1 rounded-r-full bg-accent" />}
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h4 className="font-bold text-sm text-ink">Project: {rev.project?.title || "Unknown"}</h4>
                       <p className="text-xs text-muted">From User</p>
                     </div>
-                    <div className="flex items-center text-star bg-star/10 px-2 py-0.5 rounded text-xs font-bold border border-star/30">
-                      <Star className="w-3.5 h-3.5 fill-current mr-1" /> {rev.rating}/5
+                    <div className="flex items-center gap-2">
+                      {!rev.isRead && <span className="w-2 h-2 rounded-full bg-accent shrink-0" />}
+                      <div className="flex items-center text-star bg-star/10 px-2 py-0.5 rounded text-xs font-bold border border-star/30">
+                        <Star className="w-3.5 h-3.5 fill-current mr-1" /> {rev.rating}/5
+                      </div>
                     </div>
                   </div>
                   <p className="text-sm text-muted mt-2 italic flex">

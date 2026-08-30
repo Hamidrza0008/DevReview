@@ -334,4 +334,78 @@ const getCurrentUserReview = async (req, res) => {
     }
 };
 
-module.exports = { addReviews, getReviews, deleteReview, getReviewForEdit, editReview , getCurrentUserReview };
+const getUnreadReviewCount = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const projects = await Projects.find({ owner: userId }).select("_id");
+        const projectIds = projects.map(p => p._id);
+
+        const count = await Reviews.countDocuments({
+            project: { $in: projectIds },
+            isRead: false,
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: { unreadCount: count },
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
+    }
+};
+
+const markReviewAsRead = async (req, res) => {
+    try {
+        const { reviewId } = req.params;
+        const userId = req.user.id;
+
+        if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid review ID",
+            });
+        }
+
+        const review = await Reviews.findById(reviewId).populate("project", "owner");
+
+        if (!review) {
+            return res.status(404).json({
+                success: false,
+                message: "Review not found",
+            });
+        }
+
+        if (review.project.owner.toString() !== userId) {
+            return res.status(403).json({
+                success: false,
+                message: "Not authorized",
+            });
+        }
+
+        if (review.isRead) {
+            return res.status(200).json({
+                success: true,
+                message: "Review already read",
+            });
+        }
+
+        review.isRead = true;
+        await review.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Review marked as read",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
+    }
+};
+
+module.exports = { addReviews, getReviews, deleteReview, getReviewForEdit, editReview , getCurrentUserReview, getUnreadReviewCount, markReviewAsRead };

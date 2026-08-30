@@ -51,7 +51,7 @@ export default function Chat({ receiverId, conversationId }) {
             setMessages(msgRes.data);
           }
 
-          markConversationAsReadApi(conversationId);
+          await markConversationAsReadApi(conversationId);
         } else if (receiverId) {
           const userRes = await getUserByIdApi(receiverId);
           if (userRes?.success && userRes.data) {
@@ -165,7 +165,11 @@ export default function Chat({ receiverId, conversationId }) {
   return (
     <div className="flex flex-col h-full flex-1 min-w-0">
       <div className="flex items-center gap-3 px-4 py-3 border-b border-line">
-        <div className="relative shrink-0">
+        <button
+          type="button"
+          onClick={() => receiver?.username && router.push(`/users/${receiver.username}`)}
+          className="relative shrink-0 cursor-pointer"
+        >
           <div className="w-10 h-10 rounded-full bg-linear-to-br from-accent/15 to-accent-2/15 border border-line flex items-center justify-center text-xs font-extrabold text-accent overflow-hidden">
             {receiver?.profileImage ? (
               <img
@@ -177,15 +181,19 @@ export default function Chat({ receiverId, conversationId }) {
               getInitials(receiver?.name)
             )}
           </div>
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm font-bold text-ink truncate">
+        </button>
+        <button
+          type="button"
+          onClick={() => receiver?.username && router.push(`/users/${receiver.username}`)}
+          className="min-w-0 text-left cursor-pointer"
+        >
+          <p className="text-sm font-bold text-ink truncate hover:text-accent transition-colors">
             {receiver?.name || "Unknown"}
           </p>
           <p className="text-xs text-muted">
             {receiver?.username ? `@${receiver.username}` : ""}
           </p>
-        </div>
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">

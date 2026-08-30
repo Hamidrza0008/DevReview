@@ -88,3 +88,27 @@ export const getMyReviews = async () => {
         console.log(error);
     }
 } 
+
+export const getUnreadReviewCountApi = async () => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews/unread-count`, {
+            method: "GET",
+            credentials: "include",
+        });
+        return await response.json();
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const markReviewAsReadApi = async (reviewId) => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews/${reviewId}/read`, {
+            method: "PATCH",
+            credentials: "include",
+        });
+        return await response.json();
+    } catch (error) {
+        console.log(error);
+    }
+};

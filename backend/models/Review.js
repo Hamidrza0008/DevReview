@@ -29,6 +29,11 @@ const reviewSchema = new mongoose.Schema({
     isEdited: {
         type: Boolean,
         default: false,
+    },
+
+    isRead: {
+        type: Boolean,
+        default: false,
     }
 
 } , {
