@@ -177,8 +177,12 @@ export default function UserProfile() {
     }
   };
 
-  const handleMessageButton = async() => {
-    console.log("clicked")
+  const handleMessageButton = () => {
+    if (!authUser) {
+      router.push("/auth/login");
+      return;
+    }
+    router.push(`/messages/user/${user._id}`);
   }
 
   const joinedDate = user?.createdAt

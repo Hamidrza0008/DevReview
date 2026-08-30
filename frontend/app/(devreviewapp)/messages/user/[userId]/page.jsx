@@ -1,13 +1,13 @@
 "use client";
 
 import Chat from "@/Components/DevReviewLayout/chat/Chat";
-import { useParams } from "next/navigation"
+import { useParams } from "next/navigation";
 
 export default function UserChatPage() {
-    const userId = useParams();
-    return(
+    const { userId } = useParams();
+    return (
         <>
-            <Chat receiverId={userId} conversationId={null}/>
+            <Chat receiverId={userId} conversationId={null} />
         </>
-    )
+    );
 }
