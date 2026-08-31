@@ -1,10 +1,16 @@
-export const getNotifications = async () => {
+export const getNotifications = async ({ limit = 20, before } = {}) => {
 
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notifications`, {
-            method: "GET",
-            credentials: "include",
-        });
+        const params = new URLSearchParams({ limit: String(limit) });
+        if (before) params.set("before", before);
+
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/notifications?${params.toString()}`,
+            {
+                method: "GET",
+                credentials: "include",
+            }
+        );
 
         return await response.json()
 

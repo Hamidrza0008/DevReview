@@ -1,19 +1,37 @@
+const mongoose = require("mongoose");
 const Notification = require("../models/Notification");
 
 const getNotifications = async(req, res) => {
     try {
         const userId = req.user.id;
+        const { limit: limitStr, before } = req.query;
 
-        const notifications = await Notification.find({
-            recipient: userId,
-        })
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 100);
+
+        const query = { recipient: userId };
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid cursor",
+                });
+            }
+            query._id = { $lt: new mongoose.Types.ObjectId(before) };
+        }
+
+        const notifications = await Notification.find(query)
             .populate("sender", "name username profileImage")
             .populate("project", "title")
             .sort({ createdAt: -1 })
+            .limit(limit + 1);
+
+        const hasMore = notifications.length > limit;
+        if (hasMore) notifications.pop();
 
         return res.status(200).json({
             success: true,
-            notifications
+            notifications,
+            hasMore,
         })
 
 

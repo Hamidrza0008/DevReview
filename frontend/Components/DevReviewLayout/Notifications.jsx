@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Bell, Check, CheckCheck, Heart, MessageSquareText, UserPlus, AlertCircle } from "lucide-react";
 import { getNotifications, markAllNotificationsRead, markNotificationRead } from "@/services/getNotificationsApi";
+
+const PAGE_SIZE = 20;
 
 const typeStyles = {
   like: { icon: Heart, color: "text-like", bg: "bg-like/10", label: "Like", message: "liked your project" },
@@ -46,7 +48,7 @@ function NotificationItem({ item, index, compact = false, onRead }) {
     <motion.article
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.04 }}
+      transition={{ delay: index < 20 ? index * 0.04 : 0 }}
       onClick={openNotification}
       onKeyDown={(event) => {
         if (destination && (event.key === "Enter" || event.key === " ")) {
@@ -91,14 +93,20 @@ function NotificationItem({ item, index, compact = false, onRead }) {
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("All");
+  const [hasMore, setHasMore] = useState(true);
+
+  const bottomSentinelRef = useRef(null);
+  const isLoadingMoreRef = useRef(false);
 
   useEffect(() => {
-    getNotifications()
+    getNotifications({ limit: PAGE_SIZE })
       .then((response) => {
         if (response?.success && Array.isArray(response.notifications)) {
           setNotifications(response.notifications);
+          setHasMore(response.hasMore);
         } else {
           setError("Failed to load notifications.");
         }
@@ -106,6 +114,55 @@ export default function Notifications() {
       .catch(() => setError("Failed to load notifications. Please try again."))
       .finally(() => setLoading(false));
   }, []);
+
+  const loadMore = useCallback(async () => {
+    if (isLoadingMoreRef.current || !hasMore) return;
+
+    isLoadingMoreRef.current = true;
+    setLoadingMore(true);
+
+    const cursor = notifications[notifications.length - 1]?._id;
+
+    try {
+      const response = await getNotifications({ limit: PAGE_SIZE, before: cursor });
+
+      if (response?.success && Array.isArray(response.notifications)) {
+        setNotifications((prev) => {
+          const existingIds = new Set(prev.map((n) => n._id));
+          const newNotifications = response.notifications.filter((n) => !existingIds.has(n._id));
+          if (newNotifications.length === 0) return prev;
+          return [...prev, ...newNotifications];
+        });
+        setHasMore(response.hasMore);
+      }
+    } catch {
+      setError("Failed to load more notifications.");
+    } finally {
+      setLoadingMore(false);
+      isLoadingMoreRef.current = false;
+    }
+  }, [notifications, hasMore]);
+
+  useEffect(() => {
+    if (loading || !hasMore) return;
+
+    const sentinel = bottomSentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && !isLoadingMoreRef.current && hasMore) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(sentinel);
+
+    return () => observer.disconnect();
+  }, [loading, hasMore, loadMore]);
 
   const unreadCount = notifications.filter((item) => !item.isRead).length;
   const filtered = useMemo(() => filter === "Unread" ? notifications.filter((item) => !item.isRead) : notifications, [filter, notifications]);
@@ -153,7 +210,7 @@ export default function Notifications() {
 
         {loading ? (
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 animate-pulse"><div className="xl:col-span-2 h-64 rounded-2xl bg-surface border border-line" /><div className="h-40 rounded-2xl bg-surface border border-line" /></div>
-        ) : error ? (
+        ) : error && notifications.length === 0 ? (
           <div className="py-16 text-center">
             <AlertCircle className="w-7 h-7 text-danger mx-auto mb-3" />
             <h2 className="font-bold text-danger">{error}</h2>
@@ -173,6 +230,27 @@ export default function Notifications() {
                 {follows.length ? follows.map((item, index) => <NotificationItem key={item._id} item={item} index={index} compact onRead={handleRead} />) : <p className="p-10 text-center text-sm text-muted">No new followers yet.</p>}
               </div>
             </section>
+
+            <div ref={bottomSentinelRef} className="col-span-full h-1" />
+
+            {loadingMore && (
+              <div className="col-span-full flex justify-center py-4">
+                <p className="text-xs text-muted">Loading more notifications...</p>
+              </div>
+            )}
+
+            {error && notifications.length > 0 && (
+              <div className="col-span-full flex justify-center py-3">
+                <p className="text-xs text-danger">{error}</p>
+                <button onClick={loadMore} className="ml-2 text-xs font-bold text-accent hover:underline">Retry</button>
+              </div>
+            )}
+
+            {!hasMore && notifications.length > 0 && filter === "All" && (
+              <div className="col-span-full py-4 text-center">
+                <p className="text-xs text-muted">You&apos;ve reached the end of your notifications.</p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="py-16 text-center"><CheckCheck className="w-7 h-7 text-muted mx-auto mb-3" /><h2 className="font-bold">No notifications yet</h2><p className="text-sm text-muted mt-1">Your new activity will appear here.</p></div>
