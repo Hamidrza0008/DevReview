@@ -28,12 +28,18 @@ export const sendMessageApi = async (receiverId, text) => {
     }
 };
 
-export const getMessagesApi = async (conversationId) => {
+export const getMessagesApi = async (conversationId, { limit = 20, before } = {}) => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat/messages/${conversationId}`, {
-            method: "GET",
-            credentials: "include",
-        });
+        const params = new URLSearchParams({ limit: String(limit) });
+        if (before) params.set("before", before);
+
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/chat/messages/${conversationId}?${params.toString()}`,
+            {
+                method: "GET",
+                credentials: "include",
+            }
+        );
 
         return await response.json();
     } catch (error) {

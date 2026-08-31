@@ -156,6 +156,7 @@ const getConversations = async (req, res) => {
 const getMessages = async (req, res) => {
     try {
         const { conversationId } = req.params;
+        const { limit: limitStr, before } = req.query;
 
         if (!conversationId || !mongoose.Types.ObjectId.isValid(conversationId)) {
             return res.status(400).json({
@@ -184,13 +185,35 @@ const getMessages = async (req, res) => {
             });
         }
 
-        const messages = await Message.find({ conversationId })
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 100);
+
+        const query = { conversationId };
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid cursor",
+                });
+            }
+            query._id = { $lt: new mongoose.Types.ObjectId(before) };
+        }
+
+        const messages = await Message.find(query)
             .populate("sender", "username name profileImage")
-            .sort({ createdAt: 1 });
+            .sort({ createdAt: -1 })
+            .limit(limit + 1);
+
+        const hasMore = messages.length > limit;
+        const sliced = hasMore ? messages.slice(0, limit) : messages;
+
+        sliced.reverse();
 
         return res.status(200).json({
             success: true,
-            data: messages,
+            data: {
+                messages: sliced,
+                hasMore,
+            },
         });
     } catch (error) {
         return res.status(500).json({

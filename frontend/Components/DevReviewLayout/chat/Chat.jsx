@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -12,6 +12,8 @@ import {
   markConversationAsReadApi,
 } from "@/services/conversationsApis";
 
+const PAGE_SIZE = 20;
+
 export default function Chat({ receiverId, conversationId }) {
   const router = useRouter();
   const { user: authUser } = useAuth();
@@ -19,12 +21,23 @@ export default function Chat({ receiverId, conversationId }) {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
   const [receiver, setReceiver] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [isNearBottom, setIsNearBottom] = useState(true);
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
+  const containerRef = useRef(null);
+  const topSentinelRef = useRef(null);
+  const isLoadingMoreRef = useRef(false);
+  const preserveScrollRef = useRef(false);
+
+  const scrollToBottom = useCallback((behavior = "instant") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  }, []);
 
   useEffect(() => {
     if (!conversationId && !receiverId) return;
@@ -32,6 +45,9 @@ export default function Chat({ receiverId, conversationId }) {
     const init = async () => {
       setLoading(true);
       setError(null);
+      setHasMore(true);
+      setMessages([]);
+      isLoadingMoreRef.current = false;
 
       try {
         if (conversationId) {
@@ -46,9 +62,10 @@ export default function Chat({ receiverId, conversationId }) {
             }
           }
 
-          const msgRes = await getMessagesApi(conversationId);
+          const msgRes = await getMessagesApi(conversationId, { limit: PAGE_SIZE });
           if (msgRes?.success && msgRes.data) {
-            setMessages(msgRes.data);
+            setMessages(msgRes.data.messages);
+            setHasMore(msgRes.data.hasMore);
           }
 
           await markConversationAsReadApi(conversationId);
@@ -69,8 +86,107 @@ export default function Chat({ receiverId, conversationId }) {
   }, [conversationId, receiverId, authUser?._id]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (loading) return;
+
+    if (preserveScrollRef.current) {
+      preserveScrollRef.current = false;
+      return;
+    }
+
+    if (isNearBottom) {
+      scrollToBottom("instant");
+    }
+  }, [messages, loading, isNearBottom, scrollToBottom]);
+
+  useEffect(() => {
+    if (loading || !conversationId) return;
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      setIsNearBottom(distanceFromBottom < 100);
+    };
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [loading, conversationId]);
+
+  const loadOlderMessages = useCallback(async () => {
+    if (isLoadingMoreRef.current || !hasMore || !conversationId) return;
+
+    isLoadingMoreRef.current = true;
+    setLoadingMore(true);
+
+    const oldestMessage = messages[0];
+    const cursor = oldestMessage?._id;
+
+    try {
+      const res = await getMessagesApi(conversationId, {
+        limit: PAGE_SIZE,
+        before: cursor,
+      });
+
+      if (res?.success && res.data) {
+        const { messages: olderMessages, hasMore: more } = res.data;
+
+        if (olderMessages.length > 0) {
+          preserveScrollRef.current = true;
+
+          setMessages((prev) => {
+            const existingIds = new Set(prev.map((m) => m._id));
+            const newMessages = olderMessages.filter((m) => !existingIds.has(m._id));
+
+            if (newMessages.length === 0) return prev;
+
+            const container = containerRef.current;
+            const previousScrollHeight = container?.scrollHeight ?? 0;
+
+            requestAnimationFrame(() => {
+              if (container) {
+                const newScrollHeight = container.scrollHeight;
+                container.scrollTop += newScrollHeight - previousScrollHeight;
+              }
+            });
+
+            return [...newMessages, ...prev];
+          });
+        }
+
+        setHasMore(more);
+      }
+    } catch {
+      setError("Failed to load older messages.");
+    } finally {
+      setLoadingMore(false);
+      isLoadingMoreRef.current = false;
+    }
+  }, [conversationId, messages, hasMore]);
+
+  useEffect(() => {
+    if (loading || !conversationId || !hasMore) return;
+
+    const sentinel = topSentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && !isLoadingMoreRef.current && hasMore) {
+          loadOlderMessages();
+        }
+      },
+      { root: containerRef.current, threshold: 0.1 }
+    );
+
+    observer.observe(sentinel);
+
+    return () => observer.disconnect();
+  }, [loading, conversationId, hasMore, loadOlderMessages]);
 
   const handleSend = async () => {
     const trimmed = text.trim();
@@ -196,7 +312,15 @@ export default function Chat({ receiverId, conversationId }) {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+      <div ref={containerRef} className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+        <div ref={topSentinelRef} className="h-1" />
+
+        {loadingMore && (
+          <div className="flex justify-center py-2">
+            <p className="text-xs text-muted">Loading older messages...</p>
+          </div>
+        )}
+
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full">
             <p className="text-sm text-muted">
@@ -204,6 +328,7 @@ export default function Chat({ receiverId, conversationId }) {
             </p>
           </div>
         )}
+
         {messages.map((message) => {
           const isMe = message.sender?._id === authUser?._id;
           return (
@@ -230,7 +355,8 @@ export default function Chat({ receiverId, conversationId }) {
             </div>
           );
         })}
-        <div ref={messagesEndRef} />
+
+        <div ref={messagesEndRef} className="h-1" />
       </div>
 
       {error && messages.length > 0 && (
