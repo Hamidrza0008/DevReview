@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -14,7 +14,12 @@ import {
   Share2,
   ThumbsUp,
   GraduationCap,
+  Heart,
+  FolderOpen,
+  MessageCircle,
+  AlertCircle,
 } from "lucide-react";
+import { getStats } from "@/services/statsApi";
 import SupportModal from "./SupportModal";
 
 const containerVariants = {
@@ -79,6 +84,25 @@ const ACCENT_STYLES = {
   },
 };
 
+const STAT_ITEMS = [
+  { key: "developers", label: "Developers", icon: Users, accent: "accent" },
+  { key: "projects", label: "Projects", icon: FolderOpen, accent: "info" },
+  { key: "reviews", label: "Reviews", icon: MessageCircle, accent: "star" },
+  { key: "likes", label: "Likes", icon: Heart, accent: "like" },
+];
+
+const STAT_ACCENT_STYLES = {
+  accent: "bg-accent-soft border-accent/20 text-accent",
+  info: "bg-info/10 border-info/20 text-info",
+  star: "bg-star/10 border-star/20 text-star",
+  like: "bg-like/10 border-like/20 text-like",
+};
+
+function formatNumber(num) {
+  if (num === null || num === undefined) return "0";
+  return num.toLocaleString("en-US");
+}
+
 function FeatureCard({ icon: Icon, title, description, accent }) {
   const styles = ACCENT_STYLES[accent];
   return (
@@ -100,6 +124,28 @@ function FeatureCard({ icon: Icon, title, description, accent }) {
         {title}
       </h3>
       <p className="relative z-10 text-sm text-muted leading-relaxed">{description}</p>
+    </motion.div>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, accent, loading }) {
+  const accentStyle = STAT_ACCENT_STYLES[accent];
+  return (
+    <motion.div
+      variants={itemVariants}
+      className="flex items-center gap-3 sm:gap-4 bg-surface border border-line rounded-2xl p-4 sm:p-5"
+    >
+      <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center border shrink-0 ${accentStyle}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <div className="min-w-0">
+        {loading ? (
+          <div className="h-7 w-16 bg-surface-2 rounded animate-pulse" />
+        ) : (
+          <p className="text-xl sm:text-2xl font-black tracking-tight text-ink">{formatNumber(value)}</p>
+        )}
+        <p className="text-xs font-semibold text-muted mt-0.5">{label}</p>
+      </div>
     </motion.div>
   );
 }
@@ -136,6 +182,32 @@ export default function Community() {
   const router = useRouter();
   const { user } = useAuth();
   const [supportOpen, setSupportOpen] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState(null);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const res = await getStats();
+        if (res?.success) {
+          setStats({
+            developers: res.developers ?? 0,
+            projects: res.projects ?? 0,
+            reviews: res.reviews ?? 0,
+            likes: res.likes ?? 0,
+          });
+        } else {
+          setStatsError("Failed to load community statistics.");
+        }
+      } catch {
+        setStatsError("Failed to load community statistics.");
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+    loadStats();
+  }, []);
 
   return (
     <div className="h-[calc(100dvh-3.5rem)] md:h-dvh w-full bg-page text-ink font-sans antialiased relative overflow-hidden selection:bg-accent/20 selection:text-accent flex flex-col">
@@ -222,6 +294,62 @@ export default function Community() {
               <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Find Developers
             </motion.button>
           </div>
+        </motion.section>
+
+        {/* ---- COMMUNITY STATISTICS ---- */}
+        <motion.section
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="shrink-0"
+        >
+          {statsError && !stats ? (
+            <div className="flex flex-col items-center gap-3 py-6">
+              <AlertCircle className="w-6 h-6 text-danger" />
+              <p className="text-sm text-danger font-medium">{statsError}</p>
+              <button
+                onClick={() => {
+                  setStatsLoading(true);
+                  setStatsError(null);
+                  (async () => {
+                    try {
+                      const res = await getStats();
+                      if (res?.success) {
+                        setStats({
+                          developers: res.developers ?? 0,
+                          projects: res.projects ?? 0,
+                          reviews: res.reviews ?? 0,
+                          likes: res.likes ?? 0,
+                        });
+                      } else {
+                        setStatsError("Failed to load community statistics.");
+                      }
+                    } catch {
+                      setStatsError("Failed to load community statistics.");
+                    } finally {
+                      setStatsLoading(false);
+                    }
+                  })();
+                }}
+                className="px-4 py-2 bg-accent text-accent-ink text-xs font-bold rounded-xl hover:brightness-110 transition-all cursor-pointer"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {STAT_ITEMS.map((stat) => (
+                <StatCard
+                  key={stat.key}
+                  icon={stat.icon}
+                  label={stat.label}
+                  value={stats?.[stat.key]}
+                  accent={stat.accent}
+                  loading={statsLoading}
+                />
+              ))}
+            </div>
+          )}
         </motion.section>
 
         {/* ---- FEATURE CARDS ---- */}
