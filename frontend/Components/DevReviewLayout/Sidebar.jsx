@@ -20,6 +20,7 @@ import {
   Bell,
   PanelLeftClose,
   PanelLeftOpen,
+  Trophy,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
@@ -34,6 +35,7 @@ const menuItems = [
   { name: "Explore Projects", icon: Compass, path: "/projects/explore" },
   { name: "Users", icon: Users, path: "/users/explore" },
   { name: "My Projects", icon: FolderGit2, path: "/projects/my" },
+  { name: "Leaderboard", icon: Trophy, path: "/leaderboard" },
   { name: "Messages", icon: MessageCircle, path: "/messages" },
   { name: "Reviews Received", icon: MessageSquare, path: "/review" },
   { name: "Notifications", icon: Bell, path: "/notifications" },
@@ -71,6 +73,8 @@ function isMenuActive(item, pathname) {
       return pathname.startsWith("/community");
     case "Notifications":
       return pathname.startsWith("/notifications");
+    case "Leaderboard":
+      return pathname.startsWith("/leaderboard");
     default:
       return pathname === item.path;
   }
