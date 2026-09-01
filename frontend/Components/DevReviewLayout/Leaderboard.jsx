@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -11,44 +11,10 @@ import {
   ArrowUpRight,
   Sparkles,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-
-const MOCK_LEADERBOARD = [
-  { rank: 1, _id: "u1", name: "Rahul Sharma", username: "rahul", profileImage: "", score: 950, projectPoints: 320, reviewPoints: 280, likePoints: 250, followerPoints: 100 },
-  { rank: 2, _id: "u2", name: "Aman Verma", username: "aman", profileImage: "", score: 820, projectPoints: 280, reviewPoints: 240, likePoints: 200, followerPoints: 100 },
-  { rank: 3, _id: "u3", name: "Hamid Raza", username: "hamid", profileImage: "", score: 760, projectPoints: 260, reviewPoints: 200, likePoints: 200, followerPoints: 100 },
-  { rank: 4, _id: "u4", name: "Ankit Sharma", username: "ankit", profileImage: "", score: 720, projectPoints: 240, reviewPoints: 220, likePoints: 180, followerPoints: 80 },
-  { rank: 5, _id: "u5", name: "Priya Singh", username: "priya", profileImage: "", score: 680, projectPoints: 220, reviewPoints: 200, likePoints: 180, followerPoints: 80 },
-  { rank: 6, _id: "u6", name: "Arjun Kumar", username: "arjun", profileImage: "", score: 640, projectPoints: 200, reviewPoints: 180, likePoints: 180, followerPoints: 80 },
-  { rank: 7, _id: "u7", name: "Rohit Verma", username: "rohit", profileImage: "", score: 610, projectPoints: 200, reviewPoints: 160, likePoints: 170, followerPoints: 80 },
-  { rank: 8, _id: "u8", name: "Neha Gupta", username: "neha", profileImage: "", score: 590, projectPoints: 180, reviewPoints: 180, likePoints: 160, followerPoints: 70 },
-  { rank: 9, _id: "u9", name: "Vikram Patel", username: "vikram", profileImage: "", score: 560, projectPoints: 180, reviewPoints: 160, likePoints: 150, followerPoints: 70 },
-  { rank: 10, _id: "u10", name: "Sneha Reddy", username: "sneha", profileImage: "", score: 530, projectPoints: 160, reviewPoints: 150, likePoints: 150, followerPoints: 70 },
-  { rank: 11, _id: "u11", name: "Karan Mehta", username: "karan", profileImage: "", score: 510, projectPoints: 160, reviewPoints: 140, likePoints: 140, followerPoints: 70 },
-  { rank: 12, _id: "u12", name: "Ishita Jain", username: "ishita", profileImage: "", score: 490, projectPoints: 150, reviewPoints: 140, likePoints: 140, followerPoints: 60 },
-  { rank: 13, _id: "u13", name: "Aditya Nair", username: "aditya", profileImage: "", score: 470, projectPoints: 140, reviewPoints: 130, likePoints: 140, followerPoints: 60 },
-  { rank: 14, _id: "u14", name: "Pooja Das", username: "pooja", profileImage: "", score: 450, projectPoints: 140, reviewPoints: 120, likePoints: 130, followerPoints: 60 },
-  { rank: 15, _id: "u15", name: "Sahil Khan", username: "sahil", profileImage: "", score: 430, projectPoints: 130, reviewPoints: 120, likePoints: 120, followerPoints: 60 },
-];
-
-const MOCK_MY_RANKING = {
-  rank: 27,
-  score: 485,
-  projectPoints: 100,
-  reviewPoints: 150,
-  likePoints: 200,
-  followerPoints: 35,
-};
-
-function getInitials(name) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
+import { getLeaderboard, getMyRanking } from "@/services/leaderboardApi";
 
 function getAvatarUrl(profileImage, name) {
   if (profileImage) return profileImage;
@@ -74,21 +40,24 @@ const heroTextVariants = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } },
 };
 
-function PodiumCard({ developer, position, isCurrentUser }) {
+function PodiumCard({ developer, position }) {
   const isFirst = position === 1;
-  const medal = position === 1 ? Crown : position === 2 ? Medal : Medal;
+  const medal = position === 1 ? Crown : Medal;
   const medalColor = position === 1 ? "text-star" : position === 2 ? "text-muted" : "text-star/70";
   const medalLabel = position === 1 ? "1st" : position === 2 ? "2nd" : "3rd";
-  const borderClass = position === 1 ? "border-star/30 shadow-star/10" : position === 2 ? "border-line shadow-2xs" : "border-line shadow-2xs";
+  const borderClass = position === 1 ? "border-star/30 shadow-star/10" : "border-line shadow-2xs";
   const sizeClass = isFirst
     ? "w-28 h-28 sm:w-32 sm:h-32 lg:w-36 lg:h-36"
     : "w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28";
   const nameSize = isFirst ? "text-sm sm:text-base lg:text-lg" : "text-xs sm:text-sm";
   const scoreSize = isFirst ? "text-lg sm:text-xl" : "text-sm sm:text-base";
-  const Wrapper = isFirst ? "div" : "div";
+
+  const userName = developer.user?.name || "Unknown";
+  const userUsername = developer.user?.username || "unknown";
+  const userProfileImage = developer.user?.profileImage || "";
 
   return (
-    <Wrapper className={`flex flex-col items-center ${isFirst ? "order-2 -mt-4 sm:-mt-6 lg:-mt-8" : position === 2 ? "order-1" : "order-3"}`}>
+    <div className={`flex flex-col items-center ${isFirst ? "order-2 -mt-4 sm:-mt-6 lg:-mt-8" : position === 2 ? "order-1" : "order-3"}`}>
       <motion.div
         variants={itemVariants}
         whileHover={{ y: -6 }}
@@ -99,8 +68,8 @@ function PodiumCard({ developer, position, isCurrentUser }) {
 
         <div className={`relative ${sizeClass} rounded-full overflow-hidden border-4 ${borderClass} transition-all duration-300 ${isFirst ? "ring-4 ring-star/20" : ""}`}>
           <Image
-            src={getAvatarUrl(developer.profileImage, developer.name)}
-            alt={`${developer.name}'s avatar`}
+            src={getAvatarUrl(userProfileImage, userName)}
+            alt={`${userName}'s avatar`}
             fill
             sizes="144px"
             className="object-cover"
@@ -110,9 +79,7 @@ function PodiumCard({ developer, position, isCurrentUser }) {
         <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-extrabold tracking-wide uppercase ${
           position === 1
             ? "bg-linear-to-r from-star to-amber-400 text-white shadow-lg shadow-star/30"
-            : position === 2
-              ? "bg-surface-2 text-ink border border-line"
-              : "bg-surface-2 text-ink border border-line"
+            : "bg-surface-2 text-ink border border-line"
         }`}>
           {React.createElement(medal, { className: `w-3 h-3 ${medalColor}` })}
           {medalLabel}
@@ -120,15 +87,19 @@ function PodiumCard({ developer, position, isCurrentUser }) {
       </motion.div>
 
       <motion.div variants={itemVariants} className="text-center mt-4 sm:mt-5">
-        <p className={`${nameSize} font-bold text-ink tracking-tight`}>{developer.name}</p>
-        <p className="text-xs text-muted font-medium">@{developer.username}</p>
+        <p className={`${nameSize} font-bold text-ink tracking-tight`}>{userName}</p>
+        <p className="text-xs text-muted font-medium">@{userUsername}</p>
         <p className={`${scoreSize} font-extrabold text-accent mt-1 tabular-nums`}>{developer.score} pts</p>
       </motion.div>
-    </Wrapper>
+    </div>
   );
 }
 
-function LeaderboardRow({ developer, index }) {
+function LeaderboardRow({ developer }) {
+  const userName = developer.user?.name || "Unknown";
+  const userUsername = developer.user?.username || "unknown";
+  const userProfileImage = developer.user?.profileImage || "";
+
   return (
     <motion.div
       variants={itemVariants}
@@ -142,8 +113,8 @@ function LeaderboardRow({ developer, index }) {
       <div className="relative shrink-0">
         <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-surface shadow-sm">
           <Image
-            src={getAvatarUrl(developer.profileImage, developer.name)}
-            alt={`${developer.name}'s avatar`}
+            src={getAvatarUrl(userProfileImage, userName)}
+            alt={`${userName}'s avatar`}
             width={40}
             height={40}
             className="w-full h-full object-cover"
@@ -152,8 +123,8 @@ function LeaderboardRow({ developer, index }) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-ink truncate">{developer.name}</p>
-        <p className="text-[11px] text-muted font-medium truncate">@{developer.username}</p>
+        <p className="text-sm font-semibold text-ink truncate">{userName}</p>
+        <p className="text-[11px] text-muted font-medium truncate">@{userUsername}</p>
       </div>
 
       <div className="text-right shrink-0">
@@ -209,10 +180,142 @@ function MyRankingCard({ ranking }) {
   );
 }
 
+function LoadingSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="flex items-center gap-4 px-5 py-3.5">
+          <div className="w-8 h-4 bg-surface-2 rounded animate-pulse" />
+          <div className="w-10 h-10 rounded-full bg-surface-2 animate-pulse" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 bg-surface-2 rounded w-32 animate-pulse" />
+            <div className="h-3 bg-surface-2 rounded w-20 animate-pulse" />
+          </div>
+          <div className="h-4 bg-surface-2 rounded w-12 animate-pulse" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PodiumSkeleton() {
+  return (
+    <div className="flex items-end justify-center gap-6 lg:gap-10">
+      <div className="flex flex-col items-center">
+        <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-full bg-surface-2 animate-pulse" />
+        <div className="mt-4 space-y-2 text-center">
+          <div className="h-4 bg-surface-2 rounded w-20 mx-auto animate-pulse" />
+          <div className="h-3 bg-surface-2 rounded w-16 mx-auto animate-pulse" />
+        </div>
+      </div>
+      <div className="flex flex-col items-center -mt-6">
+        <div className="w-32 h-32 lg:w-36 lg:h-36 rounded-full bg-surface-2 animate-pulse" />
+        <div className="mt-4 space-y-2 text-center">
+          <div className="h-5 bg-surface-2 rounded w-24 mx-auto animate-pulse" />
+          <div className="h-3 bg-surface-2 rounded w-20 mx-auto animate-pulse" />
+        </div>
+      </div>
+      <div className="flex flex-col items-center">
+        <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-full bg-surface-2 animate-pulse" />
+        <div className="mt-4 space-y-2 text-center">
+          <div className="h-4 bg-surface-2 rounded w-20 mx-auto animate-pulse" />
+          <div className="h-3 bg-surface-2 rounded w-16 mx-auto animate-pulse" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="text-center py-16">
+      <div className="w-16 h-16 bg-surface-2 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <Trophy className="w-8 h-8 text-muted" />
+      </div>
+      <h3 className="text-lg font-bold text-ink mb-2">No rankings yet</h3>
+      <p className="text-sm text-muted max-w-md mx-auto leading-relaxed">
+        Be the first developer to start climbing the leaderboard.
+        Create projects, give reviews, and engage with the community.
+      </p>
+    </div>
+  );
+}
+
+function ErrorState({ onRetry }) {
+  return (
+    <div className="text-center py-16">
+      <div className="w-16 h-16 bg-danger/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <AlertCircle className="w-8 h-8 text-danger" />
+      </div>
+      <h3 className="text-lg font-bold text-ink mb-2">Unable to load leaderboard</h3>
+      <p className="text-sm text-muted max-w-md mx-auto leading-relaxed mb-6">
+        Something went wrong while fetching the leaderboard data.
+        Please try again.
+      </p>
+      <button
+        onClick={onRetry}
+        className="px-6 py-2.5 bg-accent text-accent-ink text-sm font-bold rounded-xl hover:brightness-110 transition-all active:scale-[0.98] cursor-pointer"
+      >
+        Try Again
+      </button>
+    </div>
+  );
+}
+
 export default function Leaderboard() {
   const { user } = useAuth();
-  const [leaderboardData] = useState(MOCK_LEADERBOARD);
-  const [myRanking] = useState(MOCK_MY_RANKING);
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [myRanking, setMyRanking] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [myRankingLoading, setMyRankingLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [myRankingError, setMyRankingError] = useState(false);
+
+  const fetchLeaderboard = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await getLeaderboard(1, 50);
+      if (res?.success && res.data) {
+        setLeaderboardData(res.data);
+      } else {
+        setError(res?.message || "Failed to load leaderboard");
+      }
+    } catch (err) {
+      setError("Failed to load leaderboard");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMyRanking = async () => {
+    if (!user) {
+      setMyRankingLoading(false);
+      return;
+    }
+    try {
+      setMyRankingLoading(true);
+      setMyRankingError(false);
+      const res = await getMyRanking();
+      if (res?.success && res.data) {
+        setMyRanking(res.data);
+      } else {
+        setMyRankingError(true);
+      }
+    } catch (err) {
+      setMyRankingError(true);
+    } finally {
+      setMyRankingLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, []);
+
+  useEffect(() => {
+    fetchMyRanking();
+  }, [user]);
 
   const topThree = useMemo(() => leaderboardData.slice(0, 3), [leaderboardData]);
   const restOfList = useMemo(() => leaderboardData.slice(3), [leaderboardData]);
@@ -308,15 +411,23 @@ export default function Leaderboard() {
           initial="hidden"
           animate="show"
         >
-          <motion.div variants={itemVariants} className="flex items-end justify-center gap-4 sm:gap-6 lg:gap-10 mb-8">
-            {topThree.map((dev) => (
-              <PodiumCard
-                key={dev._id}
-                developer={dev}
-                position={dev.rank}
-              />
-            ))}
-          </motion.div>
+          {loading ? (
+            <PodiumSkeleton />
+          ) : error ? (
+            <ErrorState onRetry={fetchLeaderboard} />
+          ) : topThree.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <motion.div variants={itemVariants} className="flex items-end justify-center gap-4 sm:gap-6 lg:gap-10 mb-8">
+              {topThree.map((dev) => (
+                <PodiumCard
+                  key={dev.user?._id || dev.rank}
+                  developer={dev}
+                  position={dev.rank}
+                />
+              ))}
+            </motion.div>
+          )}
         </motion.section>
 
         {/* Main Content: Leaderboard List + My Ranking */}
@@ -333,7 +444,9 @@ export default function Leaderboard() {
                 <Trophy className="w-4 h-4 text-accent" />
               </div>
               <h2 className="text-sm font-bold text-ink tracking-tight">All Developers</h2>
-              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-accent-soft text-accent">{leaderboardData.length}</span>
+              {!loading && !error && (
+                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-accent-soft text-accent">{leaderboardData.length}</span>
+              )}
             </motion.div>
 
             <motion.div variants={itemVariants} className="bg-surface border border-line rounded-2xl overflow-hidden shadow-2xs">
@@ -343,11 +456,21 @@ export default function Leaderboard() {
                 <span className="text-right">Score</span>
               </div>
 
-              <div className="divide-y divide-line">
-                {restOfList.map((dev, i) => (
-                  <LeaderboardRow key={dev._id} developer={dev} index={i} />
-                ))}
-              </div>
+              {loading ? (
+                <LoadingSkeleton />
+              ) : error ? (
+                <div className="py-12">
+                  <ErrorState onRetry={fetchLeaderboard} />
+                </div>
+              ) : restOfList.length === 0 ? (
+                <EmptyState />
+              ) : (
+                <div className="divide-y divide-line">
+                  {restOfList.map((dev) => (
+                    <LeaderboardRow key={dev.user?._id || dev.rank} developer={dev} />
+                  ))}
+                </div>
+              )}
             </motion.div>
           </motion.div>
 
@@ -358,7 +481,81 @@ export default function Leaderboard() {
             initial="hidden"
             animate="show"
           >
-            <MyRankingCard ranking={myRanking} />
+            {!user ? (
+              <motion.div
+                variants={itemVariants}
+                className="bg-surface border border-line rounded-2xl p-5 sm:p-6 shadow-2xs"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-accent-soft border border-accent/20 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-accent" />
+                  </div>
+                  <h3 className="text-sm font-bold text-ink tracking-tight">Your Ranking</h3>
+                </div>
+                <div className="text-center py-6">
+                  <p className="text-sm text-muted mb-4">Sign in to see your ranking on the leaderboard.</p>
+                  <a
+                    href="/auth/login"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-accent-ink text-sm font-bold rounded-xl hover:brightness-110 transition-all active:scale-[0.98]"
+                  >
+                    Sign In
+                    <ArrowUpRight className="w-4 h-4" />
+                  </a>
+                </div>
+              </motion.div>
+            ) : myRankingLoading ? (
+              <motion.div
+                variants={itemVariants}
+                className="bg-surface border border-line rounded-2xl p-5 sm:p-6 shadow-2xs"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-accent-soft border border-accent/20 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-accent" />
+                  </div>
+                  <h3 className="text-sm font-bold text-ink tracking-tight">Your Ranking</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-surface-2 animate-pulse" />
+                    <div className="space-y-2">
+                      <div className="h-7 bg-surface-2 rounded w-24 animate-pulse" />
+                      <div className="h-3 bg-surface-2 rounded w-32 animate-pulse" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="bg-page rounded-xl p-3 border border-line">
+                        <div className="h-3 bg-surface-2 rounded w-12 mb-1 animate-pulse" />
+                        <div className="h-4 bg-surface-2 rounded w-8 animate-pulse" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ) : myRankingError ? (
+              <motion.div
+                variants={itemVariants}
+                className="bg-surface border border-line rounded-2xl p-5 sm:p-6 shadow-2xs"
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-accent-soft border border-accent/20 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-accent" />
+                  </div>
+                  <h3 className="text-sm font-bold text-ink tracking-tight">Your Ranking</h3>
+                </div>
+                <div className="text-center py-4">
+                  <p className="text-sm text-muted mb-3">Unable to load your ranking.</p>
+                  <button
+                    onClick={fetchMyRanking}
+                    className="text-sm text-accent font-bold hover:underline cursor-pointer"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </motion.div>
+            ) : myRanking ? (
+              <MyRankingCard ranking={myRanking} />
+            ) : null}
           </motion.div>
         </div>
       </div>
