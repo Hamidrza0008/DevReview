@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
 const generateToken = require("../utils/generateToken");
 const { OAuth2Client } = require("google-auth-library");
+const { ensureLeaderboard, addRankingPoints } = require("../services/rankingService");
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -47,6 +48,8 @@ const signUp = async (req, res) => {
                 message: "User registration failed"
             })
         }
+
+        await ensureLeaderboard(user._id);
 
         const otp = crypto.randomInt(100000, 999999).toString();
         const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
@@ -228,6 +231,8 @@ const googleAuth = async (req, res) => {
                 profileImage: picture || "",
                 isVerified: true,
             });
+
+            await ensureLeaderboard(user._id);
         } else if (!user.googleId) {
             user.googleId = googleId;
             if (!user.profileImage && picture) user.profileImage = picture;
@@ -431,11 +436,25 @@ const updateMe = async (req, res) => {
             updates.skills = [];
         }
 
+        const currentUser = await Users.findById(userId).select("bio skills githubUrl portfolioUrl");
+
         const updateUser = await Users.findByIdAndUpdate(
             userId,
             { $set: updates },
             { new: true, runValidators: true }
         ).select("-password");
+
+        if (!currentUser.bio && updates.bio) {
+            await addRankingPoints(userId, "PROFILE_COMPLETED");
+        }
+
+        if (!currentUser.githubUrl && updates.githubUrl) {
+            await addRankingPoints(userId, "GITHUB_ADDED");
+        }
+
+        if (!currentUser.portfolioUrl && updates.portfolioUrl) {
+            await addRankingPoints(userId, "LIVE_DEMO_ADDED");
+        }
 
         return res.status(200).json({
             message: "User Updated Successfully",

@@ -3,6 +3,7 @@ const Projects = require("../models/Projects");
 const mongoose = require("mongoose");
 const Notification = require("../models/Notification");
 const Users = require("../models/Users");
+const { addRankingPoints } = require("../services/rankingService");
 
 const addReviews = async (req, res) => {
     try {
@@ -57,6 +58,9 @@ const addReviews = async (req, res) => {
             rating,
             review
         })
+
+        await addRankingPoints(userId, "GIVE_REVIEW");
+        await addRankingPoints(project.owner, "RECEIVE_REVIEW");
         
         const projectOwner = await Users.findById(project.owner).select("notificationPreferences");
         if (projectOwner?.notificationPreferences?.reviewAlerts !== false) {

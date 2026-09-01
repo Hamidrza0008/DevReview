@@ -4,6 +4,7 @@ const Reviews = require("../models/Review");
 const Users = require("../models/Users")
 const mongoose = require("mongoose");
 const { calculateAverageRating, getReviewStats } = require("../utils/calculateRating");
+const { addRankingPoints } = require("../services/rankingService");
 
 
 
@@ -30,6 +31,8 @@ const createProjects = async (req, res) => {
 
             owner: userId,
         })
+
+        await addRankingPoints(userId, "CREATE_PROJECT");
 
         return res.status(200).json({
             success: true,
@@ -368,6 +371,8 @@ const toggleLikes = async (req, res) => {
         }
         else {
             project.likes.push(userId);
+
+            await addRankingPoints(project.owner, "RECEIVE_PROJECT_LIKE");
 
             await Notification.create({
                 recipient:project.owner,

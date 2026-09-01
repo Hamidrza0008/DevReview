@@ -2,6 +2,7 @@ const Users = require("../models/Users");
 const Projects = require("../models/Projects");
 const Review = require("../models/Review");
 const Notification = require("../models/Notification");
+const { addRankingPoints } = require("../services/rankingService");
 
 const getUserProfile = async (req, res) => {
     try {
@@ -99,6 +100,9 @@ const toggleFollow = async (req, res) => {
         } else {
             targetUser.followers.push(currentUserId);
             currentUser.following.push(targetUser._id);
+
+            await addRankingPoints(targetUser._id, "RECEIVE_FOLLOWER");
+
             await Notification.create({
                 recipient:targetUser._id,
                 sender:currentUserId,
