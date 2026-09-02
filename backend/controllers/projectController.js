@@ -128,6 +128,11 @@ const getProjectById = async (req, res) => {
 
         const isLiked = project.likes.some((id) => id.toString() === userId);
 
+        const currentUser = await Users.findById(userId).select("savedProjects");
+        const isSaved = (currentUser?.savedProjects || []).some(
+            (savedId) => savedId.toString() === id
+        );
+
         const reviews = await Reviews.find({ project: id });
         const stats = getReviewStats(reviews);
 
@@ -135,6 +140,7 @@ const getProjectById = async (req, res) => {
         return res.status(200).json({
             success: true,
             isLiked,
+            isSaved,
             likesCount: project.likes.length,
             project,
             averageRating: stats.averageRating,

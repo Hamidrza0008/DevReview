@@ -12,7 +12,7 @@ router.get("/my", authMiddleware, getMyProjects);
 router.get("/explore", authMiddleware, getExploreProjects);
 router.get("/my-reviews", authMiddleware, getCurrentUserReview);
 
-
+router.get("/saved/me", authMiddleware, getSavedProjects);
 
 router.get("/:id/edit", authMiddleware, getProjectForEdit);
 
@@ -21,9 +21,6 @@ router.put("/:id/edit", authMiddleware, updateProject);
 router.get("/:id", authMiddleware, getProjectById);
 
 router.post("/:projectId/save", authMiddleware, toggleSaveProject);
-
-router.get("/saved/me", authMiddleware, getSavedProjects);
-
 
 router.post("/:id/review", authMiddleware, addReviews);
 router.put("/:id/review", authMiddleware, editReview);

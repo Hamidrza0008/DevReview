@@ -121,6 +121,7 @@ export default function SingleProject() {
           if (projectRes?.project) {
             setProject(projectRes.project);
             setLiked(projectRes.isLiked);
+            setBookmarked(projectRes.isSaved || false);
             setLikesCount(projectRes.likesCount || 0);
           } else {
             setError("Blueprint not found.");
