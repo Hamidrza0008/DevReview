@@ -12,6 +12,7 @@ router.get("/my", authMiddleware, getMyProjects);
 router.get("/explore", authMiddleware, getExploreProjects);
 router.get("/my-reviews", authMiddleware, getCurrentUserReview);
 
+// NOTE: Specific routes (/saved/me, /my, /explore) MUST remain before /:id to prevent Express route shadowing
 router.get("/saved/me", authMiddleware, getSavedProjects);
 
 router.get("/:id/edit", authMiddleware, getProjectForEdit);

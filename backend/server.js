@@ -47,7 +47,7 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/user/projects", userProjectRoute);
 app.use("/api/upload", uploadRoute);
 
-app.use("/api" , notificationsRoute);
+app.use("/api", notificationsRoute);
 
 app.use("/api/support", supportRoutes);
 
@@ -58,4 +58,4 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 
 
-app.listen(PORT, () => {});
+app.listen(PORT, () => { });
