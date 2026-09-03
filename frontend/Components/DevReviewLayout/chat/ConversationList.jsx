@@ -4,6 +4,7 @@ import { getConversationsApi } from "@/services/conversationsApis";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { MessageSquare } from "lucide-react";
 
 export default function ConversationList() {
   const router = useRouter();
@@ -108,8 +109,19 @@ export default function ConversationList() {
         )}
 
         {loaded && !error && list.length === 0 && (
-          <div className="p-8 text-center">
-            <p className="text-sm text-muted">No conversations yet.</p>
+          <div className="p-8 text-center flex flex-col items-center justify-center h-64">
+            <div className="w-12 h-12 rounded-2xl bg-surface-2 border border-line flex items-center justify-center text-muted mb-3 shadow-xs">
+              <MessageSquare className="w-5 h-5 opacity-70 text-accent" />
+            </div>
+            <p className="text-sm font-bold text-ink mb-1">No conversations yet</p>
+            <p className="text-xs text-muted max-w-[210px] mb-4 leading-relaxed">Connect and message developers directly from their profiles.</p>
+            <button
+              type="button"
+              onClick={() => router.push("/users/explore")}
+              className="text-xs font-bold text-accent hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              Explore Developers →
+            </button>
           </div>
         )}
 

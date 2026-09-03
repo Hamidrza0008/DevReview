@@ -1,4 +1,3 @@
-
 export const addReviews = async (id, reviewRating, reviewComment) => {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}/review`, {
@@ -11,17 +10,16 @@ export const addReviews = async (id, reviewRating, reviewComment) => {
                 rating: reviewRating,
                 review: reviewComment,
             })
-        })
+        });
 
-        return await response.json()
+        return await response.json();
     } catch (error) {
-        console.log(error);
         return {
             success: false,
-            message: "Something went wrong"
+            message: error.message || "Something went wrong"
         };
     }
-}
+};
 
 export const getReviews = async (id) => {
     try {
@@ -31,29 +29,27 @@ export const getReviews = async (id) => {
         });
         return await response.json();
     } catch (error) {
-        console.log(error);
         return {
             success: false,
-            message: "Something went wrong"
+            message: error.message || "Something went wrong"
         };
     }
-}
+};
 
 export const deleteReview = async (id) => {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}/review`, {
             method: "DELETE",
             credentials: "include",
-        })
+        });
         return await response.json();
     } catch (error) {
-        console.log(error);
         return {
             success: false,
-            message: "Something went wrong"
+            message: error.message || "Something went wrong"
         };
     }
-}
+};
 
 export const editReview = async (id, reviewRating, reviewComment) => {
     try {
@@ -64,30 +60,29 @@ export const editReview = async (id, reviewRating, reviewComment) => {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ reviewRating, reviewComment })
-        })
+        });
 
-        return await response.json()
+        return await response.json();
     } catch (error) {
-        console.log(error);
         return {
             success: false,
-            message: "Something went wrong"
+            message: error.message || "Something went wrong"
         };
     }
-}
+};
 
 export const getMyReviews = async () => {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/my-reviews`, {
             method: "GET",
             credentials: "include"
-        })
+        });
 
-        return await response.json()
+        return await response.json();
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message || "Something went wrong" };
     }
-} 
+};
 
 export const getUnreadReviewCountApi = async () => {
     try {
@@ -97,7 +92,7 @@ export const getUnreadReviewCountApi = async () => {
         });
         return await response.json();
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message || "Something went wrong" };
     }
 };
 
@@ -109,6 +104,6 @@ export const markReviewAsReadApi = async (reviewId) => {
         });
         return await response.json();
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message || "Something went wrong" };
     }
 };

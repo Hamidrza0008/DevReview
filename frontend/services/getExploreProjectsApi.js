@@ -8,13 +8,9 @@ export const getExploreProjects = async () => {
             }
         );
 
-        console.log("Status:", response.status);
-
         const data = await response.json();
-        console.log(data);
-
         return data;
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message };
     }
 };

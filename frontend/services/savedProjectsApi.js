@@ -10,7 +10,7 @@ export const toggleSaveProject = async (projectId) => {
 
         return await response.json();
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message };
     }
 };
 
@@ -26,6 +26,6 @@ export const getSavedProjects = async () => {
 
         return await response.json();
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message };
     }
 };

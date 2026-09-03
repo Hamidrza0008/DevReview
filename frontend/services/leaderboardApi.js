@@ -9,8 +9,7 @@ export const getLeaderboard = async (page = 1, limit = 20) => {
         );
         return await response.json();
     } catch (error) {
-        console.log(error);
-        return { success: false, message: "Failed to fetch leaderboard" };
+        return { success: false, message: error.message || "Failed to fetch leaderboard" };
     }
 };
 
@@ -25,7 +24,6 @@ export const getMyRanking = async () => {
         );
         return await response.json();
     } catch (error) {
-        console.log(error);
-        return { success: false, message: "Failed to fetch your ranking" };
+        return { success: false, message: error.message || "Failed to fetch your ranking" };
     }
 };

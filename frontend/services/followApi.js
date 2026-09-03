@@ -7,6 +7,6 @@ export const toggleFollow = async (username) => {
 
         return await response.json();
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message };
     }
-}
+};

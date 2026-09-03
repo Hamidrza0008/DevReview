@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Send } from "lucide-react";
+import { Send, MessageSquare, Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import {
   sendMessageApi,
@@ -251,6 +251,28 @@ export default function Chat({ receiverId, conversationId }) {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  if (!conversationId && !receiverId) {
+    return (
+      <div className="flex flex-col h-full flex-1 min-w-0 items-center justify-center p-8 text-center bg-surface/40">
+        <div className="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent mb-4 shadow-xs">
+          <MessageSquare className="w-8 h-8" />
+        </div>
+        <h3 className="text-base font-bold text-ink mb-1">Your Messages</h3>
+        <p className="text-xs text-muted max-w-sm mb-6 leading-relaxed">
+          Select a conversation from the left to start chatting, or browse developer profiles to connect and collaborate.
+        </p>
+        <button
+          type="button"
+          onClick={() => router.push("/users/explore")}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-ink text-page rounded-xl text-xs font-bold hover:brightness-125 transition-all shadow-sm cursor-pointer"
+        >
+          <Users className="w-4 h-4" />
+          Explore Developers
+        </button>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex flex-col h-full flex-1 min-w-0">
@@ -326,6 +348,16 @@ export default function Chat({ receiverId, conversationId }) {
             <p className="text-sm text-muted">
               No messages yet. Say hello!
             </p>
+          </div>
+        )}
+
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-64 text-center p-6">
+            <div className="w-12 h-12 rounded-2xl bg-surface-2 border border-line flex items-center justify-center text-accent mb-3 shadow-xs">
+              <MessageSquare className="w-6 h-6 opacity-70" />
+            </div>
+            <p className="text-sm font-bold text-ink mb-1">Start a conversation</p>
+            <p className="text-xs text-muted max-w-xs">Send your first message to begin collaborating.</p>
           </div>
         )}
 

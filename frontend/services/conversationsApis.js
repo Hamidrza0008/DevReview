@@ -7,7 +7,7 @@ export const getConversationsApi = async () => {
 
         return await response.json();
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message };
     }
 };
 
@@ -24,7 +24,7 @@ export const sendMessageApi = async (receiverId, text) => {
 
         return await response.json();
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message };
     }
 };
 
@@ -43,7 +43,7 @@ export const getMessagesApi = async (conversationId, { limit = 20, before } = {}
 
         return await response.json();
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message };
     }
 };
 
@@ -56,7 +56,7 @@ export const getUserByIdApi = async (userId) => {
 
         return await response.json();
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message };
     }
 };
 
@@ -69,7 +69,7 @@ export const getUnreadCountApi = async () => {
 
         return await response.json();
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message };
     }
 };
 
@@ -82,6 +82,6 @@ export const markConversationAsReadApi = async (conversationId) => {
 
         return await response.json();
     } catch (error) {
-        console.log(error);
+        return { success: false, message: error.message };
     }
 };

@@ -13,7 +13,7 @@ const tabs = [
 ];
 
 export default function Settings() {
-  const { user, fetchUser } = useAuth();
+  const { user, fetchUser, loading } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
@@ -62,6 +62,10 @@ export default function Settings() {
     } else showMessage("error", res?.message || "Could not update password.");
     setSaving(false);
   };
+
+  if (loading || !user) {
+    return <SettingsSkeleton />;
+  }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 sm:p-8 bg-page min-h-screen text-ink">
@@ -121,3 +125,38 @@ function PreferenceToggle({ title, description, checked, onChange }) {
 function PasswordField({ label, value, onChange }) {
   return <label className="block text-xs font-bold text-muted uppercase tracking-wider">{label}<input type="password" value={value} onChange={(e) => onChange(e.target.value)} autoComplete="new-password" className="mt-2 w-full bg-page border border-line px-3 py-2.5 rounded-lg text-sm text-ink normal-case font-normal focus:outline-none focus:border-accent" /></label>;
 }
+
+function SettingsSkeleton() {
+  return (
+    <div className="p-4 sm:p-8 bg-page min-h-screen text-ink animate-pulse">
+      <div className="mb-8">
+        <div className="h-8 w-48 bg-line/60 rounded-lg mb-2" />
+        <div className="h-4 w-80 bg-line/40 rounded-md" />
+      </div>
+      <div className="bg-surface border border-line rounded-2xl max-w-4xl overflow-hidden grid grid-cols-1 md:grid-cols-4">
+        <div className="border-r border-line p-4 space-y-3 bg-page/50">
+          <div className="h-9 w-full bg-line/40 rounded-lg" />
+          <div className="h-9 w-full bg-line/30 rounded-lg" />
+          <div className="h-9 w-full bg-line/30 rounded-lg" />
+        </div>
+        <div className="p-6 md:col-span-3 space-y-6">
+          <div className="h-6 w-36 bg-line/50 rounded-md pb-3 border-b border-line" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="h-3 w-24 bg-line/40 rounded" />
+              <div className="h-10 w-full bg-page border border-line rounded-lg" />
+            </div>
+            <div className="space-y-2">
+              <div className="h-3 w-24 bg-line/40 rounded" />
+              <div className="h-10 w-full bg-page border border-line rounded-lg" />
+            </div>
+          </div>
+          <div className="pt-4 border-t border-line flex justify-end">
+            <div className="h-9 w-28 bg-line/50 rounded-lg" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

@@ -40,11 +40,13 @@ export default function CreateProjects() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (submitStatus) {
       const timer = setTimeout(() => {
         setSubmitStatus(null);
+        setErrorMessage("");
       }, 5000);
       return () => clearTimeout(timer);
     }
@@ -130,22 +132,28 @@ export default function CreateProjects() {
       description: formData.description.trim(),
       thumbnail: imageUrl || null,
       techStack: techStack,
-      GitBranchUrl: formData.GitBranchUrl.trim() || null,
+      githubUrl: formData.GitBranchUrl?.trim() || "",
+      GitBranchUrl: formData.GitBranchUrl?.trim() || "",
       liveUrl: formData.liveUrl.trim() || null,
     };
 
     try {
-      await createProject(projectPayload);
+      const response = await createProject(projectPayload);
+      if (response && response.success === false) {
+        setErrorMessage(response.message || "Failed to publish project.");
+        setSubmitStatus("error");
+        return;
+      }
+
       setSubmitStatus("success");
-      
       setFormData(INITIAL_FORM_DATA);
       setTechStack([]);
       setThumbnail(null);
       setPreview(""); 
-      router.push("/projects/explore")
+      setTimeout(() => router.push("/projects/explore"), 1000);
       
     } catch (error) {
-      console.error("Project creation failed:", error);
+      setErrorMessage(error.message || "Failed to publish project.");
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);
@@ -179,7 +187,7 @@ export default function CreateProjects() {
             className="absolute top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-danger/10 border border-danger/30 rounded-xl flex items-center gap-3 shadow-lg shadow-danger/10"
           >
             <AlertCircle className="w-5 h-5 text-danger" />
-            <span className="text-sm font-bold text-danger">Failed to publish project.</span>
+            <span className="text-sm font-bold text-danger">{errorMessage || "Failed to publish project."}</span>
           </motion.div>
         )}
       </AnimatePresence>
