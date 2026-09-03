@@ -24,11 +24,25 @@ export const getAllUsers = async() => {
 }
 
 export const getFollowers = async (username) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${username}/followers`);
-    return response.json();
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${username}/followers`, {
+            method: "GET",
+            credentials: "include",
+        });
+        return await response.json();
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
 };
 
 export const getFollowing = async (username) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${username}/following`);
-    return response.json();
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${username}/following`, {
+            method: "GET",
+            credentials: "include",
+        });
+        return await response.json();
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
 };

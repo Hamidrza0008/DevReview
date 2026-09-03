@@ -130,23 +130,30 @@ const getProjectById = async (req, res) => {
 
         const currentUser = await Users.findById(userId).select("savedProjects");
         const isSaved = (currentUser?.savedProjects || []).some(
-            (savedId) => savedId.toString() === id
+            (savedId) => savedId.toString() === id.toString()
         );
 
         const reviews = await Reviews.find({ project: id });
         const stats = getReviewStats(reviews);
 
+        const enrichedProject = {
+            ...project.toObject(),
+            isLiked,
+            isSaved,
+            likesCount: project.likes.length,
+            averageRating: stats.averageRating,
+            reviewsCount: stats.reviewsCount
+        };
 
         return res.status(200).json({
             success: true,
             isLiked,
             isSaved,
             likesCount: project.likes.length,
-            project,
+            project: enrichedProject,
             averageRating: stats.averageRating,
             reviewsCount: stats.reviewsCount
-
-        })
+        });
     } catch (error) {
 
         return res.status(500).json({
@@ -496,11 +503,13 @@ const toggleSaveProject = async (req, res) => {
 
         const user = await Users.findById(userId);
 
-        const alreadySaved = user.savedProjects.includes(projectId);
+        const alreadySaved = (user.savedProjects || []).some(
+            (id) => id.toString() === projectId.toString()
+        );
 
         if (alreadySaved) {
             user.savedProjects = user.savedProjects.filter(
-                (id) => id.toString() !== projectId
+                (id) => id.toString() !== projectId.toString()
             );
 
             await user.save();
