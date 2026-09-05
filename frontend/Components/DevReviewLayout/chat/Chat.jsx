@@ -12,7 +12,7 @@ import {
   markConversationAsReadApi,
 } from "@/services/conversationsApis";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 30;
 
 export default function Chat({ receiverId, conversationId }) {
   const router = useRouter();

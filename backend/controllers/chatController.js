@@ -185,7 +185,7 @@ const getMessages = async (req, res) => {
             });
         }
 
-        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 100);
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 30, 1), 50);
 
         const query = { conversationId };
         if (before) {
@@ -208,11 +208,14 @@ const getMessages = async (req, res) => {
 
         sliced.reverse();
 
+        const nextCursor = hasMore && sliced.length > 0 ? sliced[0]._id.toString() : null;
+
         return res.status(200).json({
             success: true,
             data: {
                 messages: sliced,
                 hasMore,
+                nextCursor,
             },
         });
     } catch (error) {

@@ -6,7 +6,7 @@ const getNotifications = async(req, res) => {
         const userId = req.user.id;
         const { limit: limitStr, before } = req.query;
 
-        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 100);
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 50);
 
         const query = { recipient: userId };
         if (before) {
@@ -28,10 +28,15 @@ const getNotifications = async(req, res) => {
         const hasMore = notifications.length > limit;
         if (hasMore) notifications.pop();
 
+        const nextCursor = hasMore && notifications.length > 0
+            ? notifications[notifications.length - 1]._id.toString()
+            : null;
+
         return res.status(200).json({
             success: true,
             notifications,
             hasMore,
+            nextCursor,
         })
 
 
