@@ -6,6 +6,7 @@ const sendEmail = require("../utils/sendEmail");
 const generateToken = require("../utils/generateToken");
 const { OAuth2Client } = require("google-auth-library");
 const { ensureLeaderboard, addRankingPoints } = require("../services/rankingService");
+const { validateEmail, validatePassword } = require("../utils/validate");
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -20,6 +21,15 @@ const signUp = async (req, res) => {
             password,
         } = req.body;
 
+        const emailError = validateEmail(email);
+        if (emailError) {
+            return res.status(400).json({ message: emailError });
+        }
+
+        const passwordError = validatePassword(password);
+        if (passwordError) {
+            return res.status(400).json({ message: passwordError });
+        }
 
         const existingUser = await Users.findOne({
             $or: [
@@ -127,6 +137,11 @@ const verifyOTP = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        const emailError = validateEmail(email);
+        if (emailError) {
+            return res.status(400).json({ message: emailError });
+        }
 
         const user = await Users.findOne({ email });
 
@@ -273,6 +288,11 @@ const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
 
+        const emailError = validateEmail(email);
+        if (emailError) {
+            return res.status(400).json({ message: emailError });
+        }
+
         const user = await Users.findOne({ email });
 
         if (!user) {
@@ -319,6 +339,16 @@ const resetPassword = async (req, res) => {
             otp,
             newpassword
         } = req.body;
+
+        const emailError = validateEmail(email);
+        if (emailError) {
+            return res.status(400).json({ message: emailError });
+        }
+
+        const passwordError = validatePassword(newpassword);
+        if (passwordError) {
+            return res.status(400).json({ message: passwordError });
+        }
 
         const otpRecord = await OTP.findOne({
             email,
@@ -471,8 +501,13 @@ const updateMe = async (req, res) => {
 const changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
-        if (!currentPassword || !newPassword || newPassword.length < 6) {
-            return res.status(400).json({ success: false, message: "Current password and a new password of at least 6 characters are required" });
+        if (!currentPassword) {
+            return res.status(400).json({ success: false, message: "Current password is required" });
+        }
+
+        const passwordError = validatePassword(newPassword);
+        if (passwordError) {
+            return res.status(400).json({ success: false, message: passwordError });
         }
 
         const user = await Users.findById(req.user.id).select("+password authProvider");

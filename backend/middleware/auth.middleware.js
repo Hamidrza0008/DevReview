@@ -11,7 +11,7 @@ const authMiddleware = (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ["HS256"] });
 
 
     req.user = decoded;
@@ -29,7 +29,7 @@ const optionalAuth = (req, res, next) => {
     const token = req.cookies?.token;
 
     if (token) {
-      req.user = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ["HS256"] });
     }
   } catch (error) {
     // invalid/expired token — treat the request as a guest
