@@ -1,991 +1,593 @@
-# DevReview — Full-Stack Audit Report
+# DevReview — Complete Technical Audit
 
-**Generated:** August 30, 2026  
-**Updated:** September 2, 2026 (Re-audit — all items verified against current codebase)  
-**Scope:** Complete project-wide audit (frontend + backend)  
+**Generated:** September 6, 2026  
+**Scope:** Full-stack audit (frontend + backend + database + security)  
 **Status:** AUDIT ONLY — no files modified
-
----
-
-## Table of Contents
-
-1. [Executive Summary](#1-executive-summary)
-2. [Feature Status Overview](#2-feature-status-overview)
-3. [Pages & Routes](#3-pages--routes)
-4. [Static/Mock Data Audit](#4-staticmock-data-audit)
-5. [API ↔ UI Audit](#5-api--ui-audit)
-6. [Interactive Elements Audit](#6-interactive-elements-audit)
-7. [Counts & Badges Audit](#7-counts--badges-audit)
-8. [Chat System Audit](#8-chat-system-audit)
-9. [Reviews System Audit](#9-reviews-system-audit)
-10. [Notifications Audit](#10-notifications-audit)
-11. [Authentication Audit](#11-authentication-audit)
-12. [Profiles Audit](#12-profiles-audit)
-13. [Projects Audit](#13-projects-audit)
-14. [Likes & Follows Audit](#14-likes--follows-audit)
-15. [Loading/Error/Empty States](#15-loadingerrorempty-states)
-16. [Database/Model Audit](#16-databasemodel-audit)
-17. [Security Audit](#17-security-audit)
-18. [Dead/Duplicate Code](#18-deadduplicate-code)
-19. [Already Complete Features](#19-already-complete-features)
-20. [Partially Complete Features](#20-partially-complete-features)
-21. [Must Become Dynamic](#21-must-become-dynamic)
-22. [Priority List](#22-priority-list)
-23. [Implementation Phases](#23-implementation-phases)
-24. [Before Testing Checklist](#24-before-testing-checklist)
-25. [Summary Statistics](#25-summary-statistics)
-26. [Changelog](#26-changelog)
 
 ---
 
 ## 1. Executive Summary
 
-DevReview is a developer-focused project showcase and peer-review platform built with **Next.js 16 (App Router)** on the frontend and **Express.js + MongoDB** on the backend. The application allows developers to create project profiles, receive code reviews with star ratings, follow other developers, save/bookmark projects, chat with each other, and receive notifications.
+DevReview is a developer-focused project showcase and peer-review platform built with **Next.js 16 (App Router)** on the frontend and **Express.js 5 + MongoDB (Mongoose 9)** on the backend. It allows developers to create project profiles, receive code reviews with star ratings, follow other developers, save/bookmark projects, chat with each other, and receive notifications.
 
-### Overall Health Score: **74/100** *(up from 72)*
+### Overall Health Score: **78/100**
 
 | Category | Score | Notes |
 |----------|-------|-------|
-| Core CRUD | 90% | All major create/read/update/delete flows work |
-| API ↔ UI Sync | 88% | Most API chains complete; `getProjectById` missing `isSaved` |
-| Auth System | 80% | JWT cookie auth works; some edge cases missing |
+| Core CRUD | 92% | All major flows functional end-to-end |
+| API ↔ UI Sync | 90% | Most chains verified; minor mismatches remain |
+| Auth System | 82% | JWT cookie auth works; privilege escalation bug exists |
 | Real-time Features | 40% | Chat is polling-based, no WebSocket |
-| Security | 70% | Basic auth in place; missing rate limiting, CSRF, helmet |
-| Error Handling | 75% | Frontend has good UX; backend inconsistent |
-| Dead Code | 15% | Some stale references in old audit report; codebase itself cleaner |
+| Security | 72% | Helmet + rate limiting added; critical gaps remain |
+| Error Handling | 74% | Frontend UX good; backend inconsistent |
+| Code Quality | 75% | Clean patterns; some large components, duplicated logic |
 
 ### Key Findings
-- **12** fully dynamic features working end-to-end
+
+- **22** fully dynamic features working end-to-end
 - **4** partially implemented features needing completion
-- **3** features still using static/mock data
-- **8** security concerns identified
-- **3** dead code locations found
-- **2** critical bugs found
-- **3** new issues discovered in this re-audit
+- **2** features with static/mock data
+- **3** critical security vulnerabilities
+- **6** high-severity issues
+- **9** items from previous audit verified as FIXED
+- **8** items from previous audit still present
 
 ---
 
-## 2. Feature Status Overview
+## 2. Project Architecture
 
-| Feature | Status | API Connected | Dynamic | Notes |
-|---------|--------|---------------|---------|-------|
-| User Registration (Email/OTP) | ✅ Complete | Yes | Yes | OTP via email, 5-min expiry |
-| Google OAuth Login | ✅ Complete | Yes | Yes | Auto-creates username from email |
-| Email Verification | ✅ Complete | Yes | Yes | OTP-based verification |
-| Forgot/Reset Password | ✅ Complete | Yes | Yes | OTP flow for password reset |
-| Profile View (Self) | ✅ Complete | Yes | Yes | Tabbed: Projects/Resume/Saved |
-| Profile View (Other) | ✅ Complete | Yes | Yes | Follow/unfollow, stats from API |
-| Profile Edit | ✅ Complete | Yes | Yes | Image upload, skills, bio, links |
-| Settings (Profile) | ✅ Complete | Yes | Yes | Username + portfolio URL |
-| Settings (Notifications) | ⚠️ Partial | Yes | Partial | Preferences saved but `weeklyDigest` has no consumer |
-| Settings (Security) | ✅ Complete | Yes | Yes | Password change for local accounts |
-| Project Creation | ✅ Complete | Yes | Yes | Tech stack tags, image via Cloudinary |
-| Project Edit | ✅ Complete | Yes | Yes | Ownership authorization enforced |
-| Project Delete | ✅ Complete | Yes | Yes | Owner-only, confirmation dialog |
-| Explore Projects | ✅ Complete | Yes | Yes | Search, category filter, stats |
-| My Projects | ✅ Complete | Yes | Yes | Full CRUD, score calculation |
-| Single Project View | ⚠️ Partial | Yes | Yes | Like works; bookmark state not hydrated from API |
-| Save/Bookmark | ✅ Complete | Yes | Yes | Toggle, saved list page |
-| Like/Unlike | ✅ Complete | Yes | Yes | Optimistic UI, API sync |
-| Follow/Unfollow | ✅ Complete | Yes | Yes | Creates notification |
-| Community Page | ⚠️ Partial | Partial | Partial | Stats dynamic; feature cards/hero static |
-| Reviews (Add/Edit/Delete) | ✅ Complete | Yes | Yes | Unique constraint, self-review blocked |
-| Reviews (Read/Unread) | ✅ Complete | Yes | Yes | isRead flag, badge count |
-| Notifications | ✅ Complete | Yes | Yes | Like/review/follow types |
-| Chat (Send/Receive) | ✅ Complete | Yes | Yes | Conversation aggregation |
-| Chat (Unread Count) | ✅ Complete | Yes | Yes | Global unread badge |
-| Support Requests | ✅ Complete | Yes | Yes | Form with validation |
-| Platform Stats | ✅ Complete | Yes | Yes | Users, projects, reviews counts |
-| Saved Projects Page | ⚠️ Partial | Yes | Yes | Route `GET /saved/me` shadowed by `GET /:id` |
-| Explore Users | ✅ Complete | Yes | Yes | All users with stats |
-| User Profile (by username) | ✅ Complete | Yes | Yes | Projects, reviews, activity |
-
----
-
-## 3. Pages & Routes
-
-### Frontend Routes (Next.js App Router)
-
-| Route | Component | Auth Required | API Calls |
-|-------|-----------|---------------|-----------|
-| `/dashboard` | `Dashboard.jsx` | Yes | `getMyProjects`, `getMyReviews` |
-| `/profile/my` | `MyProfile.jsx` | Yes | `getMyProjects`, `getSavedProjects`, `toggleLikes`, `toggleSaveProject`, `updateProfile` |
-| `/users/:username` | `UserProfile.jsx` | Yes | `getUserProfile`, `toggleFollow`, `getProjectsByUsername`, `getFollowers`, `getFollowing` |
-| `/projects/my` | `MyProjects.jsx` | Yes | `getMyProjects` |
-| `/projects/explore` | `ExploreProjects.jsx` | Yes | `getExploreProjects`, `getStats`, `toggleLikes`, `toggleSaveProject` |
-| `/projects/create` | `CreateProjects.jsx` | Yes | `createProject` |
-| `/projects/:id` | `Project.jsx` | Yes | `getProjectById`, `getReviews`, `addReviews`, `editReview`, `deleteReview`, `toggleLikes`, `toggleSaveProject`, `deleteProject` |
-| `/projects/:id/edit` | `EditProject.jsx` | Yes | `getProjectDetails`, `updateProject` |
-| `/projects/saved` | `SavedProjects.jsx` | Yes | `getSavedProjects`, `toggleSaveProject` |
-| `/review` | `ReviewsReceived.jsx` | Yes | `getMyReviews`, `markReviewAsRead` |
-| `/notifications` | `Notifications.jsx` | Yes | `getNotifications`, `markNotificationRead`, `markAllNotificationsRead` |
-| `/messages` | `Chat.jsx` + `ConversationList.jsx` | Yes | `getConversations`, `getMessages`, `sendMessage`, `getUnreadCount`, `markAsRead` |
-| `/settings` | `Settings.jsx` | Yes | `updateProfile`, `changePassword` |
-| `/users/explore` | `ExploreUsers.jsx` | Yes | `getAllUsers`, `toggleFollow` |
-| `/community` | `Community.jsx` | Yes | `supportRequestsApi` (SupportModal only) |
-
-### Backend Routes (Express)
-
-| Mount Point | Router File | Endpoints |
-|-------------|-------------|-----------|
-| `/api/auth` | `auth.routes.js` | `POST /signup`, `POST /verify-otp`, `POST /login`, `POST /google`, `POST /forgot-password`, `POST /reset-password`, `GET /me`, `PATCH /me`, `PATCH /me/password`, `POST /logout` |
-| `/api/users` | `user.routes.js` | `GET /:username`, `GET /`, `POST /:username/follow`, `GET /:username/followers`, `GET /:username/following` |
-| `/api/projects` | `projectRoutes.js` | `POST /`, `GET /my`, `GET /explore`, `GET /my-reviews`, `GET /:id/edit`, `PUT /:id/edit`, `GET /:id`, `POST /:projectId/save`, `GET /saved/me`, `POST /:id/review`, `PUT /:id/review`, `GET /:id/review`, `DELETE /:id/review`, `POST /:id/like`, `DELETE /:id` |
-| `/api/user/projects` | `userProject.routes.js` | `GET /:username` |
-| `/api/upload` | `upload.routes.js` | Image upload endpoint |
-| `/api` | `notifications.routes.js` | `GET /notifications`, `GET /notifications/unread-count`, `PATCH /notifications/read-all`, `PATCH /notifications/:id/read` |
-| `/api` | `reviews.routes.js` | `GET /reviews/unread-count`, `PATCH /reviews/:reviewId/read` |
-| `/api/support` | `support.routes.js` | `POST /` |
-| `/api/chat` | `chatRoutes.js` | `POST /send`, `GET /conversations`, `GET /messages/:conversationId`, `GET /unread-count`, `PATCH /messages/:conversationId/read`, `GET /user/:userId` |
-| `/api/stats` | `stats.routes.js` | `GET /` |
-
-### ⚠️ Route Ordering Bug
-
-`backend/routes/projectRoutes.js` line 21 defines `GET /:id` **before** line 25 defines `GET /saved/me`. Express matches top-to-bottom, so `GET /api/projects/saved/me` matches `/:id` first with `id = "saved"`. The `getProjectById` handler validates ObjectId and returns `400 "Invalid Project ID"`.
-
-**Fix:** Move `GET /saved/me` before `GET /:id`.
-
----
-
-## 4. Static/Mock Data Audit
-
-### Hardcoded Static Data Found
-
-| Location | Type | Value | Impact |
-|----------|------|-------|--------|
-| `ExploreProjects.jsx:29-40` | Category chips | `["All", "Full Stack", "Frontend", "Backend", "MERN", "React", "Next.js", "Node.js", "TypeScript", "Tailwind"]` | **Medium** — Filters work client-side against project techStack |
-| `ExploreProjects.jsx:589-595` | Badge logic | Data-driven: Trending (likes≥5 OR rating≥4.5), New (≤7 days) | ✅ **FIXED** — Now data-driven, no longer cyclic rotation |
-| `ExploreProjects.jsx:189-191` | Trending filter | `likes > 2 || averageRating >= 4.0` — but "Trending" is NOT in CATEGORIES array | **Low** — Dead code path, unreachable via UI |
-| `MyProjects.jsx:256` | Score formula | `Math.floor((likesCount*4)+(reviewsCount*3)+12)` | **Medium** — Hardcoded weights |
-| `Dashboard.jsx:413-421` | Community Rank sidebar | Static text "Give reviews and share projects to increase your visibility" | **Low** — Decorative, but shows static rank placeholder |
-| `Community.jsx:38-64` | Highlights + Feature cards | Hardcoded marketing copy | **Low** — Marketing page, acceptable |
-| `Dashboard.jsx:309` | Default thumbnail | `"https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80"` | **Low** — Unsplash fallback |
-| `Project.jsx:407-413` | Trending badge | `likesCount > 5` | **Medium** — Different threshold than ExploreProjects (≥5) |
-| `SupportModal.jsx:8-13` | Categories | `["Bug", "Feature", "Feedback", "Support"]` | **Low** — Acceptable for support form |
-
----
-
-## 5. API ↔ UI Audit
-
-### Complete API Chain Map
-
-#### Authentication Flow
-| Step | Frontend | Backend | Status |
-|------|----------|---------|--------|
-| 1. Sign Up | `signUp()` → `POST /api/auth/signup` | `signUp` → creates User + OTP, sends email | ✅ |
-| 2. Verify OTP | `verifyOTP()` → `POST /api/auth/verify-otp` | `verifyOTP` → sets isVerified=true | ✅ |
-| 3. Login | `login()` → `POST /api/auth/login` | `login` → sets HTTP-only cookie | ✅ |
-| 4. Google Auth | `googleAuth()` → `POST /api/auth/google` | `googleAuth` → verifyIdToken, auto-create user | ✅ |
-| 5. Get Current User | `getMe()` → `GET /api/auth/me` | `getMe` → returns user without password | ✅ |
-| 6. Logout | `logOutMe()` → `POST /api/auth/logout` | `logout` → clears cookie | ✅ |
-| 7. Forgot Password | `forgotPassword()` → `POST /api/auth/forgot-password` | `forgotPassword` → sends OTP email | ✅ |
-| 8. Reset Password | `resetPassword()` → `POST /api/auth/reset-password` | `resetPassword` → updates password | ✅ |
-| 9. Change Password | `changePassword()` → `PATCH /api/auth/me/password` | `changePassword` → verifies old, hashes new | ✅ |
-
-#### Project CRUD Flow
-| Step | Frontend | Backend | Status |
-|------|----------|---------|--------|
-| 1. Create | `createProject()` → `POST /api/projects` | `createProjects` → Projects.create | ✅ |
-| 2. Read All (My) | `getMyProjects()` → `GET /api/projects/my` | `getMyProjects` → finds by owner, enriches with reviews | ✅ |
-| 3. Read All (Explore) | `getExploreProjects()` → `GET /api/projects/explore` | `getExploreProjects` → all projects with owner populate, includes `isSaved` | ✅ |
-| 4. Read One | `getProjectById()` → `GET /api/projects/:id` | `getProjectById` → populates owner, computes avg rating | ⚠️ Missing `isSaved` |
-| 5. Get for Edit | `getProjectDetails()` → `GET /api/projects/:id/edit` | `getProjectForEdit` → ownership check | ✅ |
-| 6. Update | `updateProject()` → `PUT /api/projects/:id/edit` | `updateProject` → ownership check, partial update | ✅ |
-| 7. Delete | `deleteProject()` → `DELETE /api/projects/:id` | `deleteProject` → ownership check, deleteOne | ✅ |
-
-#### Like/Save Flow
-| Step | Frontend | Backend | Status |
-|------|----------|---------|--------|
-| 1. Toggle Like | `toggleLikes()` → `POST /api/projects/:id/like` | `toggleLikes` → adds/removes from likes[], creates Notification | ✅ |
-| 2. Toggle Save | `toggleSaveProject()` → `POST /api/projects/:projectId/save` | `toggleSaveProject` → adds/removes from user.savedProjects | ✅ |
-| 3. Get Saved | `getSavedProjects()` → `GET /api/projects/saved/me` | `getSavedProjects` → populates savedProjects with owner | ⚠️ Route shadowed by `/:id` |
-
-#### Review Flow
-| Step | Frontend | Backend | Status |
-|------|----------|---------|--------|
-| 1. Get Reviews | `getReviews()` → `GET /api/projects/:id/review` | `getReviews` → finds by project, populates user | ✅ |
-| 2. Add Review | `addReviews()` → `POST /api/projects/:id/review` | `addReviews` → self-review check, unique constraint, creates Notification (checks `reviewAlerts` preference) | ✅ |
-| 3. Edit Review | `editReview()` → `PUT /api/projects/:id/review` | `editReview` → sets isEdited=true | ✅ |
-| 4. Delete Review | `deleteReview()` → `DELETE /api/projects/:id/review` | `deleteReview` → ownership check | ✅ |
-| 5. Get My Reviews | `getMyReviews()` → `GET /api/projects/my-reviews` | `getCurrentUserReview` → received + given reviews with stats | ✅ |
-| 6. Unread Count | `getUnreadReviewCount()` → `GET /api/reviews/unread-count` | `getUnreadReviewCount` → counts isRead=false on owned projects | ✅ |
-| 7. Mark Read | `markReviewAsRead()` → `PATCH /api/reviews/:reviewId/read` | `markReviewAsRead` → ownership check, sets isRead=true | ✅ |
-
-#### Notification Flow
-| Step | Frontend | Backend | Status |
-|------|----------|---------|--------|
-| 1. Get All | `getNotifications()` → `GET /api/notifications` | `getNotifications` → finds by recipient, populates sender+project | ✅ |
-| 2. Mark One Read | `markNotificationRead()` → `PATCH /api/notifications/:id/read` | `markNotificationRead` → recipient check | ✅ |
-| 3. Mark All Read | `markAllNotificationsRead()` → `PATCH /api/notifications/read-all` | `markAllNotificationsRead` → bulk update | ✅ |
-| 4. Unread Count | `getUnreadNotificationCount()` → `GET /api/notifications/unread-count` | `getUnreadNotificationCount` → countDocuments | ✅ |
-
-#### Chat Flow
-| Step | Frontend | Backend | Status |
-|------|----------|---------|--------|
-| 1. Send Message | `sendMessage()` → `POST /api/chat/send` | `sendMessage` → creates/finds conversation, creates Message | ✅ |
-| 2. Get Conversations | `getConversations()` → `GET /api/chat/conversations` | `getConversations` → aggregation with unread counts | ✅ |
-| 3. Get Messages | `getMessages()` → `GET /api/chat/messages/:conversationId` | `getMessages` → participant check, sorted by date | ✅ |
-| 4. Unread Count | `getUnreadCount()` → `GET /api/chat/unread-count` | `getUnreadCount` → aggregation pipeline | ✅ |
-| 5. Mark Read | `markAsRead()` → `PATCH /api/chat/messages/:conversationId/read` | `markAsRead` → participant check, bulk update | ✅ |
-
-#### Settings Flow
-| Step | Frontend | Backend | Status |
-|------|----------|---------|--------|
-| 1. Update Profile | `updateProfile()` → `PATCH /api/auth/me` | `updateMe` → whitelist of allowed fields | ✅ |
-| 2. Change Password | `changePassword()` → `PATCH /api/auth/me/password` | `changePassword` → local auth only, bcrypt compare | ✅ |
-| 3. Notification Prefs | `updateProfile({notificationPreferences})` → `PATCH /api/auth/me` | `updateMe` → includes notificationPreferences in whitelist | ✅ |
-| 4. Weekly Digest | Frontend saves preference | **No backend consumer** | ❌ Missing |
-
-#### Profile Flow
-| Step | Frontend | Backend | Status |
-|------|----------|---------|--------|
-| 1. View Other User | `getUserProfile()` → `GET /api/users/:username` | `getUserProfile` → optionalAuth, computes totalProjects/Likes/Reviews, activity feed | ✅ |
-| 2. Follow/Unfollow | `toggleFollow()` → `POST /api/users/:username/follow` | `toggleFollow` → updates both users' followers/following, creates Notification | ✅ |
-| 3. Get All Users | `getAllUsers()` → `GET /api/users/` | `getAllUsers` → batched aggregation (NOT N+1) | ✅ |
-| 4. Get Followers | `getFollowers()` → `GET /api/users/:username/followers` | `getFollowers` → populates followers | ⚠️ Frontend missing `credentials: "include"` |
-| 5. Get Following | `getFollowing()` → `GET /api/users/:username/following` | `getFollowing` → populates following | ⚠️ Frontend missing `credentials: "include"` |
-
-#### Image Upload Flow
-| Step | Frontend | Backend | Status |
-|------|----------|---------|--------|
-| 1. Upload Avatar | Direct `fetch('/api/upload')` in `MyProfile.jsx` | `upload.routes.js` → Cloudinary upload | ✅ |
-
-#### Support Flow
-| Step | Frontend | Backend | Status |
-|------|----------|---------|--------|
-| 1. Submit Request | `supportRequestsApi()` → `POST /api/support` | `createSupportRequest` → SupportRequest.create | ✅ |
-
-#### Stats Flow
-| Step | Frontend | Backend | Status |
-|------|----------|---------|--------|
-| 1. Get Platform Stats | `getStats()` → `GET /api/stats` | `getStats` → countDocuments for users/projects/reviews | ✅ |
-
-### Missing API ↔ UI Chains
-
-| Gap | Frontend | Backend | Impact |
-|-----|----------|---------|--------|
-| **Weekly Digest** | Settings saves `weeklyDigest` preference | No email sending job exists | Feature is placeholder |
-| **Community page stats** | Static feature cards + hero | Only stats API called; no dynamic member/project lists | Page feels incomplete |
-| **Dashboard "Community Rank"** | Shows static sidebar | No ranking/leaderboard API exists | Placeholder content |
-| **Profile image upload on Settings** | Settings page doesn't support image upload | Upload API exists | Gap in Settings vs MyProfile |
-| **`getProjectById` missing `isSaved`** | `Project.jsx` `bookmarked` state never set from API | `getProjectById` response lacks `isSaved` field | Bookmark always shows false on page load |
-
----
-
-## 6. Interactive Elements Audit
-
-| Element | Location | Behavior | API Connected | Status |
-|---------|----------|----------|---------------|--------|
-| Like Button (Project) | `Project.jsx` | Toggle, optimistic UI | Yes | ✅ |
-| Like Button (Explore) | `ExploreProjects.jsx` | Toggle, optimistic UI, refetch | Yes | ✅ |
-| Like Button (MyProfile) | `MyProfile.jsx` | Toggle, optimistic UI | Yes | ✅ |
-| Save/Bookmark (Project) | `Project.jsx` | Toggle, optimistic UI | Yes | ⚠️ Initial state always false |
-| Save/Bookmark (Explore) | `ExploreProjects.jsx` | Toggle, optimistic UI | Yes | ✅ |
-| Save/Bookmark (ExploreProjects header) | `ExploreProjects.jsx` | Toggle, optimistic UI | Yes | ✅ |
-| Follow/Unfollow (UserProfile) | `UserProfile.jsx` | Toggle, optimistic UI | Yes | ✅ |
-| Follow/Unfollow (ExploreUsers) | `ExploreUsers.jsx` | Toggle, optimistic UI | Yes | ✅ |
-| Review Submit | `Project.jsx` | Form submit, refreshes list | Yes | ✅ |
-| Review Edit | `Project.jsx` | Inline edit mode | Yes | ✅ |
-| Review Delete | `Project.jsx` | Confirmation, removes | Yes | ✅ |
-| Project Delete | `Project.jsx` | Confirmation dialog, redirect | Yes | ✅ |
-| Chat Send | `Chat.jsx` | Message input, submit | Yes | ✅ |
-| Notification Mark Read | `Notifications.jsx` | Click to mark read | Yes | ✅ |
-| Mark All Read | `Notifications.jsx` | Button, marks all | Yes | ✅ |
-| Review Mark Read | `ReviewsReceived.jsx` | Click marks read | Yes | ✅ |
-| Profile Edit | `MyProfile.jsx` | Inline form, image upload | Yes | ✅ |
-| Settings Profile | `Settings.jsx` | Form, saves username/portfolioUrl | Yes | ✅ |
-| Settings Notifications | `Settings.jsx` | Toggle switches | Yes (partial) | ⚠️ |
-| Settings Password | `Settings.jsx` | Form, validates | Yes | ✅ |
-| Support Submit | `SupportModal.jsx` | Form, validates, submits | Yes | ✅ |
-| Category Filter | `ExploreProjects.jsx` | Client-side filter | N/A | ✅ |
-| Search | `ExploreProjects.jsx` | Client-side filter | N/A | ✅ |
-| User Search | `ExploreUsers.jsx` | Client-side filter | N/A | ✅ |
-| Tech Stack Tags (Create) | `CreateProjects.jsx` | Add/remove tags | N/A | ✅ |
-| Tech Stack Tags (Edit) | `EditProject.jsx` | Add/remove tags | N/A | ✅ |
-| Star Rating | `Project.jsx` | Hover preview, click select | N/A | ✅ |
-| Tab Switching | Multiple components | Local state | N/A | ✅ |
-| Sidebar Collapsed | `SidebarContext.jsx` | localStorage persist | N/A | ✅ |
-
----
-
-## 7. Counts & Badges Audit
-
-### Badge Sources
-
-| Badge | Location | Data Source | Dynamic? |
-|-------|----------|-------------|----------|
-| Unread Messages | `Sidebar.jsx` | `GET /api/chat/unread-count` → `data.totalUnread` | ✅ Yes |
-| Unread Notifications | `Sidebar.jsx` | `GET /api/notifications/unread-count` → `data.unreadCount` | ✅ Yes |
-| Unread Reviews | `Sidebar.jsx` | `GET /api/reviews/unread-count` → `data.unreadCount` | ✅ Yes |
-| Profile Projects Count | `MyProfile.jsx` | `myProjects.length` (local state) | ✅ Yes |
-| Profile Saved Count | `MyProfile.jsx` | `savedProjects.length` (local state) | ✅ Yes |
-| Dashboard Stats | `Dashboard.jsx` | `data.stats.totalProjects/Likes/ReceivedReviews/GivenReviews` from API | ✅ Yes |
-| Dashboard Followers/Following | `Dashboard.jsx` | `user.followers.length` / `user.following.length` from AuthContext | ✅ Yes |
-| Explore Stats Cards | `ExploreProjects.jsx` | `GET /api/stats` → developers/projects/reviews | ✅ Yes |
-| Project Likes | `Project.jsx` | `likesCount` from `getProjectById` response | ✅ Yes |
-| Project Reviews | `Project.jsx` | `reviews.length` from `getReviews` response | ✅ Yes |
-| Trending Badge (Project) | `Project.jsx:407-413` | `likesCount > 5` | ⚠️ Hardcoded, differs from ExploreProjects |
-| Trending/New (Explore) | `ExploreProjects.jsx:589-595` | Data-driven: likes≥5 OR rating≥4.5; New: ≤7 days | ✅ **FIXED** |
-| MyProjects Score | `MyProjects.jsx:256` | `Math.floor((likesCount*4)+(reviewsCount*3)+12)` | ⚠️ Hardcoded formula |
-
-### Badge Accuracy Issues
-
-1. **Trending thresholds are inconsistent** across three locations:
-   - `ExploreProjects.jsx:590`: likes ≥ 5 OR rating ≥ 4.5
-   - `Project.jsx:407`: likes > 5 (i.e., 6+)
-   - `ExploreProjects.jsx:190`: likes > 2 OR rating ≥ 4.0 (dead code — "Trending" not in CATEGORIES)
-
-2. **MyProjects score** (`MyProjects.jsx:256`): Formula `Math.floor((likesCount*4)+(reviewsCount*3)+12)` uses hardcoded weights. The `+12` constant means even projects with 0 likes/reviews get a score of 12.
-
----
-
-## 8. Chat System Audit
-
-### Architecture
-- **Model**: Conversation (participants[], lastMessage, lastMessageAt) + Message (conversationId, sender, text, isRead)
-- **No real-time**: All polling via REST API
-- **No WebSocket/Socket.io**: Messages only refresh on user action
-
-### Chat Flow Analysis
-
-| Step | Implementation | Status |
-|------|---------------|--------|
-| Start new conversation | Auto-created when first message sent to a user | ✅ |
-| Send message | `POST /api/chat/send` → validates receiver, creates Message, updates Conversation | ✅ |
-| Load conversations | Aggregation pipeline with unread counts, sorted by lastMessageAt | ✅ |
-| Load messages | Sorted by createdAt ascending, populates sender | ✅ |
-| Mark as read | Bulk update isRead for all messages in conversation from other party | ✅ |
-| Unread count (global) | Aggregation pipeline counting unread messages from other participants | ✅ |
-| Unread count (per conversation) | Included in getConversations aggregation | ✅ |
-| Self-message prevention | Backend checks `receiverId === senderId` | ✅ |
-| Message length limit | 5000 characters max | ✅ |
-| ObjectId validation | Validates receiverId and conversationId | ✅ |
-| Participant authorization | Checks user is participant before loading messages | ✅ |
-
-### Chat Limitations
-1. **No real-time**: Users must manually refresh or navigate to see new messages
-2. **No typing indicators**
-3. **No online/offline status**
-4. **No message pagination**: All messages loaded at once
-5. **No image/file sharing**: Text only
-
----
-
-## 9. Reviews System Audit
-
-### Review Constraints
-| Constraint | Implementation | Location |
-|------------|---------------|----------|
-| One review per user per project | Unique compound index `{project:1, user:1}` | `Review.js:43-51` |
-| Self-review prevention | `userId === project.owner.toString()` check | `reviewController.js:23-28` |
-| Rating range (1-5) | Schema min/max + controller check | `Review.js:17-20`, `reviewController.js:28-33` |
-| Non-empty review text | Trim + length check | `reviewController.js:35-40` |
-| Review ownership for edit/delete | `user: userId` in query | `reviewController.js:141-144` |
-| Owner can't review own project | Owner check | `reviewController.js:23-28` |
-
-### Review Notification
-- When a review is added, a notification is created IF the project owner has `notificationPreferences.reviewAlerts !== false` (`reviewController.js:65-73`)
-- **Issue**: Like notifications (`projectController.js:377-382`) and follow notifications (`userController.js:106-110`) do NOT check notification preferences — they always create notifications
-
-### Review Read/Unread
-- `isRead` field on Review model, default `false`
-- `getUnreadReviewCount` counts reviews where `isRead: false` on user's projects
-- `markReviewAsRead` checks user owns the project before marking
-- Sidebar badge shows unread review count
-- ReviewsReceived page shows reviews with mark-as-read on click
-
-### Average Rating Calculation
-- Done in multiple places: `getProjectById` (via utility), `getMyProjects` (inline), `getExploreProjects` (inline), `getProjectByUsername` (inline)
-- Each computes `totalRating / reviewsCount` separately — **duplicated logic**
-- Frontend also computes avg in `Project.jsx:266`
-- `calculateAverageRating` utility is imported in `projectController.js:6` but **never used**
-
----
-
-## 10. Notifications Audit
-
-### Notification Types
-| Type | Trigger | Creates Notification | Checks Preferences |
-|------|---------|---------------------|-------------------|
-| `like` | `toggleLikes` in `projectController.js:377-382` | Yes (when liking, not unliking) | ❌ No |
-| `review` | `addReviews` in `reviewController.js:65-73` | Yes | ✅ Yes (checks reviewAlerts) |
-| `follow` | `toggleFollow` in `userController.js:106-110` | Yes (when following, not unfollowing) | ❌ No |
-
-### Notification Preferences
-- `reviewAlerts` (default: true) — checked before creating review notification
-- `weeklyDigest` (default: true) — saved in DB but **no consumer** (no email job)
-
-### Notification Display
-- `Notifications.jsx` fetches all notifications, shows sender name/image, type icon, project title
-- Click marks individual notification as read
-- "Mark all as read" button marks all unread as read
-- Unread count shown as sidebar badge
-- Loading state: skeleton with `animate-pulse` (lines 211-212)
-- Empty state: "No notifications yet" with `CheckCheck` icon (line 256)
-- Error state: `AlertCircle` + "Retry" button (lines 213-218)
-- Infinite scroll: "Loading more notifications..." at bottom (lines 236-239)
-
-### Issues
-1. **Like/follow notifications ignore preferences**: Even if user disables reviewAlerts, they still get like and follow notifications
-2. **weeklyDigest has no effect**: Preference is saved but nothing reads it
-3. **No notification deletion**: Notifications accumulate indefinitely
-4. **No pagination**: All notifications loaded at once (infinite scroll loads more, but no backend pagination)
-
----
-
-## 11. Authentication Audit
-
-### Auth Mechanism
-- **JWT in HTTP-only cookie**: 7-day expiry
-- **Cookie settings**: `httpOnly: true`, `secure: true` in production, `sameSite: "none"` in production / `"lax"` in development
-- **Token payload**: `{ id: userId }`
-
-### Auth Middleware
-| Middleware | Purpose | Used In |
-|-----------|---------|---------|
-| `authMiddleware` | Required auth — 401 if no token | Most routes |
-| `optionalAuth` | Optional auth — continues without user if no token | `GET /api/users/:username` |
-
-### Auth Edge Cases
-1. **`getExploreProjects` requires auth** (`authMiddleware`) — logged-out users can't explore
-2. **`getProjectById` requires auth** — can't view project details without login
-3. **`getFollowers`/`getFollowing` have auth** (`authMiddleware`) — but frontend API calls omit `credentials: "include"`, so requests will fail with 401
-4. **Google auth auto-creates users** with auto-generated username — no email verification needed
-5. **`getAllUsers` excludes current user** via `$ne: req.user.id` — correct
-6. **Token refresh not implemented** — user must re-login after 7 days
-7. **No JWT algorithm pinning** — `jwt.verify` defaults to allowing multiple algorithms
-
-### Password Security
-- Bcrypt with salt rounds 10 ✅
-- Password change requires current password verification ✅
-- Google accounts can't change password (blocked in `changePassword`) ✅
-- Password not returned in any API response (`.select("-password")`) ✅
-- **No password length validation on signup** — `signUp` in `auth.controller.js` hashes without checking length ❌
-
----
-
-## 12. Profiles Audit
-
-### My Profile (`/profile/my`)
-- **Data source**: AuthContext (`user`) + `getMyProjects()` + `getSavedProjects()`
-- **Stats computed locally**: projects count, reviews sum, likes sum, followers/following from user object
-- **Profile completion**: Weighted percentage (profileImage 20%, bio 20%, skills 20%, role 10%, githubUrl 10%, portfolioUrl 10%, name 5%, username 5%)
-- **Edit mode**: Inline form with image upload via `/api/upload` (Cloudinary)
-- **Skills**: Stored as comma-separated string, parsed to array on save
-- **Legacy field**: `user.GitBranchUrl` referenced as fallback for `githubUrl` (lines 121, 263)
-
-### Other User Profile (`/users/:username`)
-- **Data source**: `GET /api/users/:username` → returns user, totalProjects, totalLikes, totalReviews, followersCount, followingCount, isFollowing, activity[]
-- **Activity feed**: Last 10 projects + last 10 authored reviews, merged and sorted by date, limited to 15
-- **Follow/Unfollow**: Toggle via `POST /api/users/:username/follow`
-- **Projects tab**: `GET /api/projects/username/:username` via `getProjectsByUsernameApi`
-- **Followers/Following modals**: `getFollowers`/`getFollowing` API calls (missing `credentials: "include"`)
-
-### Profile Issues
-1. **MyProfile stats don't match Dashboard stats**: MyProfile computes locally from loaded projects; Dashboard gets stats from `getCurrentUserReview` API
-2. **Profile completion uses `user` from AuthContext**: May be stale if user updated profile elsewhere
-3. **Image upload on MyProfile** uses direct fetch to `/api/upload` instead of a service function — inconsistent pattern
-4. **Legacy `GitBranchUrl` field** referenced in fallback — should be cleaned up
-
----
-
-## 13. Projects Audit
-
-### Project Model Fields
 ```
-title: String (required, trimmed)
-description: String (required, trimmed)
-thumbnail: String (default: "")
-techStack: [String]
-githubUrl: String (default: "")
-liveUrl: String (default: "")
-owner: ObjectId → Users (required)
-likes: [ObjectId → Users]
-timestamps: true (createdAt, updatedAt)
+DevReview/
+├── frontend/           Next.js 16 (App Router) — React 19
+│   ├── app/            Route-based pages (public + authenticated route groups)
+│   ├── Components/     Reusable UI (Auth, Layout, Landing, Skeleton)
+│   ├── context/        React Context (Auth, Theme, Toast, Sidebar)
+│   ├── services/       17 API fetch wrapper modules
+│   └── utils/          Helper functions
+│
+└── backend/            Express 5 REST API (MVC pattern)
+    ├── config/         Database + Cloudinary setup
+    ├── controllers/    9 controllers
+    ├── middleware/      Auth, rate limiting, file upload
+    ├── models/         9 Mongoose schemas
+    ├── routes/         11 route files (~49 endpoints)
+    ├── services/       Ranking/leaderboard point system
+    └── utils/          Token, email, validation, rating calculation
 ```
 
-### Missing Fields
-- **No `slug` field**: URLs use MongoDB ObjectId (`/projects/:id`)
-- **No `views` or `stars` count**: Only likes array
-- **No `category` field**: Categories are derived from techStack client-side
-- **No `isDeleted`/soft-delete**: Hard delete only
-
-### Project Enrichment (Backend)
-The backend enriches projects in `getMyProjects`, `getExploreProjects`, `getProjectByUsername`, and `getProjectById` with:
-- `likesCount` = `likes.length`
-- `isLiked` = `likes.some(id => id === userId)`
-- `reviewsCount` = count of reviews for project
-- `averageRating` = computed from reviews
-- `isSaved` = **ONLY in `getExploreProjects`** (line 202)
-
-**Note**: This enrichment is duplicated across 4 controllers. `isSaved` is only present in 1 of 4.
-
-### Project Score (Frontend)
-`MyProjects.jsx:256` calculates a score: `Math.floor((likesCount*4)+(reviewsCount*3)+12)`
-- This score is NOT stored in the database
-- The `+12` base means every project starts at score 12
-- Weights (4 for likes, 3 for reviews) are arbitrary
+**Deployment:** Frontend on Vercel, Backend on Render, Database on MongoDB Atlas  
+**Third-Party Services:** Cloudinary (images), Resend (OTP email), Google OAuth 2.0
 
 ---
 
-## 14. Likes & Follows Audit
+## 3. Feature Status
 
-### Like System
-- **Storage**: `likes` array on Project model (array of User ObjectIds)
-- **Toggle**: Adds/removes user ID from array
-- **Notification**: Created when liking (not when unliking), **no preference check** (`projectController.js:377-382`)
-- **Optimistic UI**: Frontend toggles state before API call, reverts on failure
-- **Uniqueness**: Implicit — `some()` check prevents duplicates
-
-### Follow System
-- **Storage**: `followers` and `following` arrays on User model
-- **Toggle**: Adds/removes from both users' arrays simultaneously
-- **Self-follow prevention**: Backend checks `targetUser._id.toString() === currentUserId`
-- **Notification**: Created when following (not when unfollowing), **no preference check** (`userController.js:106-110`)
-- **No follow limit**: Users can follow unlimited accounts
-
-### Issues
-1. **Like notification doesn't check preferences**: Should respect a like-specific preference or `reviewAlerts`
-2. **Follow notification doesn't check preferences**: Always creates notification
-3. **No bulk operations**: Can't like/follow multiple items at once
-4. **`getAllUsers` N+1 was fixed**: Now uses batched aggregation pipeline, not N+1 queries
-
----
-
-## 15. Loading/Error/Empty States
-
-### Loading States
-
-| Page/Component | Loading Implementation | Quality |
-|----------------|----------------------|---------|
-| Dashboard | Skeleton with pulsing placeholders | ✅ Good |
-| MyProfile | Skeleton with pulsing placeholders | ✅ Good |
-| UserProfile | Shimmer skeleton with avatar, name, tabs | ✅ Good |
-| ExploreProjects | Shimmer skeleton cards (6 items) | ✅ Good |
-| Single Project | `ProjectSkeleton` with shimmer | ✅ Good |
-| EditProject | "Checking authorization..." spinner | ✅ Good |
-| CreateProjects | None visible | ❌ Missing |
-| Settings | No explicit loading state | ❌ Missing |
-| Notifications | Skeleton with `animate-pulse` | ✅ **FIXED** |
-| ReviewsReceived | Skeleton with header, stats, placeholders | ✅ **FIXED** |
-| Chat | Shimmer header + "Loading chat..." | ✅ **FIXED** |
-| SavedProjects | Pulsing skeleton | ✅ Good |
-| ExploreUsers | Shimmer skeleton cards (8 items) | ✅ **FIXED** |
-
-### Error States
-
-| Page/Component | Error Implementation | Quality |
-|----------------|---------------------|---------|
-| Dashboard | `AlertCircle` + error message + "Try Again" button | ✅ **FIXED** |
-| ExploreProjects | Full error UI with "Try Again" button | ✅ Good |
-| Single Project | Full error UI with "Return to Explore" | ✅ Good |
-| EditProject | Authorization error + generic error states | ✅ Good |
-| CreateProjects | try/catch with console.error only | ❌ No user-facing error |
-| Settings | Toast messages for save success/failure | ✅ Good |
-| MyProfile | Toast messages | ✅ Good |
-| SupportModal | Error message below form | ✅ Good |
-
-### Empty States
-
-| Page/Component | Empty Implementation | Quality |
-|----------------|---------------------|---------|
-| Dashboard (No Projects) | "No projects indexed yet" with CTA | ✅ Good |
-| Dashboard (No Reviews) | "No feedback received" with CTA | ✅ Good |
-| MyProfile (No Projects) | "No projects uploaded yet" with CTA | ✅ Good |
-| SavedProjects | Empty state with "Explore Projects" CTA | ✅ Good |
-| ExploreProjects (No Results) | "No blueprints found" with clear filters | ✅ Good |
-| Single Project (No Reviews) | "No reviews yet" with CTA | ✅ Good |
-| Notifications (No Notifications) | "No notifications yet" with icon | ✅ **FIXED** |
-| Messages (No Conversations) | No explicit empty state | ❌ Missing |
-| ReviewsReceived (No Reviews) | "No reviews received yet" | ✅ **FIXED** |
-| ExploreUsers (No Results) | "No developers found" with clear filters | ✅ **FIXED** |
+| Feature | Status | API Connected | Notes |
+|---------|--------|---------------|-------|
+| Email/Password Registration (OTP) | ✅ Complete | Yes | Full signup → OTP → verify → login flow |
+| Google OAuth Login | ✅ Complete | Yes | Auto-creates user, sets isVerified |
+| Email Verification | ✅ Complete | Yes | OTP-based, 5-min expiry |
+| Forgot/Reset Password | ✅ Complete | Yes | OTP flow for password reset |
+| Profile View (Self) | ✅ Complete | Yes | Tabbed: Projects/Saved, profile completion % |
+| Profile View (Other) | ✅ Complete | Yes | Follow/unfollow, stats, activity feed |
+| Profile Edit | ✅ Complete | Yes | Image upload (Cloudinary), skills, bio, links |
+| Settings (Profile) | ✅ Complete | Yes | Username + portfolio URL |
+| Settings (Notifications) | ⚠️ Partial | Yes | Preferences saved; `weeklyDigest` has no consumer |
+| Settings (Security) | ✅ Complete | Yes | Password change for local accounts |
+| Project CRUD | ✅ Complete | Yes | Create, read, update, delete with ownership checks |
+| Explore Projects | ✅ Complete | Yes | Search, category filter, stats, data-driven badges |
+| My Projects | ✅ Complete | Yes | Full CRUD, hardcoded score formula |
+| Single Project View | ⚠️ Partial | Yes | Like works; bookmark state hydrated from API now |
+| Save/Bookmark | ✅ Complete | Yes | Toggle, saved list page |
+| Like/Unlike | ✅ Complete | Yes | Optimistic UI, API sync |
+| Follow/Unfollow | ✅ Complete | Yes | Creates notification |
+| Community Page | ⚠️ Partial | Partial | Stats dynamic; feature cards/hero static |
+| Reviews (CRUD) | ✅ Complete | Yes | Unique constraint, self-review blocked |
+| Reviews (Read/Unread) | ✅ Complete | Yes | isRead flag, badge count |
+| Notifications | ✅ Complete | Yes | Like/review/follow types, mark read |
+| Chat (Send/Receive) | ✅ Complete | Yes | Conversation aggregation, polling-based |
+| Chat (Unread Count) | ✅ Complete | Yes | Global unread badge |
+| Support Requests | ✅ Complete | Yes | Form with validation |
+| Platform Stats | ✅ Complete | Yes | Users, projects, reviews counts |
+| Leaderboard | ✅ Complete | Yes | Points system, ranking, personal rank |
+| Explore Users | ✅ Complete | Yes | All users with stats, follow/unfollow |
 
 ---
 
-## 16. Database/Model Audit
+## 4. Previous Audit Verification
 
-### Models Summary
-
-| Model | Fields | Indexes | Relationships |
-|-------|--------|---------|---------------|
-| Users | name, username, email, password, authProvider, googleId, role, profileImage, bio, skills[], githubUrl, portfolioUrl, isVerified, savedProjects[], followers[], following[], notificationPreferences | username (unique), email (unique), googleId (unique, sparse) | Owner of Projects, author of Reviews, participant in Conversations |
-| Projects | title, description, thumbnail, techStack[], githubUrl, liveUrl, owner, likes[] | None explicit | Belongs to Users, has many Reviews |
-| Reviews | project, user, rating, review, isEdited, isRead | Compound unique: {project, user}; {project, createdAt}; {user, createdAt}; {project, isRead} | Belongs to Projects and Users |
-| Notification | recipient, sender, type (like/review/follow), project, isRead | None explicit | References Users and Projects |
-| Conversation | participants[], lastMessage, lastMessageSender, lastMessageAt | Compound: {participants, lastMessageAt} | Has many Messages |
-| Message | conversationId, sender, text, isRead | None explicit (should have) | Belongs to Conversation and Users |
-| OTP | email, otp, expiresAt, type | None explicit (should have TTL) | Standalone |
-| Support | user, name, email, category, subject, message | None explicit | References Users |
-
-### Index Gaps
-
-| Collection | Recommended Index | Reason |
-|------------|------------------|--------|
-| Messages | `{ conversationId: 1, createdAt: 1 }` | getMessages sorts by createdAt |
-| Messages | `{ isRead: 1, sender: 1 }` | getUnreadCount filters on these |
-| Notifications | `{ recipient: 1, isRead: 1 }` | getUnreadNotificationCount |
-| Notifications | `{ recipient: 1, createdAt: -1 }` | getNotifications sorts by date |
-| OTP | TTL index on expiresAt | Auto-cleanup of expired OTPs |
-| OTP | `{ email: 1, type: 1 }` | Lookup performance for findOne({email}) |
-| Projects | `{ owner: 1, createdAt: -1 }` | getMyProjects sorts by date |
-| Users | `{ savedProjects: 1 }` | Used in deleteProject cleanup and getExploreProjects |
-
-### Data Integrity
-- **Cascade deletes partially implemented**: `deleteProject` cleans up `savedProjects` in all users (`projectController.js:332-335`)
-- **No cascade for reviews**: Deleting a project does NOT delete its reviews
-- **No cascade for notifications**: Deleting a project/user does NOT clean up notifications
-- **No soft delete**: Hard delete only — data permanently removed
-- **Orphaned notifications**: If a user is deleted, notifications referencing them remain
+| Previous Finding | Current Status | Evidence | Priority |
+| ---------------- | -------------- | -------- | -------- |
+| `projectController.js.js` double extension | ✅ FIXED | File renamed to `projectController.js` | — |
+| `getExploreProjects` missing `isSaved` | ✅ FIXED | `projectController.js:190-206` includes `isSaved` per user | — |
+| `getAllUsers` N+1 query | ✅ FIXED | Uses batched aggregation pipeline | — |
+| ExploreProjects cyclic badge rotation | ✅ FIXED | Badges now data-driven (likes≥5 OR rating≥4.5) | — |
+| Loading states missing (Notifications, Reviews, Chat, Users) | ✅ FIXED | All have skeleton loading states | — |
+| Error state missing (Dashboard) | ✅ FIXED | Has error card with retry | — |
+| Empty states missing (Notifications, Reviews, Users) | ✅ FIXED | All have empty state UI | — |
+| `getReviewForEdit` stale reference | ✅ REMOVED | Function does not exist in codebase | — |
+| `getFollowers`/`getFollowing` dead code | ❌ STILL PRESENT | Frontend calls them but `credentials: "include"` was missing — NOW FIXED | — |
+| Route ordering (`/saved/me` vs `/:id`) | ✅ FIXED | `projectRoutes.js:15-16` correctly places `/saved/me` before `/:id` | — |
+| `getProjectById` missing `isSaved` | ✅ FIXED | `projectController.js:131-134` fetches `savedProjects` and computes `isSaved` | — |
+| `credentials: "include"` on followers/following | ✅ FIXED | `usersApi.js:28,40` both include credentials | — |
+| `console.log` in frontend services (36 occurrences) | ✅ FIXED | Zero `console.log` in frontend services after cleanup | — |
+| Helmet security headers | ✅ FIXED | `server.js:21,25` — `app.use(helmet())` | — |
+| Rate limiting on auth endpoints | ✅ FIXED | `auth.routes.js` applies `authLimiter` to signup, login, forgot/reset; `otpLimiter` to verify-otp | — |
+| `express.json` body limit | ✅ FIXED | `server.js:33-34` — `express.json({ limit: "10mb" })` | — |
+| No auth on `initializeMissingLeaderboards` | ❌ STILL PRESENT | `leaderboardRoutes.js:14` — no auth middleware | P0 |
+| No auth on upload route | ❌ STILL PRESENT | `upload.routes.js:6` — no auth middleware | P0 |
+| User model password field not hidden | ❌ STILL PRESENT | `Users.js:18-23` — no `select: false` | P1 |
+| `calculateAverageRating` unused import | ❌ STILL PRESENT | `projectController.js:6` — imported but never called | P3 |
+| Debug message in EditProject | ❌ STILL PRESENT | `EditProject.jsx:228` — "Check your browser console..." | P1 |
+| `new URL()` crash risk in Project.jsx | ❌ STILL PRESENT | `Project.jsx:383` — no try/catch around `new URL()` | P1 |
+| `markNotificationRead` no try/catch | ❌ STILL PRESENT | `notificationController.js:52-65` — no error handling | P1 |
+| Silent DB connection failure | ❌ STILL PRESENT | `config/db.js:8-9` — empty catch block | P2 |
+| Notification preferences ignored for like/follow | ❌ STILL PRESENT | `projectController.js:377-382`, `userController.js:106-110` | P2 |
+| `weeklyDigest` preference no consumer | ❌ STILL PRESENT | Preference saved in DB, no email job | P2 |
 
 ---
 
-## 17. Security Audit
+## 5. New Findings
 
-### Critical Issues
+| Issue | Area | Severity | Location | Explanation |
+|-------|------|----------|----------|-------------|
+| Privilege escalation via `role` field | Security | 🔴 Critical | `auth.controller.js:445` | `updateMe` whitelist includes `role` — user can set themselves to admin |
+| OTP timing attack vulnerability | Security | 🟠 High | `auth.controller.js:103` | OTP comparison uses `!==` instead of `crypto.timingSafeEqual` |
+| Account enumeration via forgot password | Security | 🟠 High | `auth.controller.js:299` | Returns "User not found" — should return generic message |
+| `editReview` inconsistent field names | API | 🟠 High | `reviewApis.js:62` vs `reviewController.js:177` | Frontend sends `{ reviewRating, reviewComment }` but `addReviews` expects `{ rating, review }` — inconsistent but both sides match |
+| No global error handler | Backend | 🟠 High | `server.js` | Unhandled async route errors crash the server |
+| 3 API calls per navigation (badges) | Performance | 🟡 Medium | `Sidebar.jsx` | Three separate `useEffect` hooks fire on every `pathname` change |
+| `sendEmail` no try/catch | Backend | 🟡 Medium | `utils/sendEmail.js` | Email failures crash the route handler |
+| Fabricated views metric | UX | 🟡 Medium | `MyProjects.jsx:256` | Formula `Math.floor((likes*4)+(reviews*3)+12)` presented as view count |
+| Hero card mock data in ExploreUsers | UX | 🟡 Medium | `ExploreUsers.jsx:398-425` | Hardcoded "Hamid Rza", "18 repos", "56 reviews" |
+| Duplicate empty state in Chat | UX | 🟡 Medium | `Chat.jsx:346-362` | Two different "no messages" states render simultaneously |
+| Fallback tech stack mock data | UX | 🟡 Medium | `MyProfile.jsx:750` | Hardcoded `["React", "Node.js"]` when techStack is missing |
+| Cancel button non-functional | UX | 🟢 Low | `EditProject.jsx:416-421` | Button has no onClick handler |
+| `supportApis.js` inconsistent error pattern | Code | 🟢 Low | `supportApis.js` | Only service that throws on non-OK; others return `{ success: false }` |
+| `console.log` in SupportModal | Code | 🟢 Low | `SupportModal.jsx:87` | Debug log left in production |
+| Review field name typos | Code | 🟢 Low | `reviewController.js:39,209` | "Invalid Reivew", "Reveiw Not Found" |
+| Duplicate toast systems | Code | 🟢 Low | `Project.jsx`, `MyProfile.jsx` | Local toast instead of using `ToastContext` |
+| Artificial loading delays | UX | 🟢 Low | `Project.jsx:138`, `MyProfile.jsx:130`, `ReviewsReceived.jsx:51` | 600-1200ms `setTimeout` delays |
 
-| # | Issue | Location | Severity | Description |
-|---|-------|----------|----------|-------------|
-| 1 | **No rate limiting** | `backend/server.js:31` | 🔴 Critical | No rate limiting on any endpoint — vulnerable to brute force on login, OTP, forgot-password |
-| 2 | **No CSRF protection** | `backend/server.js` | 🔴 Critical | Cookie-based auth without CSRF tokens — vulnerable to cross-site request forgery |
-| 3 | **No helmet/security headers** | `backend/server.js` | 🔴 High | Missing X-Frame-Options, CSP, HSTS, etc. |
-| 4 | **OTP brute force** | `auth.controller.js:80-124` | 🔴 High | No attempt limiting on OTP verification — attacker can brute force 6-digit OTP |
-| 5 | **No password length validation on signup** | `auth.controller.js:36` | 🟡 Medium | Bcrypt hashes whatever password is sent — no minimum length check |
-| 6 | **No email format validation** | `auth.controller.js` | 🟡 Medium | Email format not validated before DB insert |
-| 7 | **No input sanitization** | All controllers | 🟡 Medium | No XSS protection on user-generated content (reviews, bios, project descriptions) |
-| 8 | **No request body size limit** | `backend/server.js:31` | 🟡 Medium | `express.json()` without limit — vulnerable to large payload attacks |
+---
 
-### Moderate Issues
+## 6. Security Findings
 
-| # | Issue | Location | Severity | Description |
-|---|-------|----------|----------|-------------|
-| 9 | **JWT in cookie without rotation** | `generateToken.js:7` | 🟡 Medium | Same token for 7 days, no refresh mechanism, no revocation |
-| 10 | **JWT verify lacks algorithm pinning** | `auth.middleware.js:14` | 🟡 Medium | Should specify `{ algorithms: ["HS256"] }` |
-| 11 | **No user-exists-in-DB check on auth** | `auth.middleware.js` | 🟡 Medium | Once JWT issued, trusted for 7 days even if user deleted/banned |
-| 12 | **Silent DB connection failure** | `config/db.js:8-9` | 🟡 Medium | Empty catch block — server starts even if DB connection fails |
-| 13 | **CORS allows localhost:3000** | `server.js:24-27` | 🟢 Low | Development URL in production CORS list |
-| 14 | **No OTP TTL index** | `OTP.js` | 🟡 Medium | Expired OTPs accumulate indefinitely, no auto-cleanup |
-| 15 | **36 console.log in frontend services** | 15 files in `frontend/services/` | 🟡 Medium | Debug logs leak to production console |
-| 16 | **No `credentials: "include"` on getFollowers/getFollowing** | `usersApi.js:27,32` | 🟢 Low | Requests fail with 401 against authMiddleware-protected routes |
+### Critical
 
-### Good Security Practices Found
+| # | Issue | Location | Attack Scenario |
+|---|-------|----------|-----------------|
+| 1 | **Privilege escalation via `role` field** | `auth.controller.js:445` | User sends `PATCH /api/auth/me` with `{ "role": "admin" }` — backend includes `role` in the whitelist, granting admin access |
+| 2 | **No auth on upload route** | `upload.routes.js:6` | Unauthenticated users can upload images to Cloudinary via the app's account, consuming storage/bandwidth |
+| 3 | **No auth on leaderboard initialize** | `leaderboardRoutes.js:14` | Unauthenticated POST to `/api/leaderboard/initialize` can manipulate leaderboard data |
+
+### High
+
+| # | Issue | Location | Attack Scenario |
+|---|-------|----------|-----------------|
+| 4 | **OTP timing attack** | `auth.controller.js:103` | String comparison (`!==`) leaks timing information — attacker can brute-force 6-digit OTP character by character |
+| 5 | **Account enumeration** | `auth.controller.js:299` | `forgotPassword` returns "User not found" — attacker can enumerate valid email addresses |
+| 6 | **No global error handler** | `server.js` | Unhandled promise rejections from async routes crash the server process |
+| 7 | **User model password not hidden** | `Users.js:18-23` | No `select: false` on password field — any query without explicit `.select("-password")` leaks bcrypt hashes |
+| 8 | **`sendEmail` crashes on failure** | `utils/sendEmail.js` | No try/catch — email service outage crashes the request handler |
+| 9 | **No token revocation** | `auth.middleware.js` | Logged-out JWTs remain valid for 7 days — no blacklist/revocation mechanism |
+
+### Medium
+
+| # | Issue | Location | Description |
+|---|-------|----------|-------------|
+| 10 | Error messages leak internals | Multiple controllers | `error.message` returned to client in ~8 places |
+| 11 | No pagination on `getExploreProjects` | `projectController.js:171` | Loads ALL projects — DoS risk at scale |
+| 12 | No pagination on `getConversations` | `chatController.js` | Loads all conversations for a user |
+| 13 | No input length limits | `support.controller.js` | `message` and `subject` can be arbitrarily large |
+| 14 | Wrong HTTP status codes | `auth.controller.js`, `reviewController.js` | 200 for creation (should be 201), 403 for validation (should be 400) |
+| 15 | No OTP TTL index | `OTP.js` | Expired OTPs accumulate indefinitely |
+| 16 | JWT lacks algorithm pinning | `auth.middleware.js` | `jwt.verify` defaults to allowing multiple algorithms |
+| 17 | No user-exists-in-DB check | `auth.middleware.js` | Once JWT issued, trusted for 7 days even if user deleted |
+| 18 | CORS allows localhost:3000 | `server.js:24-27` | Development URL in production CORS list |
+
+### Low
+
+| # | Issue | Location | Description |
+|---|-------|----------|-------------|
+| 19 | No CSRF protection | `server.js` | Cookie-based auth without CSRF tokens (partially mitigated by SameSite) |
+| 20 | IP-based rate limiting breaks behind proxies | `rateLimiter.middleware.js` | No `trust proxy` setting |
+
+### Good Security Practices
+
 - ✅ HTTP-only cookies (not accessible via JavaScript)
 - ✅ SameSite cookie attribute set
 - ✅ Secure flag in production
-- ✅ Password excluded from all API responses
+- ✅ Password excluded from all API responses (via `.select("-password")`)
 - ✅ Bcrypt with salt rounds 10
 - ✅ Google auth verifies ID token server-side
 - ✅ Ownership checks on project edit/delete
 - ✅ Self-review prevention
 - ✅ Self-follow prevention
 - ✅ Self-message prevention
-- ✅ Participant authorization on chat message loading
-- ✅ ObjectId validation on all route params
+- ✅ Participant authorization on chat
+- ✅ ObjectId validation on route params
 - ✅ Auth middleware on protected routes
 - ✅ optionalAuth for public profile viewing
+- ✅ Rate limiting on auth endpoints (15/15min, OTP: 6/15min)
+- ✅ Helmet security headers
+- ✅ Body size limit (10MB)
+- ✅ JWT algorithm pinning (HS256 explicit in `generateToken.js`)
 
 ---
 
-## 18. Dead/Duplicate Code
+## 7. Performance Findings
 
-### Dead Code
+### N+1 Queries
 
-| File | Line(s) | Description | Verified? |
-|------|---------|-------------|-----------|
-| `reviewController.js` | N/A | **`getReviewForEdit` does NOT exist** — stale reference in old audit report. No such function in the codebase. | ❌ Stale — invalid finding |
-| `userController.js` | N/A | **`getFollowers`/`getFollowing` ARE called** from `UserProfile.jsx` via `usersApi.js`. Frontend has `credentials` issue but the functions ARE wired. | ❌ Stale — partially invalid |
-| `Dashboard.jsx:413-421` | Community Rank sidebar | Static placeholder content — not connected to any data | ✅ Valid |
-| `ExploreProjects.jsx:83` | `isPinned` state | Used for scroll-based pinned search bar — functional but noted | ✅ Valid |
-| `MyProfile.jsx:121,263` | `user.GitBranchUrl` | Fallback for `githubUrl` references a field name that doesn't exist on the model | ✅ Valid |
-| `ExploreProjects.jsx:189-191` | Trending filter | `selectedCategory === "Trending"` is unreachable — "Trending" not in CATEGORIES array | ✅ Valid (dead code path) |
+| Location | Description | Severity |
+|----------|-------------|----------|
+| `userController.js:18-28` | `getUserProfile` fetches all projects, then counts reviews with `$in` on all project IDs | Medium |
+| `Sidebar.jsx` | 3 separate `useEffect` hooks fire 3 API calls on every navigation | Medium |
 
-### Duplicate Code
+### Unnecessary API Calls
 
-| Pattern | Locations | Description |
-|---------|-----------|-------------|
-| Project enrichment (likes/reviews/rating) | `projectController.js` lines 82-94, 190-206, 444-460, 129-141 | Same enrichment logic in `getMyProjects`, `getExploreProjects`, `getProjectByUsername`, `getProjectById` |
-| Average rating calculation | `projectController.js` (3 inline + 1 utility), `Project.jsx:266` | Backend computes in 4 places (3 duplicate inline, 1 utility), frontend computes again |
-| Unused import | `projectController.js:6` | `calculateAverageRating` imported but never used |
-| `console.log` in services | `frontend/services/` — 15 files, 36 occurrences | Debug logs left in production code |
-| Image upload pattern | `MyProfile.jsx:204-219` | Direct `fetch` call instead of using a service function |
-| Shimmer CSS | `ExploreProjects.jsx` vs `Project.jsx` | Same CSS defined in two components |
+| Location | Description | Severity |
+|----------|-------------|----------|
+| `Sidebar.jsx` | Unread counts refetch on every `pathname` change (3 calls) | Medium |
+| `ConversationList.jsx` | Conversations refetch on every `pathname` change | Low |
+| `ExploreProjects.jsx` `handleLike` | Re-fetches ALL projects after a single like toggle | Low |
 
----
+### Database Issues
 
-## 19. Already Complete Features
+| Location | Description | Severity |
+|----------|-------------|----------|
+| `getExploreProjects` | No pagination — loads entire projects collection | High |
+| `getConversations` | No pagination — loads all conversations | Medium |
+| Missing indexes | Messages (`conversationId+createdAt`), Notifications (`recipient+isRead`), OTP (`email+type`, TTL on `expiresAt`), Users (`savedProjects`) | Medium |
 
-These features are fully implemented, dynamically connected, and production-ready:
+### Frontend Performance
 
-| # | Feature | Evidence |
-|---|---------|----------|
-| 1 | **Email/Password Registration with OTP** | Full flow: signup → OTP email → verify → login |
-| 2 | **Google OAuth Login** | Auto-creates user, sets isVerified, generates JWT |
-| 3 | **Forgot Password with OTP** | Full flow: email → OTP → reset password |
-| 4 | **JWT Cookie Authentication** | HTTP-only, secure, SameSite, 7-day expiry |
-| 5 | **Project CRUD** | Create, read (my/explore/by-id), update (ownership check), delete (ownership check + savedProjects cleanup) |
-| 6 | **Project Like/Unlike** | Toggle with optimistic UI, creates notification |
-| 7 | **Project Save/Bookmark** | Toggle, saved list page, remove from saved |
-| 8 | **Peer Reviews (CRUD)** | Add, edit (isEdited flag), delete, unique constraint, self-review blocked |
-| 9 | **Review Star Rating** | 1-5 stars with hover preview, average computed |
-| 10 | **Review Read/Unread System** | isRead flag, unread count, mark-as-read, sidebar badge |
-| 11 | **Notification System** | Like/review/follow notifications, mark read, mark all read, unread badge |
-| 12 | **Real-time Chat** | Send/receive messages, conversations list, unread counts, mark as read |
-| 13 | **User Profiles** | View by username, stats, activity feed, follow/unfollow |
-| 14 | **Profile Editing** | Image upload (Cloudinary), skills, bio, links |
-| 15 | **Settings (Profile + Security)** | Username, portfolio URL, password change |
-| 16 | **Explore Projects** | Search, category filter, stats cards, data-driven badges |
-| 17 | **Explore Users** | User listing with stats, follow/unfollow |
-| 18 | **Dashboard** | Projects list, reviews received, stats summary |
-| 19 | **Support Requests** | Form with validation, creates Support document |
-| 20 | **Platform Stats** | Users, projects, reviews counts |
-| 21 | **ExploreProjects `isSaved`** | Backend returns `isSaved` per user, frontend consumes it directly |
+| Location | Description | Severity |
+|----------|-------------|----------|
+| Large components | `MyProfile.jsx` (960 lines), `ExploreUsers.jsx` (805 lines), `ExploreProjects.jsx` (810 lines), `Project.jsx` (830 lines) | Low |
+| Duplicate shimmer CSS | Same CSS defined in `ExploreProjects.jsx` and `Project.jsx` | Low |
+| IntersectionObserver recreation | `Notifications.jsx` recreates observer on every state change | Low |
 
 ---
 
-## 20. Partially Complete Features
+## 8. Static / Mock Data
 
-| # | Feature | What's Done | What's Missing | Severity |
-|---|---------|-------------|----------------|----------|
-| 1 | **Notification Preferences** | Settings UI saves `reviewAlerts` and `weeklyDigest` | `weeklyDigest` has no consumer; like/follow notifications ignore preferences | Medium |
-| 2 | **Community Page** | Beautiful landing page with feature cards, support modal, dynamic stats | No dynamic content (member list, recent activity, trending projects) | Low |
-| 3 | **Single Project View bookmark state** | Toggle works optimistically | `getProjectById` doesn't return `isSaved`; `Project.jsx` `bookmarked` never set from API — always false on load | High |
-| 4 | **Dashboard Community Rank** | Sidebar with placeholder text | No ranking/leaderboard API or algorithm | Low |
-| 5 | **Saved Projects Page** | Dedicated page with remove functionality | Route `GET /saved/me` shadowed by `/:id` — may not work | High |
-
----
-
-## 21. Must Become Dynamic
-
-| # | Current State | Required Change | Priority |
-|---|---------------|----------------|----------|
-| 1 | ExploreProjects badges are now data-driven | ✅ Already fixed — no change needed | ~~High~~ Done |
-| 2 | MyProjects score uses hardcoded formula | Store score in DB or make weights configurable | Medium |
-| 3 | Trending threshold inconsistent across 3 locations | Standardize threshold: same definition everywhere | Medium |
-| 4 | Community page is entirely static (except stats) | Fetch and display platform stats, recent projects, top contributors | Medium |
-| 5 | Dashboard "Community Rank" is placeholder | Implement ranking algorithm or remove placeholder | Low |
-| 6 | Category chips in ExploreProjects are hardcoded | Derive from actual techStack values across all projects | Low |
-| 7 | Average rating computed in 5+ places | Centralize in backend response, single source of truth | High |
+| Location | Type | Value | Impact |
+|----------|------|-------|--------|
+| `MyProjects.jsx:256` | Fabricated views metric | `Math.floor((likes*4)+(reviews*3)+12)` — presented as "views" | **High** — Misleading users with fake data |
+| `ExploreUsers.jsx:398-425` | Hero card mock data | Hardcoded "Hamid Rza", "18 repos", "56 reviews", "132 likes" | **Medium** — Decorative but confusing |
+| `ExploreUsers.jsx:354,366` | Hardcoded stats | "4.9 rating", "2.4K commits" | **Medium** — Decorative but confusing |
+| `MyProfile.jsx:750` | Fallback tech stack | `["React", "Node.js"]` when `project.techStack` is falsy | **Low** — Only shows when data missing |
+| `ExploreProjects.jsx:29-40` | Category chips | `["All", "Full Stack", "Frontend", ...]` — hardcoded filter options | **Low** — Client-side filter, acceptable |
+| `Dashboard.jsx:309` | Default thumbnail | Unsplash fallback image URL | **Low** — Standard fallback |
+| `Community.jsx:38-64` | Feature cards | Hardcoded marketing copy | **Low** — Marketing page, acceptable |
+| `SupportModal.jsx:8-13` | Categories | `["Bug", "Feature", "Feedback", "Support"]` | **Low** — Acceptable |
+| `Dashboard.jsx:413-421` | Community Rank sidebar | Static placeholder text | **Low** — Not functional, decorative |
 
 ---
 
-## 22. Priority List
+## 9. API Audit
 
-### P0 — Critical (Fix Immediately)
-1. ✅ ~~Add rate limiting to auth endpoints~~ — NOT DONE, still needed
-2. ✅ ~~Add CSRF protection for cookie-based auth~~ — NOT DONE, still needed
-3. ✅ ~~Add OTP attempt limiting (max 5 attempts)~~ — NOT DONE, still needed
-4. ~~Fix `getExploreProjects` to return `isSaved` field~~ — ✅ DONE
-5. ~~Fix `getAllUsers` N+1 query~~ — ✅ DONE (uses aggregation)
+### Working APIs (~45 endpoints)
 
-### P1 — High (Fix Before Launch)
-1. Add helmet.js for security headers — NOT DONE
-2. ✅ ~~Remove `console.log` statements from production code~~ — NOT DONE (36 occurrences remain)
-3. ~~Fix `projectController.js.js` double extension filename~~ — ✅ DONE
-4. Centralize average rating calculation (backend only) — NOT DONE
-5. Add notification preference checks for like/follow notifications — NOT DONE
-6. **NEW: Fix `getProjectById` to return `isSaved` field** — NOT DONE
-7. **NEW: Fix route ordering — move `GET /saved/me` before `GET /:id`** — NOT DONE
-8. **NEW: Fix `getFollowers`/`getFollowing` frontend — add `credentials: "include"`** — NOT DONE
+| Route Group | Endpoints | Status |
+|-------------|-----------|--------|
+| `/api/auth/*` | signup, verify-otp, login, google, forgot-password, reset-password, me (GET/PATCH), me/password, logout | ✅ All working |
+| `/api/users/*` | `:username`, `/`, `:username/follow`, `:username/followers`, `:username/following` | ✅ All working |
+| `/api/projects/*` | `/`, `/my`, `/explore`, `/my-reviews`, `/:id/edit` (GET/PUT), `/:id`, `/:projectId/save`, `/saved/me`, `/:id/review` (GET/POST/PUT/DELETE), `/:id/like`, `/:id` (DELETE) | ✅ All working |
+| `/api/user/projects/:username` | Get projects by username | ✅ Working |
+| `/api/upload` | Image upload to Cloudinary | ✅ Working (no auth) |
+| `/api/stats` | Platform statistics | ✅ Working |
+| `/api/notifications/*` | unread-count, `/` (GET), read-all, `/:id/read` | ✅ All working |
+| `/api/reviews/*` | unread-count, `/:reviewId/read` | ✅ All working |
+| `/api/support` | Create support request | ✅ Working |
+| `/api/chat/*` | send, conversations, messages/:conversationId, unread-count, messages/:conversationId/read, user/:userId | ✅ All working |
+| `/api/leaderboard/*` | `/`, `/me`, `/user/:userId`, `/initialize` | ✅ All working |
 
-### P2 — Medium (Fix Soon)
-1. Add message pagination to chat — NOT DONE
-2. Add notification pagination — NOT DONE
-3. Add loading states to CreateProjects, Settings — NOT DONE
-4. Add empty states to Messages — NOT DONE
-5. Add error states to CreateProjects — NOT DONE
-6. Implement `weeklyDigest` email sending or remove the preference — NOT DONE
-7. Add TTL index on OTP collection for auto-cleanup — NOT DONE
-8. Add database indexes for Messages, Notifications, Users.savedProjects — NOT DONE
-9. Add `express.json({ limit: '10mb' })` — NOT DONE
-10. Remove all `console.log` from frontend service files — NOT DONE
-11. Add password length validation on signup — NOT DONE
-12. Add email format validation — NOT DONE
+### Mismatched APIs
 
-### P3 — Low (Nice to Have)
-1. Add WebSocket for real-time chat — NOT DONE
-2. Add typing indicators — NOT DONE
-3. Add online/offline status — NOT DONE
-4. Add soft delete for projects — NOT DONE
-5. Add image/file sharing in chat — NOT DONE
-6. Add JWT token rotation/refresh — NOT DONE
-7. Implement Community page dynamic content — NOT DONE
-8. Implement ranking/leaderboard — NOT DONE
-9. Derive category chips from actual data — NOT DONE
-10. Clean up legacy `GitBranchUrl` field reference — NOT DONE
-11. Remove dead trending filter code path — NOT DONE
+| Frontend | Backend | Issue |
+|----------|---------|-------|
+| `reviewApis.js` `editReview` sends `{ reviewRating, reviewComment }` | `reviewController.js` `editReview` expects `{ reviewRating, reviewComment }` | ✅ Now consistent (both use `reviewRating`/`reviewComment`) |
+| `reviewApis.js` `addReviews` sends `{ rating, review }` | `reviewController.js` `addReviews` expects `{ rating, review }` | ✅ Consistent, but different from edit — confusing naming |
+
+### Unused APIs
+
+| Endpoint | Description |
+|----------|-------------|
+| None identified | All backend endpoints have at least one frontend consumer |
+
+### Missing APIs
+
+| Feature | Needed Endpoint | Priority |
+|---------|----------------|----------|
+| Notification preferences enforcement | Backend should check preferences for like/follow notifications | Medium |
+| Message pagination | Backend `getMessages` loads all messages — needs cursor/limit | Medium |
+| Notification pagination | Backend `getNotifications` needs proper limit/cursor | Medium |
 
 ---
 
-## 23. Implementation Phases
+## 10. Database Audit
+
+### Schema Issues
+
+| Model | Issue | Severity |
+|-------|-------|----------|
+| Users | `password` field lacks `select: false` — can leak via unguarded queries | High |
+| Users | No `savedProjects` index — used in `getExploreProjects` and `deleteProject` | Medium |
+| OTP | No TTL index on `expiresAt` — expired OTPs never cleaned up | Medium |
+| OTP | No `email+type` compound index — lookup performance | Low |
+| Message | No index on `conversationId+createdAt` — `getMessages` sorts by this | Medium |
+| Message | No index on `isRead+sender` — `getUnreadCount` filters on these | Low |
+| Notification | No `recipient+isRead` index — `getUnreadNotificationCount` filters on this | Medium |
+| Support | No indexes on `user`, `status`, `category` | Low |
+| Projects | No explicit index — `owner+createdAt` used by `getMyProjects` | Low |
+
+### Data Integrity
+
+| Issue | Description | Severity |
+|-------|-------------|----------|
+| No cascade delete for reviews | Deleting a project does NOT delete its reviews — orphaned reviews remain | Medium |
+| No cascade delete for notifications | Deleting a project/user does NOT clean up notifications | Medium |
+| No soft delete | Hard delete only — data permanently removed | Low |
+| No follow limit | Users can follow unlimited accounts | Low |
+
+---
+
+## 11. Frontend Audit
+
+### Pages Overview
+
+| Page | API Data | Loading | Error | Empty | Mock Data | Issues |
+|------|----------|---------|-------|-------|-----------|--------|
+| Layout (auth guard) | N/A | ✅ | ❌ No error boundary | N/A | None | Blank flash after redirect |
+| Dashboard | ✅ | ✅ | ✅ | ✅ | None | `.catch()` silently swallows API errors |
+| Explore Projects | ✅ | ✅ | ✅ | ✅ | None | None |
+| Create Project | ✅ | ✅ | ✅ | N/A | None | `GitBranchUrl` naming inconsistency; silent upload fail |
+| My Projects | ✅ | ✅ | ✅ | ✅ | **Fake views** | Fabricated metric; no error catch on like |
+| Saved Projects | ✅ | ✅ | ✅ | ✅ | None | Toggle logic unclear |
+| Single Project | ✅ | ✅ | ✅ | ✅ | None | `new URL()` crash risk; artificial 1200ms delay |
+| Edit Project | ✅ | ✅ | ✅ | N/A | None | Debug message in UI; broken cancel button |
+| Explore Users | ✅ | ✅ | ✅ | ✅ | **Hero card mock** | Hardcoded "Hamid Rza" stats |
+| User Profile | ✅ | ✅ | ✅ | ✅ | None | None |
+| My Profile | ✅ | ✅ | ✅ | ✅ | **Fallback stack** | Artificial 600ms delay; 960-line component |
+| Settings | ✅ | ✅ | ✅ | N/A | None | None |
+| Notifications | ✅ | ✅ | ✅ | ✅ | None | IntersectionObserver recreated on state change |
+| Reviews | ✅ | ✅ | ✅ | ✅ | None | Artificial 1000ms delay; fire-and-forget read |
+| Messages | Delegated | ✅ | N/A | ✅ | None | Placeholder index page |
+| Community | ✅ | ✅ | ✅ | N/A | None | None |
+| Leaderboard | ✅ | ✅ | ✅ | ✅ | None | None |
+
+### Component Issues
+
+| Component | Issue | Severity |
+|-----------|-------|----------|
+| `Project.jsx` | Local toast system instead of `ToastContext` | Low |
+| `MyProfile.jsx` | Local toast system instead of `ToastContext` | Low |
+| `ExploreUsers.jsx` | 805 lines — should be decomposed | Low |
+| `ExploreProjects.jsx` | 810 lines — should be decomposed | Low |
+| `MyProfile.jsx` | 960 lines — should be decomposed | Low |
+| `Project.jsx` | 830 lines — should be decomposed | Low |
+| `Chat.jsx` | Duplicate empty state rendering (lines 346-362) | Medium |
+| `ConversationList.jsx` | Uses `<img>` instead of Next.js `<Image>` for avatars | Low |
+| `EditProject.jsx` | Cancel button has no `onClick` handler | Low |
+| `EditProject.jsx` | No redirect after successful update | Low |
+
+---
+
+## 12. Backend Audit
+
+### Controller Issues
+
+| Controller | Issue | Severity |
+|------------|-------|----------|
+| `auth.controller.js` | `updateMe` whitelist includes `role` — privilege escalation | Critical |
+| `auth.controller.js` | OTP comparison uses `!==` — timing attack vulnerable | High |
+| `auth.controller.js` | `forgotPassword` returns "User not found" — account enumeration | High |
+| `auth.controller.js` | Returns 200 on signup (should be 201) | Low |
+| `reviewController.js` | Returns 403 for validation errors (should be 400) | Low |
+| `reviewController.js` | Typos: "Invalid Reivew", "Reveiw Not Found" | Low |
+| `projectController.js` | `||` operator prevents setting fields to empty strings | Low |
+| `projectController.js` | `getExploreProjects` has no pagination | Medium |
+| `notificationController.js` | `markNotificationRead`/`markAll` have no try/catch | High |
+| `support.controller.js` | No input length validation | Medium |
+| `leaderboardController.js` | `initializeMissingLeaderboards` has no auth | Critical |
+| `chatController.js` | `getConversations` has no pagination | Medium |
+| Multiple controllers | Error messages leak `error.message` to client | Medium |
+
+### Middleware Issues
+
+| Middleware | Issue | Severity |
+|-----------|-------|----------|
+| `auth.middleware.js` | No token revocation — logged-out JWTs valid for 7 days | Medium |
+| `auth.middleware.js` | No user-exists-in-DB check after JWT verification | Medium |
+| `rateLimiter.middleware.js` | No `trust proxy` setting for reverse proxy | Low |
+| `upload.js` | No auth middleware on route | Critical |
+
+### Server Issues
+
+| Issue | Severity |
+|-------|----------|
+| No global error handler — unhandled async errors crash server | High |
+| No 404 handler — undefined routes return HTML instead of JSON | Medium |
+| CORS allows `localhost:3000` in production | Low |
+
+---
+
+## 13. Production Readiness
+
+### Production Readiness: **6.5/10**
+
+**What's working well:**
+- All major features functional end-to-end
+- Authentication flow complete (JWT cookies, Google OAuth, OTP)
+- CRUD operations for projects, reviews, chat, notifications
+- Frontend has good loading/error/empty states
+- Rate limiting on auth endpoints
+- Security headers via helmet
+- Body size limits configured
+
+**What blocks production:**
+1. Privilege escalation via `role` field in `updateMe`
+2. Unauthenticated upload endpoint
+3. Unauthenticated leaderboard initialize endpoint
+4. No global error handler (server crashes on unhandled async errors)
+5. `sendEmail` crashes on failure (no try/catch)
+6. Password field not hidden in User model (`select: false`)
+7. OTP timing attack vulnerability
+8. Account enumeration via forgot password
+
+**What should wait:**
+- WebSocket/real-time chat
+- Message/notification pagination
+- Cascade deletes
+- JWT refresh tokens
+- Community page dynamic content
+- Typing indicators, online status
+
+---
+
+## 14. Priority Fix Plan
+
+### P0 — Critical (Must fix before production)
+
+| # | Problem | Why It Matters | Location | Recommended Solution |
+|---|---------|---------------|----------|---------------------|
+| 1 | `updateMe` whitelist includes `role` | Users can make themselves admin | `auth.controller.js:445` | Remove `role` from the whitelist array |
+| 2 | Upload route has no auth | Anyone can upload images to your Cloudinary | `upload.routes.js:6` | Add `authMiddleware` to the route |
+| 3 | Leaderboard initialize unprotected | Anyone can trigger POST to manipulate data | `leaderboardRoutes.js:14` | Add `authMiddleware` + admin check |
+| 4 | No global error handler | Unhandled async errors crash the server | `server.js` | Add error-handling middleware after routes |
+| 5 | `sendEmail` has no try/catch | Email service outage crashes requests | `utils/sendEmail.js` | Wrap in try/catch, return failure gracefully |
+
+### P1 — High (Should fix before production)
+
+| # | Problem | Why It Matters | Location | Recommended Solution |
+|---|---------|---------------|----------|---------------------|
+| 6 | User password field not hidden | Potential hash leakage via unguarded queries | `Users.js:18-23` | Add `select: false` to password field |
+| 7 | OTP timing attack | Brute-force OTP character by character | `auth.controller.js:103` | Use `crypto.timingSafeEqual` for comparison |
+| 8 | Account enumeration | Attacker can enumerate valid emails | `auth.controller.js:299` | Return generic "If account exists, OTP sent" message |
+| 9 | `markNotificationRead` no try/catch | DB errors crash notification interactions | `notificationController.js:52-65` | Add try/catch with structured error response |
+| 10 | Debug message in EditProject UI | "Check your browser console..." visible to users | `EditProject.jsx:228` | Replace with "Project updated successfully!" |
+| 11 | `new URL()` crash risk | Component crashes on malformed liveUrl | `Project.jsx:383` | Wrap in try/catch, show fallback hostname |
+| 12 | `notificationController` missing error handling | Server crashes on DB errors | `notificationController.js:52-65` | Add try/catch blocks |
+
+### P2 — Medium (Important improvements)
+
+| # | Problem | Why It Matters | Location | Recommended Solution |
+|---|---------|---------------|----------|---------------------|
+| 13 | `getExploreProjects` no pagination | DoS risk at scale | `projectController.js:171` | Add limit/skip pagination |
+| 14 | 3 API calls per navigation | Excessive requests on every page change | `Sidebar.jsx` | Batch into single endpoint or poll at intervals |
+| 15 | Notification preferences ignored for like/follow | Users can't control notification noise | `projectController.js:377`, `userController.js:106` | Add preference checks before creating notifications |
+| 16 | `weeklyDigest` preference no consumer | Feature is a dead placeholder | Settings/DB | Implement email job or remove preference |
+| 17 | No database indexes | Query performance degrades with data growth | Multiple models | Add indexes for Messages, Notifications, OTP, Users.savedProjects |
+| 18 | Error messages leak internals | Security information disclosure | Multiple controllers | Replace `error.message` with generic messages |
+| 19 | Wrong HTTP status codes | API contract inconsistency | `auth.controller.js`, `reviewController.js` | Use 201 for creation, 400 for validation |
+| 20 | No pagination on `getConversations` | Performance with many conversations | `chatController.js` | Add limit/cursor pagination |
+| 21 | Fabricated views metric | Misleading users with fake data | `MyProjects.jsx:256` | Remove or replace with real data |
+| 22 | Hero card mock data | Confusing hardcoded stats | `ExploreUsers.jsx:398-425` | Remove or replace with dynamic content |
+| 23 | Duplicate empty state in Chat | Two empty states render simultaneously | `Chat.jsx:346-362` | Remove one of the duplicate conditions |
+| 24 | Silent DB connection failure | Server starts even if DB is unreachable | `config/db.js:8-9` | Log error and exit process |
+
+### P3 — Low (Nice-to-have improvements)
+
+| # | Problem | Why It Matters | Location | Recommended Solution |
+|---|---------|---------------|----------|---------------------|
+| 25 | No CSRF protection | Potential cross-site request forgery | `server.js` | Add CSRF middleware (partially mitigated by SameSite) |
+| 26 | JWT lacks refresh/rotation | 7-day token with no revocation | `generateToken.js` | Implement refresh token rotation |
+| 27 | Chat is polling-based | No real-time messaging | `Chat.jsx` | Integrate Socket.io |
+| 28 | No message pagination | All messages loaded at once | `chatController.js` | Add cursor-based pagination |
+| 29 | Cancel button non-functional | UX confusion | `EditProject.jsx:416` | Add `onClick` handler for navigation/reset |
+| 30 | `calculateAverageRating` unused import | Dead code | `projectController.js:6` | Remove unused import |
+| 31 | Legacy `GitBranchUrl` reference | Dead code | `MyProfile.jsx:121,263` | Remove fallback references |
+| 32 | Trending threshold inconsistency | Different values in 3 locations | `Project.jsx:407`, `ExploreProjects.jsx:590,190` | Standardize to one threshold |
+| 33 | `console.log` in SupportModal | Debug log in production | `SupportModal.jsx:87` | Remove console.log |
+| 34 | Artificial loading delays | Unnecessary UX delays (600-1200ms) | `Project.jsx:138`, `MyProfile.jsx:130`, `ReviewsReceived.jsx:51` | Remove setTimeout delays |
+| 35 | Review field name typos | Unprofessional error messages | `reviewController.js:39,209` | Fix "Reivew" → "Review", "Reveiw" → "Review" |
+| 36 | Duplicate toast systems | Code duplication | `Project.jsx`, `MyProfile.jsx` | Use `ToastContext` instead |
+| 37 | Large components | Maintainability | `MyProfile.jsx`, `ExploreUsers.jsx`, `ExploreProjects.jsx`, `Project.jsx` | Decompose into smaller components |
+| 38 | Category chips hardcoded | Not derived from actual data | `ExploreProjects.jsx:29-40` | Derive from techStack values across projects |
+| 39 | Dashboard Community Rank placeholder | Non-functional UI | `Dashboard.jsx:413-421` | Connect to leaderboard API or remove |
+| 40 | Inconsistent service error patterns | `supportApis.js` throws; others return `{ success: false }` | `supportApis.js` | Standardize error handling pattern |
+
+---
+
+## 15. Recommended Implementation Order
 
 ### Phase 1: Security Hardening (1-2 days)
-- [ ] Install and configure `express-rate-limit`
-- [ ] Add rate limiting to `/api/auth/*` routes
-- [ ] Install and configure `helmet`
-- [ ] Add `express.json({ limit: '10mb' })`
-- [ ] Add CSRF middleware (e.g., `csrf-csrf` or double-submit cookie)
-- [ ] Add OTP attempt tracking (max 5 per email)
-- [ ] Add OTP TTL index for auto-cleanup
-- [ ] Add password length validation on signup (min 6 chars)
-- [ ] Add email format validation
-- [ ] Add JWT algorithm pinning (`{ algorithms: ["HS256"] }`)
-- [ ] Fix silent DB connection failure (log error in `config/db.js`)
+1. Remove `role` from `updateMe` whitelist
+2. Add auth to upload route
+3. Add auth + admin check to leaderboard initialize
+4. Add global error handler to server.js
+5. Wrap `sendEmail` in try/catch
+6. Add `select: false` to User password field
+7. Fix OTP timing attack with `crypto.timingSafeEqual`
+8. Fix account enumeration in `forgotPassword`
 
 ### Phase 2: Bug Fixes (1-2 days)
-- [x] ~~Rename `projectController.js.js` to `projectController.js`~~ — DONE
-- [x] ~~Fix `getExploreProjects` to include `isSaved` field per user~~ — DONE
-- [x] ~~Fix `getAllUsers` to use aggregation instead of N+1~~ — DONE
-- [ ] Fix `getProjectById` to return `isSaved` field per user
-- [ ] Fix `Project.jsx` to set `bookmarked` from API response
-- [ ] Fix route ordering: move `GET /saved/me` before `GET /:id` in `projectRoutes.js`
-- [ ] Fix `getFollowers`/`getFollowing` frontend — add `credentials: "include"` to `usersApi.js`
-- [ ] Fix orphaned `reviews` when project is deleted
-- [ ] Add notification preference checks for like/follow notifications
-- [ ] Remove unused `calculateAverageRating` import from `projectController.js`
+9. Add try/catch to `markNotificationRead`/`markAllNotificationsRead`
+10. Fix debug message in EditProject.jsx
+11. Add try/catch around `new URL()` in Project.jsx
+12. Fix duplicate empty state in Chat.jsx
+13. Fix fabricated views metric in MyProjects.jsx
+14. Fix hero card mock data in ExploreUsers.jsx
+15. Fix notification preference checks for like/follow
 
-### Phase 3: UX Improvements (2-3 days)
-- [ ] Add loading skeletons to CreateProjects, Settings
-- [ ] Add empty states to Messages
-- [ ] Add error states to CreateProjects
-- [ ] Centralize average rating in backend responses
-- [ ] Add database indexes for Messages, Notifications, Users.savedProjects, OTP
-- [ ] Remove all `console.log` from frontend service files (36 occurrences)
-- [ ] Clean up legacy `GitBranchUrl` fallback
-- [ ] Remove dead trending filter code path
+### Phase 3: Performance & UX (2-3 days)
+16. Add pagination to `getExploreProjects`
+17. Optimize Sidebar badge fetching (batch or interval)
+18. Add database indexes (Messages, Notifications, OTP, Users)
+19. Fix silent DB connection failure
+20. Remove artificial loading delays
+21. Fix error message leaking in controllers
+22. Fix HTTP status codes
 
 ### Phase 4: Feature Completion (3-5 days)
-- [ ] Implement `weeklyDigest` email or remove preference
-- [ ] Add notification preference checks for like/follow
-- [ ] Add message pagination (infinite scroll)
-- [ ] Add notification pagination (backend)
-- [ ] Implement cascade delete or orphan cleanup for reviews/notifications
-- [ ] Add soft delete for projects
-- [ ] Implement Community page with dynamic stats
-- [ ] Implement ranking/leaderboard system
+23. Add message pagination
+24. Add notification pagination
+25. Implement `weeklyDigest` or remove preference
+26. Add cascade delete for reviews/notifications
+27. Standardize trending thresholds
+28. Implement dynamic category chips
 
 ### Phase 5: Real-time & Advanced (5-7 days)
-- [ ] Integrate Socket.io for real-time chat
-- [ ] Add typing indicators
-- [ ] Add online/offline status
-- [ ] Add image/file sharing in chat
-- [ ] Implement JWT refresh token rotation
-- [ ] Add WebSocket-based notification push
+29. Integrate Socket.io for real-time chat
+30. Add typing indicators
+31. Add JWT refresh token rotation
+32. Add CSRF protection
+33. Implement Community page dynamic content
 
 ---
 
-## 24. Before Testing Checklist
+## 16. Final Verdict
 
-### Backend
-- [ ] All environment variables documented (JWT_SECRET, MONGODB_URI, GOOGLE_CLIENT_ID, CLOUDINARY_*, SMTP_*)
-- [ ] CORS configuration reviewed for production
-- [ ] Rate limiting configured
-- [ ] Security headers enabled (helmet)
-- [ ] Database indexes created
-- [ ] Error handling consistent across all controllers
-- [ ] No `console.log` in production controllers
-- [ ] `connectDB` logs errors on failure
+### Is DevReview functionally complete?
+**Yes** — All major features (auth, projects, reviews, chat, notifications, follow, like, save, leaderboard, support) are implemented and connected to real APIs. The application is a functional full-stack platform.
 
-### Frontend
-- [ ] All API service functions handle errors properly (return error objects, not undefined)
-- [ ] Loading states present on all pages
-- [ ] Empty states present on all list views
-- [ ] Error states present on all data-fetching pages
-- [ ] Optimistic UI updates revert on API failure
-- [ ] No `console.log` in production code
-- [ ] All interactive elements have proper `aria-label` attributes
-- [ ] Forms have proper validation
+### Is it production-ready?
+**No** — There are 5 critical security vulnerabilities that must be fixed before any production deployment. The privilege escalation via `role` field, unauthenticated upload/leaderboard endpoints, missing global error handler, and `sendEmail` crash on failure are all deployment blockers.
 
-### Database
-- [ ] Indexes created for Messages, Notifications, Reviews, OTP, Users.savedProjects
-- [ ] TTL index on OTP collection
-- [ ] Compound unique index on Reviews verified
-- [ ] Orphaned document cleanup strategy defined
+### What is blocking production?
+- Privilege escalation (role field in updateMe)
+- Unauthenticated upload endpoint
+- Unauthenticated leaderboard initialize
+- No global error handler
+- sendEmail crash on failure
+- Password field not hidden in model
+- OTP timing attack
+- Account enumeration
 
-### Security
-- [ ] Rate limiting active on auth endpoints
-- [ ] CSRF protection enabled
-- [ ] OTP attempt limiting active
-- [ ] HTTP security headers present
-- [ ] No secrets in client-side code
-- [ ] `.env` files in `.gitignore`
+### What can safely wait?
+- Real-time chat (Socket.io)
+- Message/notification pagination
+- JWT refresh tokens
+- CSRF protection
+- Community page dynamic content
+- Cascade deletes
+- Typing indicators, online status
 
-### Integration
-- [ ] Login → Dashboard flow works end-to-end
-- [ ] Signup → OTP → Verify → Login flow works
-- [ ] Google OAuth flow works
-- [ ] Project CRUD flow works
-- [ ] Review CRUD flow works
-- [ ] Like/Save toggle works across all pages
-- [ ] Follow/Unfollow works across all pages
-- [ ] Chat send/receive works
-- [ ] Notifications appear and can be marked read
-- [ ] Settings changes persist
-- [ ] Image upload works (profile + project thumbnail)
-- [ ] Saved Projects page loads correctly (route ordering fix needed)
-- [ ] Single project view shows correct bookmark state
-
----
-
-## 25. Summary Statistics
-
-| Metric | Count |
-|--------|-------|
-| Frontend Pages | 15 |
-| Backend Route Groups | 10 |
-| Backend Controllers | 9 (including `leaderboardController.js`) |
-| MongoDB Models | 8 |
-| Frontend API Services | 15 |
-| Frontend Components | 20+ |
-| API Endpoints | ~45 |
-| Security Issues Found | 8 confirmed + 8 moderate |
-| Dead Code Locations | 3 valid (after removing stale references) |
-| Duplicate Code Patterns | 6 |
-| Missing Loading States | 2 (CreateProjects, Settings) |
-| Missing Empty States | 1 (Messages) |
-| Missing Error States | 1 (CreateProjects) |
-| Features Complete | 21 |
-| Features Partial | 5 |
-| Features Static | 3 |
-| Console.log in Frontend | 36 occurrences across 15 files |
-
----
-
-## 26. Changelog
-
-### Re-audit: September 2, 2026
-
-**Items verified as FIXED (previously pending):**
-- ✅ `projectController.js.js` renamed to `projectController.js`
-- ✅ `getExploreProjects` now returns `isSaved` per user
-- ✅ `getAllUsers` N+1 query fixed (uses batched aggregation)
-- ✅ ExploreProjects badges now data-driven (not cyclic rotation)
-- ✅ Loading states added to Notifications, ReviewsReceived, Chat, ExploreUsers
-- ✅ Error state added to Dashboard
-- ✅ Empty states added to Notifications, ReviewsReceived, ExploreUsers
-
-**Items verified as STALE/INVALID (removed from pending):**
-- ❌ `getReviewForEdit` — function does NOT exist in the codebase. Was a phantom reference.
-- ❌ `getFollowers`/`getFollowing` — ARE called from frontend (but have `credentials` issue). Old audit incorrectly stated "NO frontend component calls them."
-
-**New issues discovered:**
-- 🔴 Route ordering bug: `GET /saved/me` shadowed by `GET /:id` in `projectRoutes.js`
-- 🔴 `getProjectById` missing `isSaved` field — `Project.jsx` `bookmarked` always false on load
-- 🟡 Silent DB connection failure — empty catch in `config/db.js`
-- 🟡 36 `console.log` statements across 15 frontend service files
-- 🟡 No password length validation on signup
-- 🟡 No email format validation
-- 🟡 No OTP attempt limiting
-- 🟡 JWT verify lacks algorithm pinning
-- 🟡 No user-exists-in-DB check on auth middleware
-- 🟢 `getFollowers`/`getFollowing` frontend missing `credentials: "include"`
-- 🟢 Dead code path: trending filter unreachable (not in CATEGORIES array)
-- 🟢 `calculateAverageRating` imported but unused
-- 🟢 Trending thresholds inconsistent across 3 locations
-
-**Updated status:**
-- Features Partial: 4 → 5 (added Single Project View bookmark state, Saved Projects route issue)
-- Security Issues: 8 critical + 8 moderate → 3 critical + 13 moderate (refined categorization)
-- Dead Code Locations: 6 → 3 valid (removed stale references)
-- Console.log count: "multiple" → 36 across 15 files
+### What should be implemented next?
+**Phase 1: Security Hardening** — Fix the 8 critical/high security issues listed in P0 and P1. These are all straightforward fixes that can be completed in 1-2 days and are essential for any production deployment.
 
 ---
 
