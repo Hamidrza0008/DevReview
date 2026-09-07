@@ -100,7 +100,8 @@ const verifyOTP = async (req, res) => {
             })
         }
 
-        if (otpRecord.otp !== otp) {
+        if (typeof otp !== "string" || otp.length !== otpRecord.otp.length ||
+            !crypto.timingSafeEqual(Buffer.from(otpRecord.otp), Buffer.from(otp))) {
             return res.status(400).json({
                 message: "Invalid OTP"
             })
