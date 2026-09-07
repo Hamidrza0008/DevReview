@@ -60,5 +60,35 @@ app.use("/api/chat", chatRoutes);
 
 app.use("/api/leaderboard", leaderboardRoutes);
 
+app.use((err, req, res, next) => {
+    if (process.env.NODE_ENV !== "production") {
+        console.error(err);
+    }
+
+    if (res.headersSent) {
+        return next(err);
+    }
+
+    let statusCode = err.statusCode || 500;
+    let message = "Internal Server Error";
+
+    if (err.code === "LIMIT_FILE_SIZE") {
+        statusCode = 400;
+        message = "File size exceeds the 5MB limit";
+    } else if (err.name === "CastError") {
+        statusCode = 400;
+        message = "Invalid ID format";
+    } else if (err.name === "ValidationError") {
+        statusCode = 400;
+        message = "Validation failed";
+    } else if (process.env.NODE_ENV !== "production") {
+        message = err.message || "Internal Server Error";
+    }
+
+    res.status(statusCode).json({
+        success: false,
+        message,
+    });
+});
 
 app.listen(PORT, () => { });
