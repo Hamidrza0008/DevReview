@@ -445,7 +445,6 @@ const updateMe = async (req, res) => {
         const allowedFields = [
             "name",
             "username",
-            "role",
             "bio",
             "skills",
             "profileImage",
