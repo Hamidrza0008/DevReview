@@ -171,7 +171,7 @@ const login = async (req, res) => {
             });
         }
 
-        const token = generateToken(user._id);
+        const token = generateToken(user._id, user.role);
 
         res.cookie("token", token, {
             httpOnly: true,
@@ -255,7 +255,7 @@ const googleAuth = async (req, res) => {
             await user.save();
         }
 
-        const token = generateToken(user._id);
+        const token = generateToken(user._id, user.role);
 
         res.cookie("token", token, {
             httpOnly: true,
