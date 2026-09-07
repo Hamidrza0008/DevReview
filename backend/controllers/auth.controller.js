@@ -296,31 +296,27 @@ const forgotPassword = async (req, res) => {
 
         const user = await Users.findOne({ email });
 
-        if (!user) {
-            return res.status(400).json({
-                message: "User not found"
+        if (user) {
+            const otp = crypto.randomInt(100000, 999999).toString();
+            const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+            await OTP.deleteMany({
+                email,
+                type: "RESET_PASSWORD",
+            });
+
+            await OTP.create({
+                email,
+                otp,
+                expiresAt,
+                type: "RESET_PASSWORD"
             })
+
+            await sendEmail(email, otp);
         }
 
-        const otp = crypto.randomInt(100000, 999999).toString();
-        const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
-        await OTP.deleteMany({
-            email,
-            type: "RESET_PASSWORD",
-        });
-
-        await OTP.create({
-            email,
-            otp,
-            expiresAt,
-            type: "RESET_PASSWORD"
-        })
-
-        await sendEmail(email, otp);
-
         return res.status(200).json({
-            message: "Password reset OTP sent successfully",
+            message: "If an account exists for this email, a reset OTP has been sent.",
             success: true,
         })
     } catch (error) {
