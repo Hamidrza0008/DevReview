@@ -143,7 +143,7 @@ const login = async (req, res) => {
             return res.status(400).json({ message: emailError });
         }
 
-        const user = await Users.findOne({ email });
+        const user = await Users.findOne({ email }).select("+password");
 
         if (!user) {
             return res.status(400).json({
