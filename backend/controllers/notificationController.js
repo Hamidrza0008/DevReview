@@ -50,18 +50,26 @@ const getNotifications = async(req, res) => {
 }
 
 const markNotificationRead = async (req, res) => {
-    const notification = await Notification.findOneAndUpdate(
-        { _id: req.params.id, recipient: req.user.id },
-        { $set: { isRead: true } },
-        { new: true }
-    );
-    if (!notification) return res.status(404).json({ success: false, message: "Notification not found" });
-    return res.status(200).json({ success: true, notification });
+    try {
+        const notification = await Notification.findOneAndUpdate(
+            { _id: req.params.id, recipient: req.user.id },
+            { $set: { isRead: true } },
+            { new: true }
+        );
+        if (!notification) return res.status(404).json({ success: false, message: "Notification not found" });
+        return res.status(200).json({ success: true, notification });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
 };
 
 const markAllNotificationsRead = async (req, res) => {
-    await Notification.updateMany({ recipient: req.user.id, isRead: false }, { $set: { isRead: true } });
-    return res.status(200).json({ success: true });
+    try {
+        await Notification.updateMany({ recipient: req.user.id, isRead: false }, { $set: { isRead: true } });
+        return res.status(200).json({ success: true });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
 };
 
 const getUnreadNotificationCount = async (req, res) => {
