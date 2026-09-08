@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Plus, Heart, MessageSquare, ExternalLink, GitBranch, FolderGit2, Eye, AlertCircle } from 'lucide-react';
+import { Plus, Heart, MessageSquare, ExternalLink, GitBranch, FolderGit2, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getMyProjects } from '@/services/getMyProjectsApi';
 import { toggleLikes } from '@/services/toggleLikesApi';
@@ -251,10 +251,7 @@ export default function MyProjects() {
                     <MessageSquare className="w-3.5 h-3.5 text-muted group-hover/msg:text-accent transition-colors" />
                     <span className="text-ink font-semibold">{getProjectReviewsCount(project)}</span>
                   </span>
-                  <span className="flex items-center space-x-1 text-muted/60 select-none">
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>{Math.floor((getProjectLikesCount(project) * 4) + (getProjectReviewsCount(project) * 3) + 12)}</span>
-                  </span>
+
                 </div>
 
                 <span className="text-[10px] text-muted/70 font-normal font-sans">
