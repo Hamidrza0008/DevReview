@@ -225,7 +225,7 @@ export default function EditProject() {
             <svg className="h-4 w-4 text-ok flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Project updated successfully! Check your browser console to see the updated payload.
+            Project updated successfully!
           </div>
         )}
 
