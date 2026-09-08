@@ -344,14 +344,6 @@ export default function Chat({ receiverId, conversationId }) {
         )}
 
         {messages.length === 0 && (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-sm text-muted">
-              No messages yet. Say hello!
-            </p>
-          </div>
-        )}
-
-        {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-64 text-center p-6">
             <div className="w-12 h-12 rounded-2xl bg-surface-2 border border-line flex items-center justify-center text-accent mb-3 shadow-xs">
               <MessageSquare className="w-6 h-6 opacity-70" />
