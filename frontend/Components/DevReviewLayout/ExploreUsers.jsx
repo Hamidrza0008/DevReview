@@ -351,8 +351,8 @@ export default function ExploreUsers() {
               className="absolute top-6 -left-6 z-20 bg-surface border border-line rounded-2xl shadow-xl shadow-accent/10 px-4 py-2.5 flex items-center gap-2"
             >
               <Star className="w-4 h-4 text-star fill-star" />
-              <span className="text-sm font-extrabold text-ink">4.9</span>
-              <span className="text-[10px] font-semibold text-muted">rating</span>
+              <span className="text-sm font-extrabold text-ink">{users.length > 0 ? (users[0].totalLikes || 0) : "—"}</span>
+              <span className="text-[10px] font-semibold text-muted">likes</span>
             </motion.div>
 
 
@@ -362,8 +362,8 @@ export default function ExploreUsers() {
               className="absolute bottom-10 -right-4 z-20 bg-surface border border-line rounded-2xl shadow-xl shadow-accent/10 px-4 py-2.5 flex items-center gap-2"
             >
               <GitBranch className="w-4 h-4 text-accent" />
-              <span className="text-sm font-extrabold text-ink">2.4K</span>
-              <span className="text-[10px] font-semibold text-muted">commits</span>
+              <span className="text-sm font-extrabold text-ink">{users.length > 0 ? (users[0].totalProjects || 0) : "—"}</span>
+              <span className="text-[10px] font-semibold text-muted">repos</span>
             </motion.div>
 
             <motion.div
@@ -395,14 +395,14 @@ export default function ExploreUsers() {
               </div>
               
               <div className="px-8 pb-8 pt-12 relative flex flex-col items-center bg-surface">
-                <h4 className="text-base font-extrabold text-ink tracking-tight">Hamid Rza</h4>
-                <p className="text-xs font-semibold text-accent mt-0.5 mb-5">Full Stack Engineer</p>
+                <h4 className="text-base font-extrabold text-ink tracking-tight">{users.length > 0 ? (users[0].name || "Developer") : "Developer"}</h4>
+                <p className="text-xs font-semibold text-accent mt-0.5 mb-5">{users.length > 0 && users[0].skills?.length > 0 ? users[0].skills[0] : "Full Stack Engineer"}</p>
 
                 <div className="w-full grid grid-cols-3 gap-3 mb-6">
                   {[
-                    { label: "Repos", val: "18" },
-                    { label: "Reviews", val: "56" },
-                    { label: "Likes", val: "132" }
+                    { label: "Repos", val: users.length > 0 ? (users[0].totalProjects || 0) : "—" },
+                    { label: "Reviews", val: users.length > 0 ? (users[0].totalReviews || 0) : "—" },
+                    { label: "Likes", val: users.length > 0 ? (users[0].totalLikes || 0) : "—" }
                   ].map((s, i) => (
                     <motion.div
                       key={i}
