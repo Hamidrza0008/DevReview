@@ -81,6 +81,8 @@ const userSchema = new mongoose.Schema({
     ],
     notificationPreferences: {
         reviewAlerts: { type: Boolean, default: true },
+        likeAlerts: { type: Boolean, default: true },
+        followAlerts: { type: Boolean, default: true },
         weeklyDigest: { type: Boolean, default: true },
     },
 },

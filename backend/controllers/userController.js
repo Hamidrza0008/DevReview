@@ -103,11 +103,13 @@ const toggleFollow = async (req, res) => {
 
             await addRankingPoints(targetUser._id, "RECEIVE_FOLLOWER");
 
-            await Notification.create({
-                recipient:targetUser._id,
-                sender:currentUserId,
-                type:"follow",
-            })
+            if (targetUser.notificationPreferences?.followAlerts !== false) {
+                await Notification.create({
+                    recipient:targetUser._id,
+                    sender:currentUserId,
+                    type:"follow",
+                })
+            }
         }
 
         await targetUser.save();

@@ -387,12 +387,15 @@ const toggleLikes = async (req, res) => {
 
             await addRankingPoints(project.owner, "RECEIVE_PROJECT_LIKE");
 
-            await Notification.create({
-                recipient:project.owner,
-                sender:userId,
-                type:"like",
-                project:project._id,
-            })
+            const owner = await Users.findById(project.owner).select("notificationPreferences");
+            if (owner?.notificationPreferences?.likeAlerts !== false) {
+                await Notification.create({
+                    recipient:project.owner,
+                    sender:userId,
+                    type:"like",
+                    project:project._id,
+                })
+            }
         }
 
         await project.save();
