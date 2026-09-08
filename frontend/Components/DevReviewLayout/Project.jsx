@@ -380,7 +380,14 @@ export default function SingleProject() {
                       </div>
                       <div className="bg-page rounded-lg text-xs px-6 py-1.5 border border-line text-muted font-mono font-bold tracking-tight flex items-center gap-2">
                         <Globe className="w-3 h-3 text-accent" />
-                        {project.liveUrl ? new URL(project.liveUrl).hostname : "localhost:3000"}
+                        {(() => {
+                          if (!project.liveUrl) return "localhost:3000";
+                          try {
+                            return new URL(project.liveUrl).hostname;
+                          } catch {
+                            return "localhost:3000";
+                          }
+                        })()}
                       </div>
                       <div className="w-8" />
                     </div>
