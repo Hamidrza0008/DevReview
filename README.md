@@ -16,7 +16,7 @@
 
 ## 📌 Overview
 
-DevReview ek full-stack platform hai jahan developers apne projects upload karte hain, community se honest reviews paate hain, aur apna public profile banate hain — taaki achha kaam GitHub repo me chhupa na rahe.
+DevReview is a full-stack platform hai jahan developers apne projects upload karte hain, community se honest reviews paate hain, aur apna public profile banate hain — taaki achha kaam GitHub repo me chhupa na rahe.
 
 MERN stack + Next.js ke saath bana, clean UX, security aur mobile-optimized interface par focus.
 
