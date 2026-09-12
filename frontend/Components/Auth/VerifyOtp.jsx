@@ -14,7 +14,6 @@ export default function VerifyOtp() {
     const searchParams = useSearchParams();
 
     const email = searchParams.get("email");
-    console.log(email);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -27,15 +26,12 @@ export default function VerifyOtp() {
                 otp
             });
 
-            console.log(res);
-
             if (res.success) {
                 router.push("/auth/login");
             } else {
                 setError(res.message || "Invalid verification code. Please try again.");
             }
         } catch (error) {
-            console.log(error);
             setError("An unexpected network error occurred. Please try again.");
         } finally {
             setIsLoading(false);

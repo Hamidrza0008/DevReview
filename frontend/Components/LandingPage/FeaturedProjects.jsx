@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { TechBadge } from './atoms';
@@ -35,13 +36,13 @@ export default function FeaturedProjects() {
           <h2 className="text-3xl font-bold text-ink tracking-tight">Featured Projects</h2>
           <p className="text-sm text-muted mt-1">Fresh off the platform — be one of the first to get featured</p>
         </div>
-        <a
-          href="#"
+        <Link
+          href="/projects/explore"
           className="text-sm font-semibold text-accent hover:brightness-110 flex items-center gap-1 group/btn transition-colors duration-200"
         >
           View all
           <span className="transform group-hover/btn:translate-x-1 transition-transform duration-200">→</span>
-        </a>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">

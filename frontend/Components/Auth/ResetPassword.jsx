@@ -9,7 +9,6 @@ export default function ResetPassword() {
   const router = useRouter();
   const useParams = useSearchParams();
   const email = useParams.get("email");
-  console.log(email);
   const [otp, setOtp] = useState("");
   const [newpassword, setNewpassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -35,7 +34,6 @@ export default function ResetPassword() {
         otp,
         newpassword
       });
-      console.log(res);
       if (res.success) {
         setIsSuccess(true);
         setTimeout(() => {
@@ -46,7 +44,6 @@ export default function ResetPassword() {
       }
 
     } catch (error) {
-      console.log(error);
       setError("An unexpected network error occurred. Please try again.");
     } finally {
       setIsLoading(false);

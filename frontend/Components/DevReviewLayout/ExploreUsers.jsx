@@ -13,7 +13,6 @@ import {
   ArrowRight,
   Sparkles,
   Code2,
-  SlidersHorizontal,
   Layers,
   MessageSquare,
   Users2,
@@ -443,16 +442,7 @@ export default function ExploreUsers() {
               />
             </div>
 
-            <div className="flex gap-2 sm:gap-3 w-full sm:w-auto shrink-0">
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-2 bg-surface/90 md:backdrop-blur-md border border-line hover:bg-page hover:border-accent/40 hover:text-accent text-xs sm:text-sm font-bold px-4 sm:px-6 py-3 sm:py-4 rounded-2xl text-muted shadow-sm transition-all cursor-pointer"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                <span>Filters</span>
-              </motion.button>
-              <div className="relative flex-1 sm:flex-initial">
+            <div className="relative flex-1 sm:flex-initial">
                 <select 
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
@@ -466,7 +456,6 @@ export default function ExploreUsers() {
                   <svg width="12" height="8" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                </div>
               </div>
             </div>
           </div>

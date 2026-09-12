@@ -40,7 +40,6 @@ export const AuthProvider = ({ children }) => {
             showToast("success", "Logged out successfully. See you soon!");
 
         } catch (error) {
-            console.log(error);
             showToast("error", "Something went wrong while logging out.");
         }
     }

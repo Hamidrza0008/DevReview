@@ -74,7 +74,6 @@ export default function Login() {
         password
       });
 
-      console.log(res);
       if (res.success) {
         await fetchUser();
         showToast("success", "Welcome back! Redirecting to your dashboard...");
@@ -83,7 +82,6 @@ export default function Login() {
         setError(res.message || "Invalid email or access key. Please try again.");
       }
     } catch (err) {
-      console.log(err);
       setError("Something went wrong. Please check your network connection.");
     } finally {
       setIsLoading(false);

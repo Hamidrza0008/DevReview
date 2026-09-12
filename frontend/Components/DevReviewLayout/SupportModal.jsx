@@ -84,7 +84,6 @@ export default function SupportModal({ isOpen, onClose, user }) {
 
     try {
       const res = await supportRequestsApi(formData);
-      console.log(res)
       setSubmitted(true);
     } catch (error) {
       setSubmitError(error.message || "Unable to send your support request");

@@ -415,6 +415,7 @@ export default function EditProject() {
             <div className="pt-4 border-t border-line flex items-center justify-end gap-3.5">
               <button
                 type="button"
+                onClick={() => router.push(`/projects/${id}`)}
                 className="px-4 py-2 text-sm font-medium text-muted bg-surface border border-line rounded-lg hover:bg-page hover:text-ink transition-all focus:outline-none"
               >
                 Cancel

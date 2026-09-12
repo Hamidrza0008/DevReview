@@ -21,7 +21,6 @@ export default function ForgotPassword() {
       const res = await forgotPassword({
         email
       });
-      console.log(res);
 
       if (res.success) {
         setIsSent(true);
@@ -32,7 +31,6 @@ export default function ForgotPassword() {
         setError(res.message || "Failed to initiate recovery. Please verify the email address.");
       }
     } catch (error) {
-      console.log(error);
       setError("An unexpected network error occurred. Please try again.");
     } finally {
       setIsLoading(false);

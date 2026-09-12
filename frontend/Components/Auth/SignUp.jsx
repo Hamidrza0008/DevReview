@@ -70,12 +70,6 @@ export default function SignUp() {
     setIsLoading(true);
 
     try {
-      console.log({
-        name,
-        username,
-        email,
-        password
-      });
       const res = await signUp({
         name,
         username,
@@ -83,15 +77,12 @@ export default function SignUp() {
         password,
       });
 
-      console.log(res);
-
       if (res.success) {
         router.push(`verify-otp?email=${email}`);
       } else {
         setError(res.message || "Failed to create account. Please try again.");
       }
     } catch (error) {
-      console.log(error);
       setError("An unexpected error occurred. Please check your connection.");
     } finally {
       setIsLoading(false);

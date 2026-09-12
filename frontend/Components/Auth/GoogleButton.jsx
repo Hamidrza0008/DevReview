@@ -35,7 +35,6 @@ export default function GoogleButton({ onError }) {
         onError?.(res.message || "Google sign-in failed. Please try again.");
       }
     } catch (err) {
-      console.log(err);
       setIsVerifying(false);
       onError?.("Something went wrong with Google sign-in.");
     }
