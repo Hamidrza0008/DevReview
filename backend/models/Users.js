@@ -85,10 +85,12 @@ const userSchema = new mongoose.Schema({
         followAlerts: { type: Boolean, default: true },
         weeklyDigest: { type: Boolean, default: true },
     },
-},
+    },
     {
         timestamps: true
     }
 )
+
+userSchema.index({ savedProjects: 1 });
 
 module.exports = mongoose.model("Users", userSchema, "users");

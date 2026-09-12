@@ -90,49 +90,29 @@ function NavList({ onNavigate }) {
 
   React.useEffect(() => {
     let cancelled = false;
-    const fetchUnread = async () => {
+    const fetchAllUnread = async () => {
       try {
-        const res = await getUnreadCountApi();
-        if (!cancelled && res?.success && res.data) {
-          setUnreadCount(res.data.totalUnread);
+        const [chatRes, notifRes, reviewRes] = await Promise.allSettled([
+          getUnreadCountApi(),
+          getUnreadNotificationCountApi(),
+          getUnreadReviewCountApi(),
+        ]);
+        if (!cancelled) {
+          if (chatRes.status === "fulfilled" && chatRes.value?.success && chatRes.value?.data) {
+            setUnreadCount(chatRes.value.data.totalUnread);
+          }
+          if (notifRes.status === "fulfilled" && notifRes.value?.success && notifRes.value?.data) {
+            setNotificationUnreadCount(notifRes.value.data.unreadCount);
+          }
+          if (reviewRes.status === "fulfilled" && reviewRes.value?.success && reviewRes.value?.data) {
+            setReviewUnreadCount(reviewRes.value.data.unreadCount);
+          }
         }
       } catch {
         // silent
       }
     };
-    fetchUnread();
-    return () => { cancelled = true; };
-  }, [pathname]);
-
-  React.useEffect(() => {
-    let cancelled = false;
-    const fetchNotificationUnread = async () => {
-      try {
-        const res = await getUnreadNotificationCountApi();
-        if (!cancelled && res?.success && res.data) {
-          setNotificationUnreadCount(res.data.unreadCount);
-        }
-      } catch {
-        // silent
-      }
-    };
-    fetchNotificationUnread();
-    return () => { cancelled = true; };
-  }, [pathname]);
-
-  React.useEffect(() => {
-    let cancelled = false;
-    const fetchReviewUnread = async () => {
-      try {
-        const res = await getUnreadReviewCountApi();
-        if (!cancelled && res?.success && res.data) {
-          setReviewUnreadCount(res.data.unreadCount);
-        }
-      } catch {
-        // silent
-      }
-    };
-    fetchReviewUnread();
+    fetchAllUnread();
     return () => { cancelled = true; };
   }, [pathname]);
 

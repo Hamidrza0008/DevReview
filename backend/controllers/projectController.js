@@ -167,13 +167,30 @@ const getProjectById = async (req, res) => {
 const getExploreProjects = async (req, res) => {
     try {
         const userId = req.user.id;
+        const { limit: limitStr, before } = req.query;
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 50);
+
+        const query = {};
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({ success: false, message: "Invalid cursor" });
+            }
+            query._id = { $lt: new mongoose.Types.ObjectId(before) };
+        }
 
         const [projects, currentUser] = await Promise.all([
-            Projects.find({})
+            Projects.find(query)
                 .populate("owner", "username fullName profileImage")
-                .sort({ createdAt: -1 }),
+                .sort({ createdAt: -1 })
+                .limit(limit + 1),
             Users.findById(userId).select("savedProjects"),
         ]);
+
+        const hasMore = projects.length > limit;
+        if (hasMore) projects.pop();
+        const nextCursor = hasMore && projects.length > 0
+            ? projects[projects.length - 1]._id.toString()
+            : null;
 
         const savedProjectIds = new Set(
             (currentUser?.savedProjects || []).map((id) => id.toString())
@@ -221,6 +238,8 @@ const getExploreProjects = async (req, res) => {
         return res.status(200).json({
             success: true,
             projects: updatedProject,
+            hasMore,
+            nextCursor,
         });
     } catch (error) {
         return res.status(500).json({
