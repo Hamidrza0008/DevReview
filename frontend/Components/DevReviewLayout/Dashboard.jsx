@@ -230,7 +230,7 @@ export default function Dashboard() {
                   variants={itemVariants}
                   className="bg-surface border border-line rounded-2xl px-4 sm:px-6 py-4 shadow-2xs"
                 >
-                  <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-4">
                     {[
                       { label: "projects", val: data.stats?.totalProjects || 0 },
                       { label: "likes", val: data.stats?.totalLikes || 0 },

@@ -51,7 +51,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-page flex text-ink font-sans antialiased relative overflow-hidden">
+    <div className="h-screen bg-page flex text-ink font-sans antialiased relative overflow-hidden">
 
       <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-accent-2/10 rounded-full blur-3xl" />
       <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-accent/5 rounded-full blur-3xl" />
@@ -85,12 +85,12 @@ export default function ResetPassword() {
       </div>
 
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="w-full max-w-md bg-surface rounded-2xl border border-line p-8 sm:p-10 shadow-sm"
+          className="w-full max-w-md bg-surface rounded-2xl border border-line p-8 sm:p-10 shadow-2xs"
         >
           <h2 className="text-2xl font-bold text-ink mb-1">Override Node Access</h2>
           <p className="text-sm text-muted mb-6">Enter transmission OTP and overwrite target parameter keys.</p>

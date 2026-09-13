@@ -156,27 +156,27 @@ export default function SignUp() {
       </div>
 
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 relative z-10 overflow-y-auto">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10 overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="w-full max-w-md bg-surface rounded-2xl border border-line p-5 sm:p-7 shadow-2xs my-auto"
+          className="w-full max-w-md bg-surface rounded-2xl border border-line p-8 sm:p-10 shadow-2xs my-auto"
         >
           <button
             type="button"
             onClick={() => router.push("/")}
-            className="flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-accent transition-colors mb-3"
+            className="flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-accent transition-colors mb-6"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to Home
           </button>
 
-          <div className="flex items-center justify-between mb-0.5">
-            <h2 className="text-xl font-bold text-ink">Join Community</h2>
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-2xl font-bold text-ink">Join Community</h2>
             <span className="text-[10px] font-bold px-2 py-0.5 bg-accent/10 text-accent rounded-full uppercase tracking-wide">Recommended</span>
           </div>
-          <p className="text-xs text-muted mb-4">Sign up with Google in one click — no password to set up.</p>
+          <p className="text-sm text-muted mb-6">Sign up with Google in one click — no password to set up.</p>
 
           <AnimatePresence mode="wait">
             {error && (
@@ -185,7 +185,7 @@ export default function SignUp() {
                 animate={{ opacity: 1, height: "auto", y: 0 }}
                 exit={{ opacity: 0, height: 0, y: -8 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                className="overflow-hidden mb-3"
+                className="overflow-hidden mb-5"
               >
                 <div className="flex items-start space-x-3 bg-danger/10 border border-danger/30 p-3 rounded-xl text-danger">
                   <svg className="w-5 h-5 mt-0.5 shrink-0 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -201,7 +201,7 @@ export default function SignUp() {
 
           <GoogleButton onError={setError} />
 
-          <div className="flex items-center gap-3 my-4">
+          <div className="flex items-center gap-3 my-6">
             <div className="h-px flex-1 bg-line" />
             <span className="text-xs font-bold text-muted uppercase tracking-wider">Or</span>
             <div className="h-px flex-1 bg-line" />
@@ -233,31 +233,31 @@ export default function SignUp() {
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 className="overflow-hidden"
               >
-                <form onSubmit={handleSubmit} className="space-y-3">
+                <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label htmlFor="signup-name" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Name</label>
-                      <input id="signup-name" type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Hamid Rza" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                      <label htmlFor="signup-name" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Name</label>
+                      <input id="signup-name" type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Hamid Rza" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
                     </div>
                     <div>
-                      <label htmlFor="signup-username" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Username</label>
-                      <input id="signup-username" type="text" required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="HamidRza0008" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                      <label htmlFor="signup-username" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Username</label>
+                      <input id="signup-username" type="text" required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="HamidRza0008" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="signup-email" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Email</label>
-                    <input id="signup-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@domain.com" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                    <label htmlFor="signup-email" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Email</label>
+                    <input id="signup-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@domain.com" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label htmlFor="signup-password" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Password</label>
-                      <input id="signup-password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                      <label htmlFor="signup-password" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Password</label>
+                      <input id="signup-password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
                     </div>
                     <div>
-                      <label htmlFor="signup-confirm" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Confirm</label>
-                      <input id="signup-confirm" type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                      <label htmlFor="signup-confirm" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Confirm</label>
+                      <input id="signup-confirm" type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
                     </div>
                   </div>
 
@@ -270,7 +270,7 @@ export default function SignUp() {
                     whileTap={{ scale: 0.99 }}
                     type="submit"
                     disabled={isLoading}
-                    className="relative w-full py-2.5 px-4 bg-page border border-line hover:border-accent text-ink font-bold text-sm rounded-lg transition-colors flex items-center justify-center overflow-hidden"
+                    className="relative w-full py-3 px-4 bg-page border border-line hover:border-accent text-ink font-bold text-sm rounded-lg transition-colors flex items-center justify-center overflow-hidden"
                   >
                     <AnimatePresence mode="wait">
                       {isLoading ? (
@@ -303,7 +303,7 @@ export default function SignUp() {
             )}
           </AnimatePresence>
 
-          <p className="text-center text-xs text-muted mt-4">Already verified? <a href="/auth/login" className="font-bold text-accent hover:underline">Log In</a></p>
+          <p className="text-center text-sm text-muted mt-8">Already verified? <a href="/auth/login" className="font-bold text-accent hover:underline">Log In</a></p>
         </motion.div>
       </div>
     </div>

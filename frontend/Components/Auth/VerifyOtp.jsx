@@ -93,7 +93,7 @@ export default function VerifyOtp() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="w-full max-w-md bg-surface rounded-2xl border border-line p-8 sm:p-10 shadow-sm"
+                    className="w-full max-w-md bg-surface rounded-2xl border border-line p-8 sm:p-10 shadow-2xs"
                 >
                     <h2 className="text-2xl font-bold text-ink mb-1">Verify Credentials</h2>
                     <p className="text-sm text-muted mb-6">Input the 6-digit verification code sent to your workspace.</p>

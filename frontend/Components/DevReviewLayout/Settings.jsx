@@ -67,58 +67,80 @@ export default function Settings() {
     return <SettingsSkeleton />;
   }
 
+  const renderContent = () => (
+    <>
+      {activeTab === "profile" && <div id="settings-panel-profile" role="tabpanel" aria-labelledby="settings-tab-profile">
+        <h2 className="font-bold text-lg pb-3 border-b border-line">Public Profile</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label className="text-xs font-bold text-muted uppercase tracking-wider">Developer Handle<input value={profile.username} onChange={(e) => setProfile((value) => ({ ...value, username: e.target.value }))} className="mt-2 w-full bg-page border border-line px-3 py-2.5 rounded-lg text-sm text-ink normal-case font-normal focus:outline-none focus:border-accent" /></label>
+          <label className="text-xs font-bold text-muted uppercase tracking-wider">Portfolio URL<input value={profile.portfolioUrl} onChange={(e) => setProfile((value) => ({ ...value, portfolioUrl: e.target.value }))} placeholder="https://yourportfolio.dev" className="mt-2 w-full bg-page border border-line px-3 py-2.5 rounded-lg text-sm text-ink normal-case font-normal focus:outline-none focus:border-accent" /></label>
+        </div>
+        <SaveButton saving={saving} onClick={saveProfile} label="Save Profile" />
+      </div>}
+
+      {activeTab === "notifications" && <div id="settings-panel-notifications" role="tabpanel" aria-labelledby="settings-tab-notifications">
+        <h2 className="font-bold text-lg pb-3 border-b border-line">Notification Preferences</h2>
+        <PreferenceToggle title="Review alerts" description="Show notifications when someone reviews one of your projects." checked={preferences.reviewAlerts} onChange={(checked) => setPreferences((value) => ({ ...value, reviewAlerts: checked }))} />
+        <PreferenceToggle title="Weekly digest" description="Receive a weekly summary of relevant community activity." checked={preferences.weeklyDigest} onChange={(checked) => setPreferences((value) => ({ ...value, weeklyDigest: checked }))} />
+        <SaveButton saving={saving} onClick={savePreferences} label="Save Preferences" />
+      </div>}
+
+      {activeTab === "security" && <div id="settings-panel-security" role="tabpanel" aria-labelledby="settings-tab-security">
+        <h2 className="font-bold text-lg pb-3 border-b border-line">Account Security</h2>
+        {user?.authProvider === "google" ? <div className="bg-page border border-line rounded-xl p-5"><p className="font-bold text-sm">Managed by Google</p><p className="text-xs text-muted mt-1">This account uses Google sign-in. Manage its password from your Google account.</p></div> : <>
+          <div className="space-y-4">
+            <PasswordField label="Current password" value={passwords.currentPassword} onChange={(value) => setPasswords((item) => ({ ...item, currentPassword: value }))} />
+            <PasswordField label="New password" value={passwords.newPassword} onChange={(value) => setPasswords((item) => ({ ...item, newPassword: value }))} />
+            <PasswordField label="Confirm new password" value={passwords.confirmPassword} onChange={(value) => setPasswords((item) => ({ ...item, confirmPassword: value }))} />
+          </div>
+          <SaveButton saving={saving} onClick={savePassword} label="Update Password" />
+        </>}
+      </div>}
+
+      {message && <p className={`text-xs font-semibold flex items-center gap-2 ${message.type === "success" ? "text-ok" : "text-danger"}`}><CheckCircle2 className="w-4 h-4" />{message.text}</p>}
+    </>
+  );
+
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 sm:p-8 bg-page min-h-screen text-ink">
-      <div className="mb-8"><h1 className="text-3xl font-bold tracking-tight">Settings</h1><p className="text-muted">Manage your profile, notifications, and account security.</p></div>
-      <div className="bg-surface border border-line rounded-2xl max-w-4xl overflow-hidden grid grid-cols-1 md:grid-cols-4">
-        <nav className="border-r border-line p-4 space-y-1 bg-page/50" role="tablist" aria-label="Settings sections" aria-orientation="vertical">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 sm:p-6 md:p-8 bg-page min-h-screen text-ink">
+      <div className="mb-6 md:mb-8"><h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Settings</h1><p className="text-sm text-muted">Manage your profile, notifications, and account security.</p></div>
+      <div className="bg-surface border border-line rounded-2xl max-w-4xl overflow-hidden">
+        {/* Mobile: horizontal tabs */}
+        <nav className="md:hidden flex border-b border-line bg-page/50 overflow-x-auto no-scrollbar" role="tablist" aria-label="Settings sections">
           {tabs.map((tab) => {
             const Icon = tab.icon;
-            return <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} aria-controls={`settings-panel-${tab.id}`} id={`settings-tab-${tab.id}`} tabIndex={activeTab === tab.id ? 0 : -1} onClick={() => { setActiveTab(tab.id); setMessage(null); }} onKeyDown={(e) => {
-              const currentIndex = tabs.findIndex(t => t.id === tab.id);
-              let newIndex = currentIndex;
-              if (e.key === "ArrowDown") newIndex = (currentIndex + 1) % tabs.length;
-              if (e.key === "ArrowUp") newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
-              if (newIndex !== currentIndex) {
-                e.preventDefault();
-                document.getElementById(`settings-tab-${tabs[newIndex].id}`)?.focus();
-                setActiveTab(tabs[newIndex].id);
-                setMessage(null);
-              }
-            }} className={`w-full text-left text-xs font-semibold px-3 py-2.5 rounded-lg flex items-center gap-2 transition-all ${activeTab === tab.id ? "bg-surface text-accent border border-line shadow-sm" : "text-muted hover:text-ink"}`}><Icon className="w-4 h-4" />{tab.label}</button>;
+            return <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} aria-controls={`settings-panel-${tab.id}`} id={`settings-tab-${tab.id}`} tabIndex={activeTab === tab.id ? 0 : -1} onClick={() => { setActiveTab(tab.id); setMessage(null); }} className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 px-3 py-3 text-xs font-semibold transition-all whitespace-nowrap ${activeTab === tab.id ? "bg-surface text-accent border-b-2 border-accent" : "text-muted hover:text-ink"}`}><Icon className="w-4 h-4 shrink-0" /><span className="truncate">{tab.label}</span></button>;
           })}
         </nav>
 
-        <div className="p-6 md:col-span-3 space-y-6">
-          {activeTab === "profile" && <div id="settings-panel-profile" role="tabpanel" aria-labelledby="settings-tab-profile">
-            <h2 className="font-bold text-lg pb-3 border-b border-line">Public Profile</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <label className="text-xs font-bold text-muted uppercase tracking-wider">Developer Handle<input value={profile.username} onChange={(e) => setProfile((value) => ({ ...value, username: e.target.value }))} className="mt-2 w-full bg-page border border-line px-3 py-2.5 rounded-lg text-sm text-ink normal-case font-normal focus:outline-none focus:border-accent" /></label>
-              <label className="text-xs font-bold text-muted uppercase tracking-wider">Portfolio URL<input value={profile.portfolioUrl} onChange={(e) => setProfile((value) => ({ ...value, portfolioUrl: e.target.value }))} placeholder="https://yourportfolio.dev" className="mt-2 w-full bg-page border border-line px-3 py-2.5 rounded-lg text-sm text-ink normal-case font-normal focus:outline-none focus:border-accent" /></label>
-            </div>
-            <SaveButton saving={saving} onClick={saveProfile} label="Save Profile" />
-          </div>}
+        {/* Mobile: content */}
+        <div className="md:hidden p-4 sm:p-6 space-y-6">
+          {renderContent()}
+        </div>
 
-          {activeTab === "notifications" && <div id="settings-panel-notifications" role="tabpanel" aria-labelledby="settings-tab-notifications">
-            <h2 className="font-bold text-lg pb-3 border-b border-line">Notification Preferences</h2>
-            <PreferenceToggle title="Review alerts" description="Show notifications when someone reviews one of your projects." checked={preferences.reviewAlerts} onChange={(checked) => setPreferences((value) => ({ ...value, reviewAlerts: checked }))} />
-            <PreferenceToggle title="Weekly digest" description="Receive a weekly summary of relevant community activity." checked={preferences.weeklyDigest} onChange={(checked) => setPreferences((value) => ({ ...value, weeklyDigest: checked }))} />
-            <SaveButton saving={saving} onClick={savePreferences} label="Save Preferences" />
-          </div>}
+        {/* Desktop: vertical sidebar + content */}
+        <div className="hidden md:grid md:grid-cols-4">
+          <nav className="border-r border-line p-4 space-y-1 bg-page/50" role="tablist" aria-label="Settings sections" aria-orientation="vertical">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} aria-controls={`settings-panel-${tab.id}`} id={`settings-tab-desktop-${tab.id}`} tabIndex={activeTab === tab.id ? 0 : -1} onClick={() => { setActiveTab(tab.id); setMessage(null); }} onKeyDown={(e) => {
+                const currentIndex = tabs.findIndex(t => t.id === tab.id);
+                let newIndex = currentIndex;
+                if (e.key === "ArrowDown") newIndex = (currentIndex + 1) % tabs.length;
+                if (e.key === "ArrowUp") newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+                if (newIndex !== currentIndex) {
+                  e.preventDefault();
+                  document.getElementById(`settings-tab-desktop-${tabs[newIndex].id}`)?.focus();
+                  setActiveTab(tabs[newIndex].id);
+                  setMessage(null);
+                }
+              }} className={`w-full text-left text-xs font-semibold px-3 py-2.5 rounded-lg flex items-center gap-2 transition-all ${activeTab === tab.id ? "bg-surface text-accent border border-line shadow-sm" : "text-muted hover:text-ink"}`}><Icon className="w-4 h-4" />{tab.label}</button>;
+            })}
+          </nav>
 
-          {activeTab === "security" && <div id="settings-panel-security" role="tabpanel" aria-labelledby="settings-tab-security">
-            <h2 className="font-bold text-lg pb-3 border-b border-line">Account Security</h2>
-            {user?.authProvider === "google" ? <div className="bg-page border border-line rounded-xl p-5"><p className="font-bold text-sm">Managed by Google</p><p className="text-xs text-muted mt-1">This account uses Google sign-in. Manage its password from your Google account.</p></div> : <>
-              <div className="space-y-4">
-                <PasswordField label="Current password" value={passwords.currentPassword} onChange={(value) => setPasswords((item) => ({ ...item, currentPassword: value }))} />
-                <PasswordField label="New password" value={passwords.newPassword} onChange={(value) => setPasswords((item) => ({ ...item, newPassword: value }))} />
-                <PasswordField label="Confirm new password" value={passwords.confirmPassword} onChange={(value) => setPasswords((item) => ({ ...item, confirmPassword: value }))} />
-              </div>
-              <SaveButton saving={saving} onClick={savePassword} label="Update Password" />
-            </>}
-          </div>}
-
-          {message && <p className={`text-xs font-semibold flex items-center gap-2 ${message.type === "success" ? "text-ok" : "text-danger"}`}><CheckCircle2 className="w-4 h-4" />{message.text}</p>}
+          <div className="p-6 col-span-3 space-y-6">
+            {renderContent()}
+          </div>
         </div>
       </div>
     </motion.div>
@@ -139,18 +161,19 @@ function PasswordField({ label, value, onChange }) {
 
 function SettingsSkeleton() {
   return (
-    <div className="p-4 sm:p-8 bg-page min-h-screen text-ink animate-pulse">
-      <div className="mb-8">
+    <div className="p-4 sm:p-6 md:p-8 bg-page min-h-screen text-ink animate-pulse">
+      <div className="mb-6 md:mb-8">
         <div className="h-8 w-48 bg-line/60 rounded-lg mb-2" />
-        <div className="h-4 w-80 bg-line/40 rounded-md" />
+        <div className="h-4 w-64 sm:w-80 bg-line/40 rounded-md" />
       </div>
-      <div className="bg-surface border border-line rounded-2xl max-w-4xl overflow-hidden grid grid-cols-1 md:grid-cols-4">
-        <div className="border-r border-line p-4 space-y-3 bg-page/50">
-          <div className="h-9 w-full bg-line/40 rounded-lg" />
-          <div className="h-9 w-full bg-line/30 rounded-lg" />
-          <div className="h-9 w-full bg-line/30 rounded-lg" />
+      <div className="bg-surface border border-line rounded-2xl max-w-4xl overflow-hidden">
+        {/* Mobile skeleton tabs */}
+        <div className="md:hidden flex border-b border-line bg-page/50">
+          <div className="flex-1 h-12 bg-line/30" />
+          <div className="flex-1 h-12 bg-line/20" />
+          <div className="flex-1 h-12 bg-line/20" />
         </div>
-        <div className="p-6 md:col-span-3 space-y-6">
+        <div className="md:hidden p-4 sm:p-6 space-y-4">
           <div className="h-6 w-36 bg-line/50 rounded-md pb-3 border-b border-line" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -162,8 +185,29 @@ function SettingsSkeleton() {
               <div className="h-10 w-full bg-page border border-line rounded-lg" />
             </div>
           </div>
-          <div className="pt-4 border-t border-line flex justify-end">
-            <div className="h-9 w-28 bg-line/50 rounded-lg" />
+        </div>
+        {/* Desktop skeleton sidebar */}
+        <div className="hidden md:grid md:grid-cols-4">
+          <div className="border-r border-line p-4 space-y-3 bg-page/50">
+            <div className="h-9 w-full bg-line/40 rounded-lg" />
+            <div className="h-9 w-full bg-line/30 rounded-lg" />
+            <div className="h-9 w-full bg-line/30 rounded-lg" />
+          </div>
+          <div className="p-6 col-span-3 space-y-6">
+            <div className="h-6 w-36 bg-line/50 rounded-md pb-3 border-b border-line" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="h-3 w-24 bg-line/40 rounded" />
+                <div className="h-10 w-full bg-page border border-line rounded-lg" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-3 w-24 bg-line/40 rounded" />
+                <div className="h-10 w-full bg-page border border-line rounded-lg" />
+              </div>
+            </div>
+            <div className="pt-4 border-t border-line flex justify-end">
+              <div className="h-9 w-28 bg-line/50 rounded-lg" />
+            </div>
           </div>
         </div>
       </div>

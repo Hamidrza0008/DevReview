@@ -10,12 +10,12 @@ export function SavedProjectsEmptyState() {
   const router = useRouter();
 
   return (
-    <div className="bg-surface border border-line rounded-[24px] p-8 text-center shadow-sm">
-      <div className="w-16 h-16 bg-surface-2 rounded-2xl flex items-center justify-center mx-auto mb-4">
-        <Bookmark className="w-8 h-8 text-muted" />
+    <div className="bg-surface border border-line rounded-[24px] p-5 sm:p-8 text-center shadow-sm">
+      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-surface-2 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+        <Bookmark className="w-7 h-7 sm:w-8 sm:h-8 text-muted" />
       </div>
-      <h3 className="text-lg font-bold text-ink mb-2">No Saved Projects</h3>
-      <p className="text-muted font-medium max-w-sm mx-auto text-sm leading-relaxed mb-6">
+      <h3 className="text-base sm:text-lg font-bold text-ink mb-1.5 sm:mb-2">No Saved Projects</h3>
+      <p className="text-muted font-medium max-w-sm mx-auto text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
         Projects you save while browsing will appear here.
       </p>
       <button
@@ -43,7 +43,7 @@ export default function SavedProjectCard({ project, onRemove }) {
         className="w-full text-left"
         aria-label={`View project: ${project.title}`}
       >
-        <div className="h-44 bg-surface-2 border-b border-line relative overflow-hidden">
+        <div className="h-36 sm:h-44 bg-surface-2 border-b border-line relative overflow-hidden">
           {onRemove && (
             <button
               type="button"
@@ -62,7 +62,7 @@ export default function SavedProjectCard({ project, onRemove }) {
           )}
         </div>
 
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
           <div>
             <h3 className="font-bold text-lg text-ink group-hover:text-accent transition-colors line-clamp-1">{project.title}</h3>
             <p className="text-sm text-muted font-medium line-clamp-2 mt-1.5 leading-relaxed">{project.description || "No description provided for this project."}</p>
