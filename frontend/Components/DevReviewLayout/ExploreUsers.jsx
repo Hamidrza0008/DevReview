@@ -16,7 +16,8 @@ import {
   Layers,
   MessageSquare,
   Users2,
-  AlertCircle
+  AlertCircle,
+  ChevronDown
 } from "lucide-react";
 import { getAllUsers } from "@/services/usersApi";
 import { toggleFollow as followUnfollowUser } from "@/services/followApi";
@@ -200,23 +201,6 @@ export default function ExploreUsers() {
   return (
     <div className="relative min-h-screen bg-page text-ink font-sans selection:bg-accent/20 selection:text-accent pb-24 overflow-hidden">
       <style jsx>{`
-        .shimmer {
-          background: linear-gradient(90deg, var(--color-surface-2) 25%, var(--color-line) 37%, var(--color-surface-2) 63%);
-          background-size: 400% 100%;
-          animation: shimmer 1.4s ease-in-out infinite;
-        }
-        @keyframes shimmer {
-          0% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-gradient-x {
-          background-size: 200% 200%;
-          animation: gradient-x 4s ease infinite;
-        }
-        @keyframes gradient-x {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
         .card-glow::before {
           content: "";
           position: absolute;
@@ -462,9 +446,7 @@ export default function ExploreUsers() {
                   <option value="Top Rated">Top Rated</option>
                 </select>
                 <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
-                  <svg width="12" height="8" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <ChevronDown className="w-3 h-3" />
               </div>
             </div>
           </div>

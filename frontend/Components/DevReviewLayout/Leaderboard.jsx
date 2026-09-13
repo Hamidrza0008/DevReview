@@ -322,25 +322,6 @@ export default function Leaderboard() {
 
   return (
     <div className="min-h-screen bg-page text-ink font-sans antialiased relative selection:bg-accent/20 selection:text-accent">
-      <style jsx>{`
-        .shimmer {
-          background: linear-gradient(90deg, var(--color-surface-2) 25%, var(--color-line) 37%, var(--color-surface-2) 63%);
-          background-size: 400% 100%;
-          animation: shimmer 1.4s ease-in-out infinite;
-        }
-        @keyframes shimmer {
-          0% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-gradient-x {
-          background-size: 200% 200%;
-          animation: gradient-x 4s ease infinite;
-        }
-        @keyframes gradient-x {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-      `}</style>
 
       <div className="absolute inset-0 bg-[radial-gradient(var(--color-line)_1px,transparent_1px)] bg-size-[24px_24px] opacity-40 pointer-events-none z-0" />
 

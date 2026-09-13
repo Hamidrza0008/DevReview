@@ -109,7 +109,7 @@ export default function Features() {
             <motion.div variants={itemVariants} key={idx} className="flex flex-col items-center lg:items-start text-center lg:text-left group cursor-pointer">
               
 
-              <div className="relative flex items-center justify-center w-20 h-20 mb-8 bg-surface border-2 border-line rounded-full shadow-sm group-hover:border-accent/40 group-hover:shadow-[0_0_20px_rgba(47,111,78,0.2)] transition-all duration-500 z-10 overflow-hidden">
+              <div className="relative flex items-center justify-center w-20 h-20 mb-8 bg-surface border-2 border-line rounded-full shadow-sm group-hover:border-accent/40 group-hover:shadow-accent/20 transition-all duration-500 z-10 overflow-hidden">
 
 
                 <div className="absolute inset-0 bg-linear-to-br from-accent to-accent-2 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
@@ -121,7 +121,7 @@ export default function Features() {
               </div>
 
 
-              <div className="p-6 bg-surface/70 md:backdrop-blur-xl border border-surface rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] group-hover:shadow-[0_10px_40px_rgba(47,111,78,0.08)] group-hover:-translate-y-1 group-hover:border-accent/30 transition-all duration-300 w-full min-h-[170px] relative overflow-hidden">
+              <div className="p-6 bg-surface/70 md:backdrop-blur-xl border border-surface rounded-2xl shadow-sm group-hover:shadow-accent/8 group-hover:-translate-y-1 group-hover:border-accent/30 transition-all duration-300 w-full min-h-[170px] relative overflow-hidden">
 
 
                 <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-accent to-accent-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

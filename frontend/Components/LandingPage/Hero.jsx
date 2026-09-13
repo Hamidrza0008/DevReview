@@ -193,7 +193,7 @@ export default function Hero() {
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             className="absolute -top-6 -right-4 md:right-[-20px] bg-surface/90 md:backdrop-blur-xl border border-surface shadow-[0_15px_35px_rgba(0,0,0,0.06)] px-4 py-2 rounded-full flex items-center gap-2 z-20"
           >
-            <span className="w-2.5 h-2.5 rounded-full bg-ok shadow-[0_0_8px_rgba(47,111,78,0.5)]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-ok shadow-ok/50" />
             <span className="text-[11px] font-bold text-ink tracking-tight">Project Verified</span>
           </motion.div>
 

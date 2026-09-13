@@ -81,7 +81,7 @@ export default function Community() {
           className="relative"
         >
           <div className="absolute -inset-4 rounded-[2rem] bg-linear-to-br from-accent/15 to-accent-2/10 blur-2xl" />
-          <div className="relative overflow-hidden rounded-3xl border border-line bg-surface shadow-[0_24px_70px_rgba(22,42,31,0.12)]">
+          <div className="relative overflow-hidden rounded-3xl border border-line bg-surface shadow-xl">
             <div className="flex items-center justify-between border-b border-line bg-surface-2/60 px-5 py-4 sm:px-7">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink font-mono text-xs font-bold text-accent-2">&lt;/&gt;</div>

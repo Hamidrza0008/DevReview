@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import {
   ArrowLeft, GitBranch, ExternalLink, Heart, MessageSquare,
   Bookmark, Code2, Star, CheckCircle2, Edit3, Edit2, Trash2,
@@ -52,17 +53,6 @@ function ProjectSkeleton() {
           </div>
         </div>
       </div>
-      <style jsx>{`
-        .shimmer {
-          background: linear-gradient(90deg, var(--color-surface-2) 25%, var(--color-line) 37%, var(--color-surface-2) 63%);
-          background-size: 400% 100%;
-          animation: shimmer 1.4s ease-in-out infinite;
-        }
-        @keyframes shimmer {
-          0% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-      `}</style>
     </motion.div>
   );
 }
@@ -91,16 +81,11 @@ export default function SingleProject() {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState("");
 
-  const [toast, setToast] = useState({ show: false, type: "", message: "" });
+  const { showToast } = useToast();
 
   const currentLoggedInUserId = user?._id;
   const ownerId = project?.owner?._id?.toString();
   const showManagementActions = ownerId && currentLoggedInUserId && ownerId === currentLoggedInUserId;
-
-  const showToast = (type, message) => {
-    setToast({ show: true, type, message });
-    setTimeout(() => setToast({ show: false, type: "", message: "" }), 3500);
-  };
 
   useEffect(() => {
     let isMounted = true;
@@ -261,26 +246,6 @@ export default function SingleProject() {
   return (
     <div className="relative bg-page min-h-screen w-full overflow-x-hidden [scrollbar-gutter:stable] text-ink font-sans antialiased selection:bg-accent/20 selection:text-accent">
 
-      <style jsx>{`
-        .shimmer {
-          background: linear-gradient(90deg, var(--color-surface-2) 25%, var(--color-line) 37%, var(--color-surface-2) 63%);
-          background-size: 400% 100%;
-          animation: shimmer 1.4s ease-in-out infinite;
-        }
-        @keyframes shimmer {
-          0% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-gradient-x {
-          background-size: 200% 200%;
-          animation: gradient-x 4s ease infinite;
-        }
-        @keyframes gradient-x {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-      `}</style>
-
 
       <div className="absolute top-[-100px] right-[-100px] w-[600px] h-[600px] bg-linear-to-bl from-accent/25 via-accent-2/15 to-accent-2/10 rounded-full blur-[140px] pointer-events-none z-0" />
       <div className="absolute top-[400px] left-[-200px] w-[500px] h-[500px] bg-linear-to-tr from-accent-2/20 to-info/10 rounded-full blur-[120px] pointer-events-none z-0" />
@@ -288,26 +253,6 @@ export default function SingleProject() {
         className="fixed inset-0 opacity-[0.35] pointer-events-none z-0"
         style={{ backgroundImage: `radial-gradient(var(--color-muted) 1px, transparent 1px)`, backgroundSize: "28px 28px" }}
       />
-
-      <AnimatePresence>
-        {toast.show && (
-          <motion.div
-            initial={{ opacity: 0, y: -20, x: "-50%" }}
-            animate={{ opacity: 1, y: 0, x: "-50%" }}
-            exit={{ opacity: 0, y: -20, x: "-50%" }}
-            className={`fixed top-6 left-1/2 z-[100] px-5 py-3 rounded-2xl shadow-xl border flex items-center gap-2 text-sm font-bold md:backdrop-blur-md ${
-              toast.type === "success" ? "bg-accent-soft/95 border-accent/30 text-accent" :
-              toast.type === "warning" ? "bg-star/10 border-star/30 text-star" :
-              "bg-danger/10 border-danger/30 text-danger"
-            }`}
-          >
-            {toast.type === "success" && <CheckCircle2 className="w-5 h-5 text-accent" />}
-            {toast.type === "warning" && <AlertCircle className="w-5 h-5 text-star" />}
-            {toast.type === "error" && <AlertCircle className="w-5 h-5 text-danger" />}
-            {toast.message}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <div className="relative z-10 w-full pb-24">
         <AnimatePresence mode="wait">

@@ -158,7 +158,7 @@ export default function MyProjects() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03, type: "spring", stiffness: 100, damping: 18 }}
               whileHover={{ y: -4 }}
-              className="bg-surface border border-line hover:border-accent/40 rounded-2xl overflow-hidden flex flex-col justify-between group transition-all duration-300 shadow-2xs hover:shadow-[0_10px_20px_-12px_rgba(47,111,78,0.15)]"
+              className="bg-surface border border-line hover:border-accent/40 rounded-2xl overflow-hidden flex flex-col justify-between group transition-all duration-300 shadow-2xs hover:shadow-accent/15"
             >
               <div>
 

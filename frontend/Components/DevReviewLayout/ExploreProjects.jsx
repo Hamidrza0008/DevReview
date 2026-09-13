@@ -262,25 +262,6 @@ export default function ExploreProjects() {
 
   return (
     <div className="relative min-h-screen bg-page text-ink font-sans selection:bg-accent/20 selection:text-accent pb-24 overflow-hidden">
-      <style jsx>{`
-        .shimmer {
-          background: linear-gradient(90deg, var(--color-surface-2) 25%, var(--color-line) 37%, var(--color-surface-2) 63%);
-          background-size: 400% 100%;
-          animation: shimmer 1.4s ease-in-out infinite;
-        }
-        @keyframes shimmer {
-          0% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-gradient-x {
-          background-size: 200% 200%;
-          animation: gradient-x 4s ease infinite;
-        }
-        @keyframes gradient-x {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-      `}</style>
 
 
       <div className="absolute top-[-100px] right-[-100px] w-[600px] h-[600px] bg-linear-to-bl from-accent/25 via-accent-2/15 to-accent-2/10 rounded-full blur-[140px] pointer-events-none" />
@@ -328,7 +309,7 @@ export default function ExploreProjects() {
             animate="show"
           >
             <motion.div variants={heroTextVariants}>
-              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold bg-accent-soft text-accent border border-accent/20 mb-3 sm:mb-5 shadow-[0_0_15px_rgba(47,111,78,0.15)]">
+              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold bg-accent-soft text-accent border border-accent/20 mb-3 sm:mb-5 shadow-accent/15">
                 <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent" /> Built for Creators
               </div>
             </motion.div>
@@ -391,7 +372,7 @@ export default function ExploreProjects() {
                   <motion.div
                     animate={{ scale: [0.95, 1.05, 0.95], opacity: [0.5, 1, 0.5] }}
                     transition={{ duration: 4, repeat: Infinity }}
-                    className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(63,169,122,0.12)_0,transparent_100%)]"
+                    className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-accent-2)_0,transparent_100%)] opacity-12"
                   />
                   <div className="w-full px-6 space-y-4 relative z-10">
                     <div className="flex justify-between items-baseline">

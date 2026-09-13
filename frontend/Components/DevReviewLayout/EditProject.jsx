@@ -16,7 +16,8 @@ import {
   CheckCircle2,
   Loader2,
   ArrowLeft,
-  Save
+  Save,
+  Lock
 } from "lucide-react";
 
 export default function EditProject() {
@@ -186,9 +187,7 @@ export default function EditProject() {
       <div className="min-h-screen bg-page py-8 px-4 sm:px-6 lg:px-8 font-sans antialiased flex flex-col justify-center items-center">
         <div className="max-w-md w-full bg-surface border border-line rounded-xl shadow-sm p-6 sm:p-8 text-center space-y-5">
           <div className="mx-auto w-14 h-14 bg-accent/5 rounded-full flex items-center justify-center border border-accent/10">
-            <svg className="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+            <Lock className="h-6 w-6 text-accent" />
           </div>
           <div className="space-y-2">
             <h2 className="text-xl font-bold text-ink tracking-tight">

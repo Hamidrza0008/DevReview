@@ -202,17 +202,6 @@ export default function UserProfile() {
   if (loading || error) {
     return (
       <div className="p-4 md:p-8 bg-page min-h-screen max-w-7xl mx-auto space-y-8">
-        <style jsx global>{`
-          .shimmer {
-            background: linear-gradient(90deg, var(--color-surface-2) 25%, var(--color-line) 37%, var(--color-surface-2) 63%);
-            background-size: 400% 100%;
-            animation: shimmer 1.4s ease-in-out infinite;
-          }
-          @keyframes shimmer {
-            0% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
-        `}</style>
         <button
           onClick={() => router.back()}
           className="relative z-10 flex items-center gap-2 text-sm font-semibold text-muted hover:text-accent transition-colors w-fit cursor-pointer"

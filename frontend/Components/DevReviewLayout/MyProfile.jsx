@@ -11,6 +11,7 @@ import {
   Loader2, AlertCircle, Code2, Briefcase
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import { updateProfile } from "@/services/authApis";
 import { getMyProjects } from "@/services/getMyProjectsApi";
 import { getSavedProjects, toggleSaveProject } from "@/services/savedProjectsApi";
@@ -30,7 +31,8 @@ export default function MyProfile() {
   const [myProjects, setMyProjects] = useState([]);
   const [savedProjects, setSavedProjects] = useState([]);
   const [savedProjectsLoading, setSavedProjectsLoading] = useState(true);
-  const [toast, setToast] = useState({ show: false, type: "", message: "" });
+
+  const { showToast } = useToast();
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -132,13 +134,6 @@ export default function MyProfile() {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (toast.show) {
-      const timer = setTimeout(() => setToast({ show: false, type: "", message: "" }), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast.show]);
-
 const stats = {
     projectsCount: myProjects?.length || user?.projects?.length || 0,
     reviews: myProjects.reduce((acc, curr) => acc + getProjectReviewsCount(curr), 0),
@@ -177,10 +172,6 @@ const stats = {
   const joinedDate = user?.createdAt
     ? `Joined ${new Date(user.createdAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })}`
     : "New member";
-
-  const showToast = (type, message) => {
-    setToast({ show: true, type, message });
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -306,29 +297,6 @@ const stats = {
 
       <div className="absolute inset-0 bg-[radial-gradient(var(--color-line)_1px,transparent_1px)] bg-size-[24px_24px] opacity-50 pointer-events-none z-0" />
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-linear-to-tr from-accent/5 to-accent-2/5 rounded-full blur-[140px] pointer-events-none z-0" />
-
-
-      <AnimatePresence>
-        {toast.show && (
-          <motion.div
-            initial={{ opacity: 0, y: -20, x: "-50%" }}
-            animate={{ opacity: 1, y: 0, x: "-50%" }}
-            exit={{ opacity: 0, y: -20, x: "-50%" }}
-            className={`fixed top-6 left-1/2 z-[100] px-5 py-3 rounded-2xl shadow-lg border flex items-center gap-2 text-sm font-semibold md:backdrop-blur-md ${
-              toast.type === "success" 
-                ? "bg-ok/10 border-ok/20 text-ink" 
-                : "bg-danger/10 border-danger/20 text-ink"
-            }`}
-          >
-            {toast.type === "success" ? (
-              <CheckCircle2 className="w-5 h-5 text-ok" />
-            ) : (
-              <AlertCircle className="w-5 h-5 text-danger" />
-            )}
-            {toast.message}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
 
       <div className="bg-surface border border-line rounded-[32px] p-8 md:p-10 shadow-sm relative overflow-hidden z-10">

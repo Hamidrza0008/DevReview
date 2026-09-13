@@ -151,7 +151,7 @@ function NavList({ onNavigate }) {
             {isActive && (
               <motion.div
                 layoutId="sidebarActiveBorder"
-                className="absolute left-0 top-2.5 bottom-2.5 w-1 rounded-r-full bg-accent shadow-[1px_0_8px_rgba(47,111,78,0.4)]"
+                className="absolute left-0 top-2.5 bottom-2.5 w-1 rounded-r-full bg-accent shadow-accent/40"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
@@ -200,7 +200,7 @@ function ProfileFooter() {
               height={36}
               className="w-9 h-9 rounded-full object-cover ring-2 ring-surface shadow-sm border border-line transition-all duration-300 group-hover/profile:ring-accent-2/50"
             />
-            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-ok rounded-full ring-2 ring-surface shadow-[0_0_8px_rgba(47,111,78,0.5)] animate-pulse" />
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-ok rounded-full ring-2 ring-surface shadow-ok/50 animate-pulse" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-bold text-ink truncate tracking-wide group-hover/profile:text-accent transition-colors">
@@ -220,7 +220,7 @@ function ProfileFooter() {
             height={36}
             className="w-9 h-9 rounded-full object-cover ring-2 ring-surface shadow-sm border border-line"
           />
-          <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-ok rounded-full ring-2 ring-surface shadow-[0_0_8px_rgba(47,111,78,0.5)] animate-pulse" />
+          <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-ok rounded-full ring-2 ring-surface shadow-ok/50 animate-pulse" />
         </div>
       )}
 
