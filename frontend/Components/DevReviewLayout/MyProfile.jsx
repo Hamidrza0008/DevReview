@@ -624,7 +624,7 @@ const stats = {
       </div>
 
 
-      <div className="border-b border-line flex items-center space-x-8 z-10 relative overflow-x-auto no-scrollbar pt-4">
+      <div className="border-b border-line flex items-center space-x-8 z-10 relative overflow-x-auto no-scrollbar pt-4" role="tablist" aria-label="Profile content">
         {[
           { id: "projects", label: "Projects", icon: Layers },
           { id: "about", label: "Resume / Bio", icon: Briefcase },
@@ -635,7 +635,24 @@ const stats = {
           return (
             <button
               key={tab.id}
+              id={`profile-tab-${tab.id}`}
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`profile-panel-${tab.id}`}
+              tabIndex={isActive ? 0 : -1}
               onClick={() => setActiveTab(tab.id)}
+              onKeyDown={(e) => {
+                const tabIds = ["projects", "about", "saved"];
+                const currentIndex = tabIds.indexOf(tab.id);
+                let newIndex = currentIndex;
+                if (e.key === "ArrowRight") newIndex = (currentIndex + 1) % tabIds.length;
+                if (e.key === "ArrowLeft") newIndex = (currentIndex - 1 + tabIds.length) % tabIds.length;
+                if (newIndex !== currentIndex) {
+                  e.preventDefault();
+                  document.getElementById(`profile-tab-${tabIds[newIndex]}`)?.focus();
+                  setActiveTab(tabIds[newIndex]);
+                }
+              }}
               className={`flex items-center gap-2 pb-4 text-sm font-bold border-b-2 transition-all relative whitespace-nowrap outline-none ${
                 isActive
                   ? "border-accent text-accent"
@@ -669,6 +686,9 @@ const stats = {
 
             {activeTab === "projects" && (
               <motion.div
+                id="profile-panel-projects"
+                role="tabpanel"
+                aria-labelledby="profile-tab-projects"
                 key="projects"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -797,6 +817,9 @@ const stats = {
 
             {activeTab === "about" && (
               <motion.div
+                id="profile-panel-about"
+                role="tabpanel"
+                aria-labelledby="profile-tab-about"
                 key="about"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -827,6 +850,9 @@ const stats = {
 
             {activeTab === "saved" && (
               <motion.div
+                id="profile-panel-saved"
+                role="tabpanel"
+                aria-labelledby="profile-tab-saved"
                 key="saved"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

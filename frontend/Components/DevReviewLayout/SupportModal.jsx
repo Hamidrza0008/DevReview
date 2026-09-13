@@ -38,16 +38,52 @@ export default function SupportModal({ isOpen, onClose, user }) {
     }
   }
 
+  const modalRef = React.useRef(null);
+  const previousFocusRef = React.useRef(null);
+
   useEffect(() => {
     if (!isOpen) return;
+    previousFocusRef.current = document.activeElement;
     document.body.style.overflow = "hidden";
+    
+    const modal = modalRef.current;
+    if (modal) {
+      const focusableElements = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusableElements.length > 0) {
+        focusableElements[0].focus();
+      }
+    }
+
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key === "Tab" && modal) {
+        const focusableElements = modal.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
     };
+    
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
+      if (previousFocusRef.current) {
+        previousFocusRef.current.focus();
+      }
     };
   }, [isOpen, onClose]);
 
@@ -106,6 +142,7 @@ export default function SupportModal({ isOpen, onClose, user }) {
 
           <div className="fixed inset-0 z-101 flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none">
             <motion.div
+              ref={modalRef}
               initial={{ opacity: 0, y: 40, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 24, scale: 0.97 }}
@@ -170,7 +207,7 @@ export default function SupportModal({ isOpen, onClose, user }) {
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
+                        <label htmlFor="support-name" className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
                           Name <span className="text-danger">*</span>
                         </label>
                         <div className="relative group">
@@ -179,20 +216,23 @@ export default function SupportModal({ isOpen, onClose, user }) {
                               }`}
                           />
                           <input
+                            id="support-name"
                             type="text"
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
                             placeholder="Your name"
+                            aria-invalid={errors.name ? "true" : undefined}
+                            aria-describedby={errors.name ? "support-name-error" : undefined}
                             className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${errors.name ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
                               }`}
                           />
                         </div>
-                        {errors.name && <p className="text-[11px] text-danger font-semibold mt-1">{errors.name}</p>}
+                        {errors.name && <p id="support-name-error" className="text-[11px] text-danger font-semibold mt-1">{errors.name}</p>}
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
+                        <label htmlFor="support-email" className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
                           Email <span className="text-danger">*</span>
                         </label>
                         <div className="relative group">
@@ -201,24 +241,28 @@ export default function SupportModal({ isOpen, onClose, user }) {
                               }`}
                           />
                           <input
+                            id="support-email"
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
                             placeholder="you@example.com"
+                            aria-invalid={errors.email ? "true" : undefined}
+                            aria-describedby={errors.email ? "support-email-error" : undefined}
                             className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${errors.email ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
                               }`}
                           />
                         </div>
-                        {errors.email && <p className="text-[11px] text-danger font-semibold mt-1">{errors.email}</p>}
+                        {errors.email && <p id="support-email-error" className="text-[11px] text-danger font-semibold mt-1">{errors.email}</p>}
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">Category</label>
+                      <label htmlFor="support-category" className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">Category</label>
                       <div className="relative group">
                         <Tag className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-muted group-focus-within:text-accent transition-colors pointer-events-none" />
                         <select
+                          id="support-category"
                           name="category"
                           value={formData.category}
                           onChange={handleChange}
@@ -235,7 +279,7 @@ export default function SupportModal({ isOpen, onClose, user }) {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
+                      <label htmlFor="support-subject" className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
                         Subject <span className="text-danger">*</span>
                       </label>
                       <div className="relative group">
@@ -244,20 +288,23 @@ export default function SupportModal({ isOpen, onClose, user }) {
                             }`}
                         />
                         <input
+                          id="support-subject"
                           type="text"
                           name="subject"
                           value={formData.subject}
                           onChange={handleChange}
                           placeholder="Brief summary of your request"
+                          aria-invalid={errors.subject ? "true" : undefined}
+                          aria-describedby={errors.subject ? "support-subject-error" : undefined}
                           className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${errors.subject ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
                             }`}
                         />
                       </div>
-                      {errors.subject && <p className="text-[11px] text-danger font-semibold mt-1">{errors.subject}</p>}
+                      {errors.subject && <p id="support-subject-error" className="text-[11px] text-danger font-semibold mt-1">{errors.subject}</p>}
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
+                      <label htmlFor="support-message" className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
                         Message <span className="text-danger">*</span>
                       </label>
                       <div className="relative group">
@@ -266,16 +313,19 @@ export default function SupportModal({ isOpen, onClose, user }) {
                             }`}
                         />
                         <textarea
+                          id="support-message"
                           name="message"
                           rows={4}
                           value={formData.message}
                           onChange={handleChange}
                           placeholder="Tell us more..."
+                          aria-invalid={errors.message ? "true" : undefined}
+                          aria-describedby={errors.message ? "support-message-error" : undefined}
                           className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm resize-none transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${errors.message ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
                             }`}
                         />
                       </div>
-                      {errors.message && <p className="text-[11px] text-danger font-semibold mt-1">{errors.message}</p>}
+                      {errors.message && <p id="support-message-error" className="text-[11px] text-danger font-semibold mt-1">{errors.message}</p>}
                     </div>
 
                     {submitError && (

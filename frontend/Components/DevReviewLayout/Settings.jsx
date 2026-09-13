@@ -71,31 +71,42 @@ export default function Settings() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 sm:p-8 bg-page min-h-screen text-ink">
       <div className="mb-8"><h1 className="text-3xl font-bold tracking-tight">Settings</h1><p className="text-muted">Manage your profile, notifications, and account security.</p></div>
       <div className="bg-surface border border-line rounded-2xl max-w-4xl overflow-hidden grid grid-cols-1 md:grid-cols-4">
-        <nav className="border-r border-line p-4 space-y-1 bg-page/50">
+        <nav className="border-r border-line p-4 space-y-1 bg-page/50" role="tablist" aria-label="Settings sections" aria-orientation="vertical">
           {tabs.map((tab) => {
             const Icon = tab.icon;
-            return <button key={tab.id} type="button" onClick={() => { setActiveTab(tab.id); setMessage(null); }} className={`w-full text-left text-xs font-semibold px-3 py-2.5 rounded-lg flex items-center gap-2 transition-all ${activeTab === tab.id ? "bg-surface text-accent border border-line shadow-sm" : "text-muted hover:text-ink"}`}><Icon className="w-4 h-4" />{tab.label}</button>;
+            return <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} aria-controls={`settings-panel-${tab.id}`} id={`settings-tab-${tab.id}`} tabIndex={activeTab === tab.id ? 0 : -1} onClick={() => { setActiveTab(tab.id); setMessage(null); }} onKeyDown={(e) => {
+              const currentIndex = tabs.findIndex(t => t.id === tab.id);
+              let newIndex = currentIndex;
+              if (e.key === "ArrowDown") newIndex = (currentIndex + 1) % tabs.length;
+              if (e.key === "ArrowUp") newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+              if (newIndex !== currentIndex) {
+                e.preventDefault();
+                document.getElementById(`settings-tab-${tabs[newIndex].id}`)?.focus();
+                setActiveTab(tabs[newIndex].id);
+                setMessage(null);
+              }
+            }} className={`w-full text-left text-xs font-semibold px-3 py-2.5 rounded-lg flex items-center gap-2 transition-all ${activeTab === tab.id ? "bg-surface text-accent border border-line shadow-sm" : "text-muted hover:text-ink"}`}><Icon className="w-4 h-4" />{tab.label}</button>;
           })}
         </nav>
 
         <div className="p-6 md:col-span-3 space-y-6">
-          {activeTab === "profile" && <>
+          {activeTab === "profile" && <div id="settings-panel-profile" role="tabpanel" aria-labelledby="settings-tab-profile">
             <h2 className="font-bold text-lg pb-3 border-b border-line">Public Profile</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="text-xs font-bold text-muted uppercase tracking-wider">Developer Handle<input value={profile.username} onChange={(e) => setProfile((value) => ({ ...value, username: e.target.value }))} className="mt-2 w-full bg-page border border-line px-3 py-2.5 rounded-lg text-sm text-ink normal-case font-normal focus:outline-none focus:border-accent" /></label>
               <label className="text-xs font-bold text-muted uppercase tracking-wider">Portfolio URL<input value={profile.portfolioUrl} onChange={(e) => setProfile((value) => ({ ...value, portfolioUrl: e.target.value }))} placeholder="https://yourportfolio.dev" className="mt-2 w-full bg-page border border-line px-3 py-2.5 rounded-lg text-sm text-ink normal-case font-normal focus:outline-none focus:border-accent" /></label>
             </div>
             <SaveButton saving={saving} onClick={saveProfile} label="Save Profile" />
-          </>}
+          </div>}
 
-          {activeTab === "notifications" && <>
+          {activeTab === "notifications" && <div id="settings-panel-notifications" role="tabpanel" aria-labelledby="settings-tab-notifications">
             <h2 className="font-bold text-lg pb-3 border-b border-line">Notification Preferences</h2>
             <PreferenceToggle title="Review alerts" description="Show notifications when someone reviews one of your projects." checked={preferences.reviewAlerts} onChange={(checked) => setPreferences((value) => ({ ...value, reviewAlerts: checked }))} />
             <PreferenceToggle title="Weekly digest" description="Receive a weekly summary of relevant community activity." checked={preferences.weeklyDigest} onChange={(checked) => setPreferences((value) => ({ ...value, weeklyDigest: checked }))} />
             <SaveButton saving={saving} onClick={savePreferences} label="Save Preferences" />
-          </>}
+          </div>}
 
-          {activeTab === "security" && <>
+          {activeTab === "security" && <div id="settings-panel-security" role="tabpanel" aria-labelledby="settings-tab-security">
             <h2 className="font-bold text-lg pb-3 border-b border-line">Account Security</h2>
             {user?.authProvider === "google" ? <div className="bg-page border border-line rounded-xl p-5"><p className="font-bold text-sm">Managed by Google</p><p className="text-xs text-muted mt-1">This account uses Google sign-in. Manage its password from your Google account.</p></div> : <>
               <div className="space-y-4">
@@ -105,7 +116,7 @@ export default function Settings() {
               </div>
               <SaveButton saving={saving} onClick={savePassword} label="Update Password" />
             </>}
-          </>}
+          </div>}
 
           {message && <p className={`text-xs font-semibold flex items-center gap-2 ${message.type === "success" ? "text-ok" : "text-danger"}`}><CheckCircle2 className="w-4 h-4" />{message.text}</p>}
         </div>

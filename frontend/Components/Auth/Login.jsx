@@ -202,6 +202,8 @@ export default function Login() {
                 exit={{ opacity: 0, height: 0, y: -8 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 className="overflow-hidden mb-5"
+                role="alert"
+                aria-live="assertive"
               >
                 <div className="flex items-start space-x-3 bg-danger/10 border border-danger/30 p-3.5 rounded-xl text-danger">
                   <svg className="w-5 h-5 mt-0.5 shrink-0 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -251,8 +253,9 @@ export default function Login() {
               >
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div>
-                    <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Developer Identity Email</label>
+                    <label htmlFor="login-email" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Developer Identity Email</label>
                     <input
+                      id="login-email"
                       type="email"
                       required
                       value={email}
@@ -264,11 +267,12 @@ export default function Login() {
 
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <label className="block text-xs font-bold text-ink uppercase tracking-wider">Access Key / Password</label>
+                      <label htmlFor="login-password" className="block text-xs font-bold text-ink uppercase tracking-wider">Access Key / Password</label>
                       <a href="/auth/forgot-password" className="text-xs font-bold text-accent hover:underline">Lost Key?</a>
                     </div>
                     <div className="relative">
                       <input
+                        id="login-password"
                         type={showPassword ? "text" : "password"}
                         required
                         value={password}
@@ -280,6 +284,7 @@ export default function Login() {
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute inset-y-0 right-0 pr-4 flex items-center select-none"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
                       >
                         <span className="text-muted hover:text-ink text-xs font-bold transition-colors">{showPassword ? "HIDE" : "SHOW"}</span>
                       </button>

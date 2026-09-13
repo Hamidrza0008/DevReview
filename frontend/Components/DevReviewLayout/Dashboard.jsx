@@ -249,13 +249,32 @@ export default function Dashboard() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
                   <motion.div variants={itemVariants} className="lg:col-span-2 space-y-4 sm:space-y-5">
-                    <div className="flex items-center gap-4 sm:gap-6 border-b border-line pb-px overflow-x-auto no-scrollbar">
+                    <div className="flex items-center gap-4 sm:gap-6 border-b border-line pb-px overflow-x-auto no-scrollbar" role="tablist" aria-label="Dashboard content">
                       {["My Projects", "Feedback Received"].map((tab) => {
                         const isActive = activeTab === tab;
+                        const tabId = tab === "My Projects" ? "tab-projects" : "tab-feedback";
+                        const panelId = tab === "My Projects" ? "panel-projects" : "panel-feedback";
                         return (
                           <button
                             key={tab}
+                            id={tabId}
+                            role="tab"
+                            aria-selected={isActive}
+                            aria-controls={panelId}
+                            tabIndex={isActive ? 0 : -1}
                             onClick={() => setActiveTab(tab)}
+                            onKeyDown={(e) => {
+                              const tabs = ["tab-projects", "tab-feedback"];
+                              const currentIndex = tabs.indexOf(tabId);
+                              let newIndex = currentIndex;
+                              if (e.key === "ArrowRight") newIndex = (currentIndex + 1) % tabs.length;
+                              if (e.key === "ArrowLeft") newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+                              if (newIndex !== currentIndex) {
+                                e.preventDefault();
+                                document.getElementById(tabs[newIndex])?.focus();
+                                setActiveTab(newIndex === 0 ? "My Projects" : "Feedback Received");
+                              }
+                            }}
                             className={`pb-3 text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all relative outline-none whitespace-nowrap ${isActive ? "text-accent" : "text-muted hover:text-ink"
                               }`}
                           >
@@ -274,6 +293,9 @@ export default function Dashboard() {
                     <AnimatePresence mode="wait">
                       {activeTab === "My Projects" ? (
                         <motion.div
+                          id="panel-projects"
+                          role="tabpanel"
+                          aria-labelledby="tab-projects"
                           key="projects-view"
                           initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -354,6 +376,9 @@ export default function Dashboard() {
                         </motion.div>
                       ) : (
                         <motion.div
+                          id="panel-feedback"
+                          role="tabpanel"
+                          aria-labelledby="tab-feedback"
                           key="feedback-view"
                           initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}

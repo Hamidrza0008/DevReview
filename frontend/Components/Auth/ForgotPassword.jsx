@@ -113,8 +113,8 @@ export default function ForgotPassword() {
                 transition={{ duration: 0.12 }}
               >
                 <div>
-                  <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Account Node Email</label>
-                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-shadow duration-150" />
+                  <label htmlFor="forgot-email" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Account Node Email</label>
+                  <input id="forgot-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-shadow duration-150" />
                 </div>
 
                 <button

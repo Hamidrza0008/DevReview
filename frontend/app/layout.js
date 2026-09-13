@@ -25,6 +25,12 @@ export default function RootLayout({ children }) {
         className="min-h-full flex flex-col bg-page text-ink"
         suppressHydrationWarning
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-accent focus:text-accent-ink focus:rounded-lg focus:text-sm focus:font-bold focus:outline-none"
+        >
+          Skip to content
+        </a>
         {/* beforeInteractive script must live outside <head> when using app router */}
         <Script
           id="theme-init"

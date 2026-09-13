@@ -236,28 +236,28 @@ export default function SignUp() {
                 <form onSubmit={handleSubmit} className="space-y-3">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Name</label>
-                      <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Hamid Rza" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                      <label htmlFor="signup-name" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Name</label>
+                      <input id="signup-name" type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Hamid Rza" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Username</label>
-                      <input type="text" required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="HamidRza0008" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                      <label htmlFor="signup-username" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Username</label>
+                      <input id="signup-username" type="text" required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="HamidRza0008" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Email</label>
-                    <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@domain.com" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                    <label htmlFor="signup-email" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Email</label>
+                    <input id="signup-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@domain.com" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Password</label>
-                      <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                      <label htmlFor="signup-password" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Password</label>
+                      <input id="signup-password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Confirm</label>
-                      <input type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                      <label htmlFor="signup-confirm" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1">Confirm</label>
+                      <input id="signup-confirm" type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full px-3.5 py-2 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
                     </div>
                   </div>
 

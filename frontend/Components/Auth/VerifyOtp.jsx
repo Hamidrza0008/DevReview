@@ -121,11 +121,14 @@ export default function VerifyOtp() {
 
                     <form className="space-y-5" onSubmit={handleSubmit}>
                         <div>
-                            <label className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Secure OTP Token</label>
+                            <label htmlFor="otp-input" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Secure OTP Token</label>
                             <input
+                                id="otp-input"
                                 value={otp}
                                 onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ""))}
                                 type="text"
+                                inputMode="numeric"
+                                autoComplete="one-time-code"
                                 required
                                 maxLength={6}
                                 placeholder="000000"

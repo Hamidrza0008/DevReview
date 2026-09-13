@@ -133,6 +133,7 @@ function NavList({ onNavigate }) {
           <button
             key={item.name}
             onClick={() => { router.push(item.path); onNavigate?.(); }}
+            aria-current={isActive ? "page" : undefined}
             className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm transition-all duration-200 group relative overflow-hidden cursor-pointer active:scale-[0.98] ${
               isActive
                 ? "font-bold shadow-sm border border-accent/15 bg-surface/80 md:backdrop-blur-sm"
@@ -267,6 +268,8 @@ export default function Sidebar() {
           <button
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-sidebar"
             className="w-9 h-9 flex items-center justify-center rounded-xl border border-line bg-surface text-ink hover:text-accent hover:border-accent/40 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
           >
             <Menu className="w-5 h-5" />
@@ -286,11 +289,15 @@ export default function Sidebar() {
               className="md:hidden fixed inset-0 bg-black/40 z-50"
             />
             <motion.aside
+              id="mobile-sidebar"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 320, damping: 34 }}
               className="md:hidden fixed top-0 bottom-0 left-0 w-72 max-w-[80vw] bg-page z-50 flex flex-col justify-between shadow-2xl"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Mobile navigation menu"
             >
               <div className="flex-1 overflow-y-auto custom-scrollbar">
                 <div className="h-14 flex items-center justify-between px-4 border-b border-line">

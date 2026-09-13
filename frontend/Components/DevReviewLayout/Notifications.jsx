@@ -216,9 +216,20 @@ export default function Notifications() {
           {unreadCount > 0 && <button type="button" onClick={handleReadAll} className="ml-auto text-xs font-bold text-accent hover:underline">Mark all as read</button>}
         </motion.header>
 
-        <div className="border-b border-line flex items-center gap-6 mb-6">
+        <div className="border-b border-line flex items-center gap-6 mb-6" role="tablist" aria-label="Notification filters">
           {["All", "Unread"].map((tab) => (
-            <button key={tab} onClick={() => setFilter(tab)} className={`relative pb-3 text-xs font-bold cursor-pointer ${filter === tab ? "text-accent" : "text-muted hover:text-ink"}`}>
+            <button key={tab} id={`notif-tab-${tab}`} role="tab" aria-selected={filter === tab} aria-controls={`notif-panel-${tab}`} tabIndex={filter === tab ? 0 : -1} onClick={() => setFilter(tab)} onKeyDown={(e) => {
+              const tabs = ["All", "Unread"];
+              const currentIndex = tabs.indexOf(tab);
+              let newIndex = currentIndex;
+              if (e.key === "ArrowRight") newIndex = (currentIndex + 1) % tabs.length;
+              if (e.key === "ArrowLeft") newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+              if (newIndex !== currentIndex) {
+                e.preventDefault();
+                document.getElementById(`notif-tab-${tabs[newIndex]}`)?.focus();
+                setFilter(tabs[newIndex]);
+              }
+            }} className={`relative pb-3 text-xs font-bold cursor-pointer outline-none ${filter === tab ? "text-accent" : "text-muted hover:text-ink"}`}>
               {tab} {tab === "Unread" && unreadCount ? `(${unreadCount})` : ""}
               {filter === tab && <motion.span layoutId="notification-tab" className="absolute bottom-0 inset-x-0 h-0.5 bg-accent" />}
             </button>
