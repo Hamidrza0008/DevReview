@@ -88,28 +88,32 @@ export default function ConversationList() {
   const list = conversations || [];
 
   return (
-    <div className="hidden md:flex flex-col h-full w-80 lg:w-96 shrink-0 border-r border-line bg-surface">
+    <div className="flex flex-col h-full w-full border-r border-line bg-surface">
       <div className="p-4 border-b border-line">
         <h1 className="text-lg font-extrabold text-ink">Messages</h1>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
+      <div
+        className="flex-1 overflow-y-auto custom-scrollbar"
+        role="list"
+        aria-label="Conversations"
+      >
         {!loaded && (
-          <div className="p-8 text-center space-y-3">
+          <div className="p-8 text-center space-y-3" role="status" aria-label="Loading conversations">
             <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
             <p className="text-xs text-muted">Loading conversations...</p>
           </div>
         )}
 
         {loaded && error && (
-          <div className="p-8 text-center space-y-3">
+          <div className="p-8 text-center space-y-3" role="alert" aria-label="Error loading conversations">
             <p className="text-xs text-danger font-semibold">Failed to load conversations.</p>
             <button onClick={() => window.location.reload()} className="text-xs text-accent font-bold hover:underline">Retry</button>
           </div>
         )}
 
         {loaded && !error && list.length === 0 && (
-          <div className="p-8 text-center flex flex-col items-center justify-center h-64">
+          <div className="p-8 text-center flex flex-col items-center justify-center h-64" role="status" aria-label="No conversations">
             <div className="w-12 h-12 rounded-2xl bg-surface-2 border border-line flex items-center justify-center text-muted mb-3 shadow-xs">
               <MessageSquare className="w-5 h-5 opacity-70 text-accent" />
             </div>
@@ -130,13 +134,25 @@ export default function ConversationList() {
           return (
             <div
               key={conversation._id}
+              role="button"
+              tabIndex={0}
               onClick={() => {
                 setConversations(prev => prev ? prev.map(c =>
                   c._id === conversation._id ? { ...c, unreadCount: 0 } : c
                 ) : prev);
                 router.push(`/messages/${conversation._id}`);
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 border-b border-line/60 cursor-pointer hover:bg-surface-2"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setConversations(prev => prev ? prev.map(c =>
+                    c._id === conversation._id ? { ...c, unreadCount: 0 } : c
+                  ) : prev);
+                  router.push(`/messages/${conversation._id}`);
+                }
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 border-b border-line/60 cursor-pointer hover:bg-surface-2 focus:outline-none focus:bg-surface-2 focus:ring-2 focus:ring-inset focus:ring-accent/30"
+              role="listitem"
             >
               <div className="relative shrink-0">
                 <div className="w-11 h-11 rounded-full bg-linear-to-br from-accent/15 to-accent-2/15 border border-line flex items-center justify-center text-sm font-extrabold text-accent overflow-hidden">

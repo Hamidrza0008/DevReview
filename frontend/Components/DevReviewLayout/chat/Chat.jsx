@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Send, MessageSquare, Users } from "lucide-react";
+import { Send, MessageSquare, Users, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import {
   sendMessageApi,
@@ -34,6 +34,29 @@ export default function Chat({ receiverId, conversationId }) {
   const topSentinelRef = useRef(null);
   const isLoadingMoreRef = useRef(false);
   const preserveScrollRef = useRef(false);
+
+  const adjustTextareaHeight = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    const maxHeight = 120;
+    textarea.style.height = `${Math.min(textarea.scrollHeight, maxHeight)}px`;
+  }, []);
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [text, adjustTextareaHeight]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (textareaRef.current) {
+        textareaRef.current.blur();
+        setTimeout(() => textareaRef.current?.focus(), 100);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const scrollToBottom = useCallback((behavior = "instant") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -215,6 +238,9 @@ export default function Chat({ receiverId, conversationId }) {
 
         setMessages((prev) => [...prev, newMessage]);
         setText("");
+        if (textareaRef.current) {
+          textareaRef.current.style.height = "auto";
+        }
 
         if (!conversationId && res.data.conversationId) {
           router.replace(`/messages/${res.data.conversationId}`);
@@ -253,7 +279,7 @@ export default function Chat({ receiverId, conversationId }) {
 
   if (!conversationId && !receiverId) {
     return (
-      <div className="flex flex-col h-full flex-1 min-w-0 items-center justify-center p-8 text-center bg-surface/40">
+      <div className="flex flex-col h-full flex-1 min-w-0 items-center justify-center p-8 text-center bg-surface/40" role="status" aria-label="No conversation selected">
         <div className="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent mb-4 shadow-xs">
           <MessageSquare className="w-8 h-8" />
         </div>
@@ -275,7 +301,7 @@ export default function Chat({ receiverId, conversationId }) {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-full flex-1 min-w-0">
+      <div className="flex flex-col h-full flex-1 min-w-0" role="status" aria-label="Loading chat">
         <div className="flex items-center gap-3 px-4 py-3 border-b border-line">
           <div className="w-10 h-10 rounded-full bg-surface-2 animate-pulse" />
           <div className="space-y-2">
@@ -292,7 +318,7 @@ export default function Chat({ receiverId, conversationId }) {
 
   if (error && messages.length === 0) {
     return (
-      <div className="flex flex-col h-full flex-1 min-w-0">
+      <div className="flex flex-col h-full flex-1 min-w-0" role="alert" aria-label="Error loading chat">
         <div className="flex-1 flex items-center justify-center">
           <p className="text-sm text-danger">{error}</p>
         </div>
@@ -303,6 +329,14 @@ export default function Chat({ receiverId, conversationId }) {
   return (
     <div className="flex flex-col h-full flex-1 min-w-0">
       <div className="flex items-center gap-3 px-4 py-3 border-b border-line">
+        <button
+          type="button"
+          onClick={() => router.push("/messages")}
+          className="md:hidden shrink-0 w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-2 transition-colors cursor-pointer"
+          aria-label="Back to conversations"
+        >
+          <ArrowLeft className="w-5 h-5 text-ink" />
+        </button>
         <button
           type="button"
           onClick={() => receiver?.username && router.push(`/users/${receiver.username}`)}
@@ -334,17 +368,23 @@ export default function Chat({ receiverId, conversationId }) {
         </button>
       </div>
 
-      <div ref={containerRef} className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+      <div
+        ref={containerRef}
+        className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3"
+        role="log"
+        aria-label="Chat messages"
+        aria-live="polite"
+      >
         <div ref={topSentinelRef} className="h-1" />
 
         {loadingMore && (
-          <div className="flex justify-center py-2">
+          <div className="flex justify-center py-2" role="status" aria-label="Loading older messages">
             <p className="text-xs text-muted">Loading older messages...</p>
           </div>
         )}
 
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-64 text-center p-6">
+          <div className="flex flex-col items-center justify-center h-64 text-center p-6" role="status" aria-label="No messages yet">
             <div className="w-12 h-12 rounded-2xl bg-surface-2 border border-line flex items-center justify-center text-accent mb-3 shadow-xs">
               <MessageSquare className="w-6 h-6 opacity-70" />
             </div>
@@ -384,12 +424,12 @@ export default function Chat({ receiverId, conversationId }) {
       </div>
 
       {error && messages.length > 0 && (
-        <div className="px-4 py-2 text-xs text-danger bg-danger/5 border-t border-danger/20">
+        <div className="px-4 py-2 text-xs text-danger bg-danger/5 border-t border-danger/20" role="alert">
           {error}
         </div>
       )}
 
-      <div className="flex items-center gap-2 p-3 border-t border-line">
+      <div className="flex items-end gap-2 p-3 border-t border-line bg-surface safe-area-bottom">
         <textarea
           ref={textareaRef}
           type="text"
@@ -398,7 +438,8 @@ export default function Chat({ receiverId, conversationId }) {
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={1}
-          className="flex-1 px-4 py-2.5 text-sm rounded-xl bg-page border border-line text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent/40 resize-none"
+          aria-label="Type a message"
+          className="flex-1 px-4 py-2.5 text-sm rounded-xl bg-page border border-line text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent/40 resize-none max-h-[120px] overflow-y-auto"
         />
         <button
           type="button"

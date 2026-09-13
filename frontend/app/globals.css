@@ -163,3 +163,17 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ==========================
+   Mobile Keyboard Safety
+   ========================== */
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@supports (height: 100dvh) {
+  .mobile-full-height {
+    height: 100dvh;
+  }
+}
