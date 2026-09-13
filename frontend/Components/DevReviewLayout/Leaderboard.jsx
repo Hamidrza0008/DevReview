@@ -12,6 +12,8 @@ import {
   Sparkles,
   AlertCircle,
   Loader2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { getLeaderboard, getMyRanking } from "@/services/leaderboardApi";
@@ -270,14 +272,19 @@ export default function Leaderboard() {
   const [myRankingLoading, setMyRankingLoading] = useState(true);
   const [error, setError] = useState(null);
   const [myRankingError, setMyRankingError] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
 
-  const fetchLeaderboard = async () => {
+  const LIMIT = 20;
+
+  const fetchLeaderboard = async (pageNum = 1) => {
     try {
       setLoading(true);
       setError(null);
-      const res = await getLeaderboard(1, 50);
+      const res = await getLeaderboard(pageNum, LIMIT);
       if (res?.success && res.data) {
         setLeaderboardData(res.data);
+        setPagination(res.pagination);
       } else {
         setError(res?.message || "Failed to load leaderboard");
       }
@@ -310,8 +317,8 @@ export default function Leaderboard() {
   };
 
   useEffect(() => {
-    fetchLeaderboard();
-  }, []);
+    fetchLeaderboard(page);
+  }, [page]);
 
   useEffect(() => {
     fetchMyRanking();
@@ -441,7 +448,7 @@ export default function Leaderboard() {
                 <LoadingSkeleton />
               ) : error ? (
                 <div className="py-12">
-                  <ErrorState onRetry={fetchLeaderboard} />
+                  <ErrorState onRetry={() => fetchLeaderboard(page)} />
                 </div>
               ) : restOfList.length === 0 ? (
                 <EmptyState />
@@ -450,6 +457,60 @@ export default function Leaderboard() {
                   {restOfList.map((dev) => (
                     <LeaderboardRow key={dev.user?._id || dev.rank} developer={dev} />
                   ))}
+                </div>
+              )}
+
+              {pagination && pagination.pages > 1 && (
+                <div className="px-4 sm:px-5 py-3 border-t border-line flex items-center justify-between">
+                  <span className="text-[11px] text-muted font-medium">
+                    Page {pagination.page} of {pagination.pages} ({pagination.total} developers)
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page <= 1}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg border border-line text-muted hover:bg-page hover:text-ink transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
+                      let pageNum;
+                      if (pagination.pages <= 5) {
+                        pageNum = i + 1;
+                      } else if (page <= 3) {
+                        pageNum = i + 1;
+                      } else if (page >= pagination.pages - 2) {
+                        pageNum = pagination.pages - 4 + i;
+                      } else {
+                        pageNum = page - 2 + i;
+                      }
+                      return (
+                        <button
+                          key={pageNum}
+                          type="button"
+                          onClick={() => setPage(pageNum)}
+                          className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            page === pageNum
+                              ? "bg-accent text-accent-ink"
+                              : "border border-line text-muted hover:bg-page hover:text-ink"
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
+                      disabled={page >= pagination.pages}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg border border-line text-muted hover:bg-page hover:text-ink transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      aria-label="Next page"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               )}
             </motion.div>

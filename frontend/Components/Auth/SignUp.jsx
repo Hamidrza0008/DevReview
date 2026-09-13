@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Check, X as XIcon } from 'lucide-react';
 import { signUp } from '@/services/authApis';
 import { useRouter } from 'next/navigation';
 import GoogleButton from './GoogleButton';
@@ -59,15 +59,87 @@ export default function SignUp() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showEmailForm, setShowEmailForm] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  const passwordRules = useMemo(() => ({
+    minLength: password.length >= 8,
+    hasUpperCase: /[A-Z]/.test(password),
+    hasLowerCase: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+  }), [password]);
+
+  const passwordStrength = useMemo(() => {
+    if (!password) return { score: 0, label: "", color: "" };
+    const passed = Object.values(passwordRules).filter(Boolean).length;
+    if (passed <= 1) return { score: 1, label: "Weak", color: "text-danger" };
+    if (passed <= 2) return { score: 2, label: "Fair", color: "text-star" };
+    if (passed <= 3) return { score: 3, label: "Good", color: "text-accent" };
+    return { score: 4, label: "Strong", color: "text-ok" };
+  }, [password, passwordRules]);
+
+  const touchedFields = useMemo(() => ({
+    name: name.length > 0,
+    username: username.length > 0,
+    email: email.length > 0,
+    password: password.length > 0,
+    confirmPassword: confirmPassword.length > 0,
+  }), [name, username, email, password, confirmPassword]);
+
+  useEffect(() => {
+    if (!touchedFields.name) return;
+    setFieldErrors((prev) => ({
+      ...prev,
+      name: name.trim() ? "" : "Name is required",
+    }));
+  }, [name, touchedFields.name]);
+
+  useEffect(() => {
+    if (!touchedFields.username) return;
+    setFieldErrors((prev) => ({
+      ...prev,
+      username: username.trim() ? "" : "Username is required",
+    }));
+  }, [username, touchedFields.username]);
+
+  useEffect(() => {
+    if (!touchedFields.email) return;
+    setFieldErrors((prev) => ({
+      ...prev,
+      email: !email.trim() ? "Email is required" : !/^\S+@\S+\.\S+$/.test(email) ? "Enter a valid email" : "",
+    }));
+  }, [email, touchedFields.email]);
+
+  useEffect(() => {
+    if (!touchedFields.password) return;
+    setFieldErrors((prev) => ({
+      ...prev,
+      password: !password ? "Password is required" : !passwordRules.minLength ? "Must be at least 8 characters" : "",
+    }));
+  }, [password, touchedFields.password, passwordRules.minLength]);
+
+  useEffect(() => {
+    if (!touchedFields.confirmPassword) return;
+    setFieldErrors((prev) => ({
+      ...prev,
+      confirmPassword: !confirmPassword ? "Please confirm your password" : confirmPassword !== password ? "Passwords do not match" : "",
+    }));
+  }, [confirmPassword, touchedFields.confirmPassword, password]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match. Please verify your credentials.");
-      return;
-    }
+    const newErrors = {};
+    if (!name.trim()) newErrors.name = "Name is required";
+    if (!username.trim()) newErrors.username = "Username is required";
+    if (!email.trim()) newErrors.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(email)) newErrors.email = "Enter a valid email";
+    if (!password) newErrors.password = "Password is required";
+    else if (!passwordRules.minLength) newErrors.password = "Must be at least 8 characters";
+    if (password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+
+    setFieldErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) return;
     
     setIsLoading(true);
 
@@ -239,24 +311,27 @@ export default function SignUp() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label htmlFor="signup-name" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Name</label>
-                      <input id="signup-name" type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Hamid Rza" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                      <input id="signup-name" type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Hamid Rza" className={`w-full px-4 py-3 bg-page border rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all ${fieldErrors.name ? "border-danger/40" : "border-line"}`} />
+                      {fieldErrors.name && <p className="text-[11px] text-danger font-semibold mt-1">{fieldErrors.name}</p>}
                     </div>
                     <div>
                       <label htmlFor="signup-username" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Username</label>
-                      <input id="signup-username" type="text" required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="HamidRza0008" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                      <input id="signup-username" type="text" required value={username} onChange={(e) => setUsername(e.target.value)} placeholder="HamidRza0008" className={`w-full px-4 py-3 bg-page border rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all ${fieldErrors.username ? "border-danger/40" : "border-line"}`} />
+                      {fieldErrors.username && <p className="text-[11px] text-danger font-semibold mt-1">{fieldErrors.username}</p>}
                     </div>
                   </div>
 
                   <div>
                     <label htmlFor="signup-email" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Email</label>
-                    <input id="signup-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@domain.com" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                    <input id="signup-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@domain.com" className={`w-full px-4 py-3 bg-page border rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all ${fieldErrors.email ? "border-danger/40" : "border-line"}`} />
+                    {fieldErrors.email && <p className="text-[11px] text-danger font-semibold mt-1">{fieldErrors.email}</p>}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label htmlFor="signup-password" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Password</label>
                       <div className="relative">
-                        <input id="signup-password" type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all pr-12" />
+                        <input id="signup-password" type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className={`w-full px-4 py-3 bg-page border rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all pr-12 ${fieldErrors.password ? "border-danger/40" : "border-line"}`} />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
@@ -266,11 +341,43 @@ export default function SignUp() {
                           <span className="text-muted hover:text-ink text-xs font-bold transition-colors">{showPassword ? "HIDE" : "SHOW"}</span>
                         </button>
                       </div>
+                      {fieldErrors.password && <p className="text-[11px] text-danger font-semibold mt-1">{fieldErrors.password}</p>}
+                      {password.length > 0 && (
+                        <div className="mt-2 space-y-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <div className="flex-1 h-1 bg-surface-2 rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full transition-all duration-300 ${
+                                passwordStrength.score <= 1 ? "bg-danger w-1/4" :
+                                passwordStrength.score === 2 ? "bg-star w-2/4" :
+                                passwordStrength.score === 3 ? "bg-accent w-3/4" : "bg-ok w-full"
+                              }`} />
+                            </div>
+                            <span className={`text-[10px] font-bold ${passwordStrength.color}`}>{passwordStrength.label}</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+                            {[
+                              { label: "8+ characters", met: passwordRules.minLength },
+                              { label: "Uppercase letter", met: passwordRules.hasUpperCase },
+                              { label: "Lowercase letter", met: passwordRules.hasLowerCase },
+                              { label: "Number", met: passwordRules.hasNumber },
+                            ].map((rule) => (
+                              <div key={rule.label} className="flex items-center gap-1">
+                                {rule.met ? (
+                                  <Check className="w-2.5 h-2.5 text-ok" />
+                                ) : (
+                                  <XIcon className="w-2.5 h-2.5 text-muted" />
+                                )}
+                                <span className={`text-[9px] font-semibold ${rule.met ? "text-ok" : "text-muted"}`}>{rule.label}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="signup-confirm" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Confirm</label>
                       <div className="relative">
-                        <input id="signup-confirm" type={showConfirmPassword ? "text" : "password"} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all pr-12" />
+                        <input id="signup-confirm" type={showConfirmPassword ? "text" : "password"} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className={`w-full px-4 py-3 bg-page border rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all pr-12 ${fieldErrors.confirmPassword ? "border-danger/40" : "border-line"}`} />
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -280,6 +387,7 @@ export default function SignUp() {
                           <span className="text-muted hover:text-ink text-xs font-bold transition-colors">{showConfirmPassword ? "HIDE" : "SHOW"}</span>
                         </button>
                       </div>
+                      {fieldErrors.confirmPassword && <p className="text-[11px] text-danger font-semibold mt-1">{fieldErrors.confirmPassword}</p>}
                     </div>
                   </div>
 

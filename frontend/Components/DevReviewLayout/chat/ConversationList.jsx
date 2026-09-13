@@ -1,10 +1,10 @@
 "use client";
 
 import { getConversationsApi } from "@/services/conversationsApis";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Search } from "lucide-react";
 
 export default function ConversationList() {
   const router = useRouter();
@@ -14,6 +14,7 @@ export default function ConversationList() {
   const [conversations, setConversations] = useState(null);
   const [error, setError] = useState(false);
   const [retrying, setRetrying] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchConversations = async () => {
     try {
@@ -101,11 +102,37 @@ export default function ConversationList() {
   const loaded = conversations !== null;
   const list = conversations || [];
 
+  const filteredList = useMemo(() => {
+    if (!searchQuery.trim()) return list;
+    const query = searchQuery.toLowerCase().trim();
+    return list.filter((conversation) => {
+      const other = getOtherParticipant(conversation);
+      const name = other?.name?.toLowerCase() || "";
+      const username = other?.username?.toLowerCase() || "";
+      return name.includes(query) || username.includes(query);
+    });
+  }, [list, searchQuery, authUser]);
+
   return (
     <div className="flex flex-col h-full w-full border-r border-line bg-surface">
       <div className="p-4 border-b border-line">
         <h1 className="text-lg font-extrabold text-ink">Messages</h1>
       </div>
+
+      {loaded && !error && list.length > 0 && (
+        <div className="px-4 py-2 border-b border-line">
+          <div className="flex items-center bg-page border border-line rounded-lg px-3 py-1.5 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent/20 transition-all">
+            <Search className="w-3.5 h-3.5 text-muted mr-2 shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search conversations..."
+              className="flex-1 bg-transparent text-xs text-ink placeholder-muted focus:outline-none font-medium"
+            />
+          </div>
+        </div>
+      )}
 
       <div
         className="flex-1 overflow-y-auto custom-scrollbar"
@@ -132,24 +159,40 @@ export default function ConversationList() {
           </div>
         )}
 
-        {loaded && !error && list.length === 0 && (
+        {loaded && !error && filteredList.length === 0 && (
           <div className="p-8 text-center flex flex-col items-center justify-center h-64" role="status" aria-label="No conversations">
             <div className="w-12 h-12 rounded-2xl bg-surface-2 border border-line flex items-center justify-center text-muted mb-3 shadow-xs">
               <MessageSquare className="w-5 h-5 opacity-70 text-accent" />
             </div>
-            <p className="text-sm font-bold text-ink mb-1">No conversations yet</p>
-            <p className="text-xs text-muted max-w-[210px] mb-4 leading-relaxed">Connect and message developers directly from their profiles.</p>
-            <button
-              type="button"
-              onClick={() => router.push("/users/explore")}
-              className="text-xs font-bold text-accent hover:underline flex items-center gap-1 cursor-pointer"
-            >
-              Explore Developers →
-            </button>
+            {searchQuery.trim() ? (
+              <>
+                <p className="text-sm font-bold text-ink mb-1">No conversations found</p>
+                <p className="text-xs text-muted max-w-[210px] mb-4 leading-relaxed">No matches for &quot;{searchQuery}&quot;. Try a different search.</p>
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="text-xs font-bold text-accent hover:underline cursor-pointer"
+                >
+                  Clear search
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-bold text-ink mb-1">No conversations yet</p>
+                <p className="text-xs text-muted max-w-[210px] mb-4 leading-relaxed">Connect and message developers directly from their profiles.</p>
+                <button
+                  type="button"
+                  onClick={() => router.push("/users/explore")}
+                  className="text-xs font-bold text-accent hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  Explore Developers →
+                </button>
+              </>
+            )}
           </div>
         )}
 
-        {list.map((conversation) => {
+        {filteredList.map((conversation) => {
           const other = getOtherParticipant(conversation);
           return (
             <div

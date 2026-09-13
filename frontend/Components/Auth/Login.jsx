@@ -62,11 +62,23 @@ export default function Login() {
   const [showEmailForm, setShowEmailForm] = useState(false);
 
   const [error, setError] = useState(""); 
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(""); 
+
+    const newErrors = {};
+    if (!email.trim()) newErrors.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(email)) newErrors.email = "Enter a valid email";
+    if (!password) newErrors.password = "Password is required";
+
+    setFieldErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      setIsLoading(false);
+      return;
+    } 
 
     try {
       const res = await login({
@@ -259,10 +271,11 @@ export default function Login() {
                       type="email"
                       required
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => { setEmail(e.target.value); if (fieldErrors.email) setFieldErrors((p) => ({ ...p, email: "" })); }}
                       placeholder="name@company.com"
-                      className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all"
+                      className={`w-full px-4 py-3 bg-page border rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all ${fieldErrors.email ? "border-danger/40" : "border-line"}`}
                     />
+                    {fieldErrors.email && <p className="text-[11px] text-danger font-semibold mt-1">{fieldErrors.email}</p>}
                   </div>
 
                   <div>
@@ -276,9 +289,9 @@ export default function Login() {
                         type={showPassword ? "text" : "password"}
                         required
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => { setPassword(e.target.value); if (fieldErrors.password) setFieldErrors((p) => ({ ...p, password: "" })); }}
                         placeholder="••••••••"
-                        className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all pr-12"
+                        className={`w-full px-4 py-3 bg-page border rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all pr-12 ${fieldErrors.password ? "border-danger/40" : "border-line"}`}
                       />
                       <button
                         type="button"
@@ -289,6 +302,7 @@ export default function Login() {
                         <span className="text-muted hover:text-ink text-xs font-bold transition-colors">{showPassword ? "HIDE" : "SHOW"}</span>
                       </button>
                     </div>
+                    {fieldErrors.password && <p className="text-[11px] text-danger font-semibold mt-1">{fieldErrors.password}</p>}
                   </div>
 
                   <div className="flex items-center justify-between pt-1">

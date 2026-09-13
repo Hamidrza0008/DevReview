@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Bell, Check, CheckCheck, Heart, MessageSquareText, UserPlus, AlertCircle } from "lucide-react";
 import { getNotifications, markAllNotificationsRead, markNotificationRead } from "@/services/getNotificationsApi";
+import { ConfirmDialog } from "@/Components/shared";
 
 const PAGE_SIZE = 20;
 
@@ -98,6 +99,7 @@ export default function Notifications() {
   const [filter, setFilter] = useState("All");
   const [hasMore, setHasMore] = useState(true);
   const [retrying, setRetrying] = useState(false);
+  const [showReadAllConfirm, setShowReadAllConfirm] = useState(false);
 
   const bottomSentinelRef = useRef(null);
   const isLoadingMoreRef = useRef(false);
@@ -213,7 +215,7 @@ export default function Notifications() {
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Notifications</h1>
             <p className="text-sm text-muted mt-1">Your latest project and community activity.</p>
           </div>
-          {unreadCount > 0 && <button type="button" onClick={handleReadAll} className="ml-auto text-xs font-bold text-accent hover:underline">Mark all as read</button>}
+          {unreadCount > 0 && <button type="button" onClick={() => setShowReadAllConfirm(true)} className="ml-auto text-xs font-bold text-accent hover:underline">Mark all as read</button>}
         </motion.header>
 
         <div className="border-b border-line flex items-center gap-6 mb-6" role="tablist" aria-label="Notification filters">
@@ -289,6 +291,16 @@ export default function Notifications() {
         ) : (
           <div className="py-16 text-center"><CheckCheck className="w-7 h-7 text-muted mx-auto mb-3" /><h2 className="font-bold">No notifications yet</h2><p className="text-sm text-muted mt-1">Your new activity will appear here.</p></div>
         )}
+
+        <ConfirmDialog
+          isOpen={showReadAllConfirm}
+          onClose={() => setShowReadAllConfirm(false)}
+          onConfirm={handleReadAll}
+          title="Mark all as read?"
+          message="This will mark all unread notifications as read. You won't see unread indicators anymore."
+          confirmLabel="Mark all read"
+          variant="default"
+        />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -73,12 +73,16 @@ function Shimmer({ className = "" }) {
   return <div className={`shimmer rounded-md ${className}`} />;
 }
 
+const PAGE_SIZE = 20;
+
 export default function ExploreProjects() {
   const [projects, setProjects] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [statsLoading, setStatsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
 
   const [isPinned, setIsPinned] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -86,15 +90,18 @@ export default function ExploreProjects() {
 
   const router = useRouter();
   const isMountedRef = useRef(true);
+  const bottomSentinelRef = useRef(null);
+  const isLoadingMoreRef = useRef(false);
 
   const fetchProjects = async (showLoader = true) => {
     if (showLoader) setLoading(true);
     setError(null);
     try {
-      const res = await getExploreProjects();
+      const res = await getExploreProjects({ limit: PAGE_SIZE });
       if (!isMountedRef.current) return;
       if (res?.projects) {
         setProjects(res.projects);
+        setHasMore(res.hasMore);
       }
     } catch (err) {
       if (!isMountedRef.current) return;
@@ -103,6 +110,32 @@ export default function ExploreProjects() {
       if (isMountedRef.current && showLoader) setLoading(false);
     }
   };
+
+  const loadMore = useCallback(async () => {
+    if (isLoadingMoreRef.current || !hasMore) return;
+    isLoadingMoreRef.current = true;
+    setLoadingMore(true);
+
+    const cursor = projects[projects.length - 1]?._id;
+    try {
+      const res = await getExploreProjects({ limit: PAGE_SIZE, before: cursor });
+      if (!isMountedRef.current) return;
+      if (res?.projects) {
+        setProjects((prev) => {
+          const existingIds = new Set(prev.map((p) => p._id));
+          const newProjects = res.projects.filter((p) => !existingIds.has(p._id));
+          if (newProjects.length === 0) return prev;
+          return [...prev, ...newProjects];
+        });
+        setHasMore(res.hasMore);
+      }
+    } catch {
+      // silent
+    } finally {
+      setLoadingMore(false);
+      isLoadingMoreRef.current = false;
+    }
+  }, [projects, hasMore]);
 
   const fetchStats = async () => {
     setStatsLoading(true);
@@ -147,6 +180,24 @@ export default function ExploreProjects() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  useEffect(() => {
+    if (loading || !hasMore) return;
+    const sentinel = bottomSentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMoreRef.current && hasMore) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loading, hasMore, loadMore]);
 
   const handleLike = async (e, projectId) => {
     e.stopPropagation();
@@ -559,6 +610,7 @@ export default function ExploreProjects() {
             )}
 
             {!loading && !error && filteredProjects.length > 0 && (
+              <>
               <motion.div
                 key="grid"
                 variants={containerVariants}
@@ -782,6 +834,24 @@ export default function ExploreProjects() {
                   );
                 })}
               </motion.div>
+
+              <div ref={bottomSentinelRef} className="h-1" />
+
+              {loadingMore && (
+                <div className="flex justify-center py-6">
+                  <div className="flex items-center gap-2 text-xs text-muted">
+                    <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                    Loading more projects...
+                  </div>
+                </div>
+              )}
+
+              {!hasMore && filteredProjects.length > 0 && !searchQuery && selectedCategory === "All" && (
+                <div className="py-6 text-center">
+                  <p className="text-xs text-muted">You&apos;ve reached the end of all projects.</p>
+                </div>
+              )}
+              </>
             )}
           </AnimatePresence>
         </section>

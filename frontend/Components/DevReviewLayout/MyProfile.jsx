@@ -19,6 +19,7 @@ import { toggleLikes } from "@/services/toggleLikesApi";
 import { formatSkill } from "@/utils/formatSkill";
 import { getProjectLikesCount, getProjectReviewsCount } from "@/utils/projectCounts";
 import SavedProjectCard, { SavedProjectsEmptyState } from "@/Components/DevReviewLayout/SavedProjectCard";
+import { ConfirmDialog } from "@/Components/shared";
 
 export default function MyProfile() {
   const router = useRouter();
@@ -37,6 +38,8 @@ export default function MyProfile() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
+  const originalFormDataRef = useRef(null);
+  const [showUnsavedConfirm, setShowUnsavedConfirm] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -113,7 +116,7 @@ export default function MyProfile() {
     getMyProject();
     getSavedProj();
     if (user) {
-      setFormData({
+      const initialData = {
         name: user.name || "",
         username: user.username || "",
         role: user.role || "",
@@ -122,11 +125,34 @@ export default function MyProfile() {
         profileImage: user.profileImage || "",
         githubUrl: user.githubUrl || user.GitBranchUrl || "",
         portfolioUrl: user.portfolioUrl || ""
-      });
+      };
+      setFormData(initialData);
+      originalFormDataRef.current = initialData;
       setSelectedImage(null);
       setImagePreview(null);
     }
   }, [user]);
+
+  const hasUnsavedChanges = isEditing && originalFormDataRef.current && (
+    formData.name !== originalFormDataRef.current.name ||
+    formData.username !== originalFormDataRef.current.username ||
+    formData.role !== originalFormDataRef.current.role ||
+    formData.bio !== originalFormDataRef.current.bio ||
+    formData.skillsString !== originalFormDataRef.current.skillsString ||
+    formData.githubUrl !== originalFormDataRef.current.githubUrl ||
+    formData.portfolioUrl !== originalFormDataRef.current.portfolioUrl ||
+    selectedImage !== null
+  );
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const handler = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [hasUnsavedChanges]);
 
   useEffect(() => {
     if (user) {
@@ -245,6 +271,14 @@ const stats = {
   };
 
   const handleCancel = () => {
+    if (hasUnsavedChanges) {
+      setShowUnsavedConfirm(true);
+      return;
+    }
+    resetEditForm();
+  };
+
+  const resetEditForm = () => {
     setFormData({
       name: user.name || "",
       username: user.username || "",
@@ -949,6 +983,17 @@ const stats = {
         </div>
 
       </div>
+
+      <ConfirmDialog
+        isOpen={showUnsavedConfirm}
+        onClose={() => setShowUnsavedConfirm(false)}
+        onConfirm={() => { setShowUnsavedConfirm(false); resetEditForm(); }}
+        title="Discard unsaved changes?"
+        message="You have unsaved profile changes that will be lost."
+        confirmLabel="Discard changes"
+        cancelLabel="Keep editing"
+        variant="warning"
+      />
     </motion.div>
   );
 }

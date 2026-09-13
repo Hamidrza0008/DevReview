@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import SavedProjectCard, { SavedProjectsEmptyState } from "@/Components/DevReviewLayout/SavedProjectCard";
 import { getSavedProjects, toggleSaveProject } from "@/services/savedProjectsApi";
+import { ConfirmDialog } from "@/Components/shared";
 
 export default function SavedProjects() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [savedProjects, setSavedProjects] = useState([]);
   const [retrying, setRetrying] = useState(false);
+  const [projectToRemove, setProjectToRemove] = useState(null);
 
   const fetchSavedProjects = async () => {
     try {
@@ -41,11 +43,17 @@ export default function SavedProjects() {
 
   const handleRemove = async (event, projectId) => {
     event.stopPropagation();
-    const previousProjects = savedProjects;
-    setSavedProjects((projects) => projects.filter((project) => project._id !== projectId));
+    setProjectToRemove(projectId);
+  };
 
-    const res = await toggleSaveProject(projectId);
+  const confirmRemove = async () => {
+    if (!projectToRemove) return;
+    const previousProjects = savedProjects;
+    setSavedProjects((projects) => projects.filter((project) => project._id !== projectToRemove));
+
+    const res = await toggleSaveProject(projectToRemove);
     if (!res?.success || res.saved !== false) setSavedProjects(previousProjects);
+    setProjectToRemove(null);
   };
 
   if (loading) {
@@ -75,6 +83,16 @@ export default function SavedProjects() {
           {savedProjects.map((project) => <SavedProjectCard key={project._id} project={project} onRemove={handleRemove} />)}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={!!projectToRemove}
+        onClose={() => setProjectToRemove(null)}
+        onConfirm={confirmRemove}
+        title="Remove from saved?"
+        message="This project will be removed from your saved list. You can always save it again later."
+        confirmLabel="Remove"
+        variant="danger"
+      />
     </motion.div>
   );
 }

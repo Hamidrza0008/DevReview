@@ -16,6 +16,7 @@ import { deleteProject } from "@/services/editProjectApi";
 import { toggleLikes } from "@/services/toggleLikesApi";
 import { toggleSaveProject } from "@/services/savedProjectsApi";
 import { addReviews, deleteReview, editReview, getReviews } from "@/services/reviewApis";
+import { ConfirmDialog } from "@/Components/shared";
 
 function ProjectSkeleton() {
   return (
@@ -80,6 +81,7 @@ export default function SingleProject() {
   const [editingReview, setEditingReview] = useState(null);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState("");
+  const [reviewToDelete, setReviewToDelete] = useState(null);
 
   const { showToast } = useToast();
 
@@ -231,12 +233,19 @@ export default function SingleProject() {
   };
 
   const handleReviewDelete = async (reviewId) => {
+    setReviewToDelete(reviewId);
+  };
+
+  const confirmReviewDelete = async () => {
+    if (!reviewToDelete) return;
     try {
-      await deleteReview(reviewId);
+      await deleteReview(reviewToDelete);
       showToast("success", "Review removed.");
       await refreshReviews();
     } catch (err) {
       showToast("error", "Failed to delete review.");
+    } finally {
+      setReviewToDelete(null);
     }
   };
 
@@ -769,6 +778,16 @@ export default function SingleProject() {
           )}
         </AnimatePresence>
       </div>
+
+      <ConfirmDialog
+        isOpen={!!reviewToDelete}
+        onClose={() => setReviewToDelete(null)}
+        onConfirm={confirmReviewDelete}
+        title="Delete this review?"
+        message="This will permanently remove your review. This action cannot be undone."
+        confirmLabel="Delete Review"
+        variant="danger"
+      />
     </div>
   );
 }

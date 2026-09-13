@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getProjectDetails, updateProject } from "@/services/editProjectApi";
 import {
@@ -19,6 +19,7 @@ import {
   Save,
   Lock
 } from "lucide-react";
+import { ConfirmDialog } from "@/Components/shared";
 
 export default function EditProject() {
   const router = useRouter();
@@ -41,6 +42,9 @@ export default function EditProject() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [showUnsavedConfirm, setShowUnsavedConfirm] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
+  const originalDataRef = useRef(null);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -52,14 +56,17 @@ export default function EditProject() {
 
         if (res && res.success && res.project) {
           setIsAuthorized(true);
-          setFormData({
+          const initialData = {
             title: res.project.title || "",
             description: res.project.description || "",
             thumbnail: res.project.thumbnail || "",
             githubUrl: res.project.githubUrl || "",
             liveUrl: res.project.liveUrl || "",
-          });
-          setTechStack(res.project.techStack || []);
+          };
+          const initialTech = res.project.techStack || [];
+          setFormData(initialData);
+          setTechStack(initialTech);
+          originalDataRef.current = { formData: initialData, techStack: initialTech };
         } else {
           setIsAuthorized(false);
         }
@@ -82,6 +89,25 @@ export default function EditProject() {
       return () => clearTimeout(timer);
     }
   }, [submitStatus]);
+
+  const hasUnsavedChanges = originalDataRef.current && (
+    formData.title !== originalDataRef.current.formData.title ||
+    formData.description !== originalDataRef.current.formData.description ||
+    formData.thumbnail !== originalDataRef.current.formData.thumbnail ||
+    formData.githubUrl !== originalDataRef.current.formData.githubUrl ||
+    formData.liveUrl !== originalDataRef.current.formData.liveUrl ||
+    JSON.stringify(techStack) !== JSON.stringify(originalDataRef.current.techStack)
+  );
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const handler = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [hasUnsavedChanges]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -257,7 +283,14 @@ export default function EditProject() {
           <div className="px-4 sm:px-6 py-4 border-b border-line bg-surface flex items-center gap-4 shrink-0">
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={() => {
+                if (hasUnsavedChanges) {
+                  setPendingNavigation(() => () => router.back());
+                  setShowUnsavedConfirm(true);
+                } else {
+                  router.back();
+                }
+              }}
               className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface-2 border border-line text-muted hover:bg-line hover:text-ink transition-all focus:outline-none focus:ring-2 focus:ring-line shrink-0"
               title="Go Back"
             >
@@ -447,7 +480,14 @@ export default function EditProject() {
             <div className="px-6 py-4 bg-page border-t border-line flex items-center justify-end gap-3 shrink-0">
               <button
                 type="button"
-                onClick={() => router.push(`/projects/${id}`)}
+                onClick={() => {
+                  if (hasUnsavedChanges) {
+                    setPendingNavigation(() => () => router.push(`/projects/${id}`));
+                    setShowUnsavedConfirm(true);
+                  } else {
+                    router.push(`/projects/${id}`);
+                  }
+                }}
                 className="px-5 py-2 text-sm font-semibold text-muted bg-surface border border-line rounded-lg hover:bg-page hover:text-ink transition-all"
               >
                 Cancel
@@ -465,6 +505,17 @@ export default function EditProject() {
           </form>
 
       </motion.div>
+
+      <ConfirmDialog
+        isOpen={showUnsavedConfirm}
+        onClose={() => { setShowUnsavedConfirm(false); setPendingNavigation(null); }}
+        onConfirm={() => { setShowUnsavedConfirm(false); if (pendingNavigation) pendingNavigation(); }}
+        title="Unsaved changes"
+        message="You have unsaved changes that will be lost. Do you want to leave without saving?"
+        confirmLabel="Leave without saving"
+        cancelLabel="Stay"
+        variant="warning"
+      />
     </div>
   );
 }

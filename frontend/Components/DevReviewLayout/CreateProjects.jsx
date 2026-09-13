@@ -20,6 +20,7 @@ import {
   ArrowRight,
   ArrowLeft
 } from "lucide-react";
+import { ConfirmDialog } from "@/Components/shared";
 
 const INITIAL_FORM_DATA = {
   title: "",
@@ -41,6 +42,7 @@ export default function CreateProjects() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   useEffect(() => {
     if (submitStatus) {
@@ -51,6 +53,25 @@ export default function CreateProjects() {
       return () => clearTimeout(timer);
     }
   }, [submitStatus]);
+
+  const hasFormData = formData.title || formData.description || formData.GitBranchUrl || formData.liveUrl || techStack.length > 0 || thumbnail;
+
+  const clearForm = () => {
+    setFormData(INITIAL_FORM_DATA);
+    setTechStack([]);
+    setErrors({});
+    setSubmitStatus(null);
+    setThumbnail(null);
+    setPreview("");
+  };
+
+  const handleClear = () => {
+    if (hasFormData) {
+      setShowClearConfirm(true);
+    } else {
+      clearForm();
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -360,14 +381,7 @@ export default function CreateProjects() {
           <div className="px-6 py-4 bg-page border-t border-line flex items-center justify-end gap-3 shrink-0">
             <button
               type="button"
-              onClick={() => {
-                setFormData(INITIAL_FORM_DATA);
-                setTechStack([]); 
-                setErrors({}); 
-                setSubmitStatus(null);
-                setThumbnail(null);
-                setPreview("");
-              }}
+              onClick={handleClear}
               className="px-5 py-2 text-sm font-semibold text-muted bg-surface border border-line rounded-lg hover:bg-page hover:text-ink transition-all"
             >
               Clear
@@ -383,6 +397,16 @@ export default function CreateProjects() {
         </form>
 
       </motion.div>
+
+      <ConfirmDialog
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        onConfirm={() => { clearForm(); setShowClearConfirm(false); }}
+        title="Clear form?"
+        message="All entered data will be lost. This cannot be undone."
+        confirmLabel="Clear form"
+        variant="warning"
+      />
     </div>
   );
 }
