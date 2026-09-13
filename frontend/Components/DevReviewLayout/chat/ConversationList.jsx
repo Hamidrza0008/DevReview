@@ -13,22 +13,36 @@ export default function ConversationList() {
 
   const [conversations, setConversations] = useState(null);
   const [error, setError] = useState(false);
+  const [retrying, setRetrying] = useState(false);
+
+  const fetchConversations = async () => {
+    try {
+      const res = await getConversationsApi();
+      if (res?.success && res.data) {
+        setConversations(res.data);
+        setError(false);
+      } else {
+        setError(true);
+      }
+    } catch {
+      setError(true);
+    }
+  };
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    await fetchConversations();
+    setRetrying(false);
+  };
 
   useEffect(() => {
     let cancelled = false;
-    const fetchConversations = async () => {
-      try {
-        const res = await getConversationsApi();
-        if (!cancelled && res?.success && res.data) {
-          setConversations(res.data);
-        } else if (!cancelled) {
-          setError(true);
-        }
-      } catch {
-        if (!cancelled) setError(true);
+    const load = async () => {
+      if (!cancelled) {
+        await fetchConversations();
       }
     };
-    fetchConversations();
+    load();
     return () => {
       cancelled = true;
     };
@@ -108,7 +122,13 @@ export default function ConversationList() {
         {loaded && error && (
           <div className="p-8 text-center space-y-3" role="alert" aria-label="Error loading conversations">
             <p className="text-xs text-danger font-semibold">Failed to load conversations.</p>
-            <button onClick={() => window.location.reload()} className="text-xs text-accent font-bold hover:underline">Retry</button>
+            <button
+              onClick={handleRetry}
+              disabled={retrying}
+              className="text-xs text-accent font-bold hover:underline disabled:opacity-50"
+            >
+              {retrying ? "Retrying..." : "Retry"}
+            </button>
           </div>
         )}
 

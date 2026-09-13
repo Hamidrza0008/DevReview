@@ -23,6 +23,7 @@ export default function MyProjects() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [projects, setProjects] = useState([]);
+  const [retrying, setRetrying] = useState(false);
   const router = useRouter();
 
   const handleLike = async (id) => {
@@ -35,6 +36,7 @@ export default function MyProjects() {
       const res = await getMyProjects();
       if (res && res.projects) {
         setProjects(res.projects);
+        setError(null);
       } else {
         setError("Failed to load projects.");
       }
@@ -44,6 +46,12 @@ export default function MyProjects() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    await getProjects();
+    setRetrying(false);
   };
 
   useEffect(() => {
@@ -77,7 +85,13 @@ export default function MyProjects() {
           <AlertCircle className="w-6 h-6 text-danger" />
         </div>
         <p className="text-sm text-danger font-semibold mb-4">{error}</p>
-        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-accent text-accent-ink text-sm font-bold rounded-xl">Retry</button>
+        <button
+          onClick={handleRetry}
+          disabled={retrying}
+          className="px-4 py-2 bg-accent text-accent-ink text-sm font-bold rounded-xl disabled:opacity-50"
+        >
+          {retrying ? "Retrying..." : "Retry"}
+        </button>
       </div>
     );
   }

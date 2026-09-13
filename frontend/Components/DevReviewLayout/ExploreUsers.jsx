@@ -48,33 +48,42 @@ export default function ExploreUsers() {
   const [sortBy, setSortBy] = useState("Trending");
   const [followLoadingIds, setFollowLoadingIds] = useState({});
   const [isPinned, setIsPinned] = useState(false);
+  const [retrying, setRetrying] = useState(false);
   
   const router = useRouter();
+
+  const fetchUsersList = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await getAllUsers();
+      
+      if (res?.users) {
+        setUsers(res.users);
+      }
+    } catch (err) {
+      setError("Failed to load developers. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    await fetchUsersList();
+    setRetrying(false);
+  };
 
   useEffect(() => {
     let isMounted = true;
 
-    const fetchUsersList = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await getAllUsers();
-        
-        if (isMounted && res?.users) {
-          setUsers(res.users);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError("Failed to load developers. Please try again later.");
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+    const load = async () => {
+      if (isMounted) {
+        await fetchUsersList();
       }
     };
 
-    fetchUsersList();
+    load();
 
     const handleScroll = () => {
       setIsPinned(window.scrollY > 420);
@@ -523,10 +532,11 @@ export default function ExploreUsers() {
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => window.location.reload()}
-                  className="px-6 py-2.5 bg-danger text-accent-ink text-sm font-bold rounded-xl hover:brightness-110 transition-colors shadow-md cursor-pointer"
+                  onClick={handleRetry}
+                  disabled={retrying}
+                  className="px-6 py-2.5 bg-danger text-accent-ink text-sm font-bold rounded-xl hover:brightness-110 transition-colors shadow-md cursor-pointer disabled:opacity-50"
                 >
-                  Try Again
+                  {retrying ? "Retrying..." : "Try Again"}
                 </motion.button>
               </motion.div>
             )}

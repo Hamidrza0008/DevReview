@@ -108,8 +108,6 @@ export default function SingleProject() {
     const fetchInitialData = async () => {
       if (!id) return;
       
-      const startTime = Date.now(); 
-      
       try {
         setLoading(true);
         const [projectRes, reviewsRes] = await Promise.all([
@@ -134,13 +132,7 @@ export default function SingleProject() {
         if (isMounted) setError("Failed to fetch project details.");
       } finally {
         if (isMounted) {
-          const elapsedTime = Date.now() - startTime;
-          const minLoadingTime = 1200;
-          const delay = Math.max(0, minLoadingTime - elapsedTime);
-          
-          setTimeout(() => {
-            if (isMounted) setLoading(false);
-          }, delay);
+          setLoading(false);
         }
       }
     };

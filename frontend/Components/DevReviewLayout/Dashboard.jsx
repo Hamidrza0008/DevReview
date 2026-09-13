@@ -36,42 +36,43 @@ export default function Dashboard() {
     givenReviews: []
   });
 
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      try {
-        setIsLoading(true);
+  const loadDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
 
-        const [projectsRes, reviewsRes] = await Promise.all([
-          getMyProjects().catch(err => {
-            console.error("Error fetching projects:", err);
-            return null;
-          }),
-          getMyReviews().catch(err => {
-            console.error("Error fetching reviews:", err);
-            return null;
-          })
-        ]);
+      const [projectsRes, reviewsRes] = await Promise.all([
+        getMyProjects().catch(err => {
+          console.error("Error fetching projects:", err);
+          return null;
+        }),
+        getMyReviews().catch(err => {
+          console.error("Error fetching reviews:", err);
+          return null;
+        })
+      ]);
 
-        if (projectsRes && projectsRes.projects) {
-          setProjects(projectsRes.projects);
-        }
-
-        if (reviewsRes && reviewsRes.success) {
-          setData({
-            stats: reviewsRes.stats || { totalProjects: 0, totalLikes: 0, totalGivenReviews: 0, totalReceivedReviews: 0 },
-            projectLikes: reviewsRes.projectLikes || [],
-            receivedReviews: reviewsRes.receivedReviews || [],
-            givenReviews: reviewsRes.givenReviews || []
-          });
-        }
-      } catch (error) {
-        console.error("Dashboard loading error:", error);
-        setError("Failed to load dashboard data.");
-      } finally {
-        setIsLoading(false);
+      if (projectsRes && projectsRes.projects) {
+        setProjects(projectsRes.projects);
       }
-    };
 
+      if (reviewsRes && reviewsRes.success) {
+        setData({
+          stats: reviewsRes.stats || { totalProjects: 0, totalLikes: 0, totalGivenReviews: 0, totalReceivedReviews: 0 },
+          projectLikes: reviewsRes.projectLikes || [],
+          receivedReviews: reviewsRes.receivedReviews || [],
+          givenReviews: reviewsRes.givenReviews || []
+        });
+      }
+    } catch (error) {
+      console.error("Dashboard loading error:", error);
+      setError("Failed to load dashboard data.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadDashboardData();
   }, []);
 
@@ -158,7 +159,7 @@ export default function Dashboard() {
                 <h3 className="font-bold text-ink mb-2">Something went wrong</h3>
                 <p className="text-sm text-muted mb-6 max-w-sm">{error}</p>
                 <button
-                  onClick={() => window.location.reload()}
+                  onClick={loadDashboardData}
                   className="px-5 py-2.5 bg-accent text-accent-ink text-sm font-bold rounded-xl hover:brightness-110 transition-colors"
                 >
                   Try Again

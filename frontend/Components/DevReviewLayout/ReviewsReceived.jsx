@@ -9,6 +9,7 @@ export default function ReviewsDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [retrying, setRetrying] = useState(false);
   const [data, setData] = useState({
     stats: { totalProjects: 0, totalLikes: 0, totalGivenReviews: 0, totalReceivedReviews: 0 },
     projectLikes: [],
@@ -26,6 +27,7 @@ export default function ReviewsDashboard() {
           receivedReviews: res.receivedReviews || [],
           givenReviews: res.givenReviews || []
         });
+        setError(null);
       } else {
         setError("Failed to load review data.");
       }
@@ -33,6 +35,12 @@ export default function ReviewsDashboard() {
       console.error("Error fetching reviews:", error);
       setError("Failed to load reviews. Please try again.");
     }
+  };
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    await fetchDashboardData();
+    setRetrying(false);
   };
 
   const handleReviewRead = async (reviewId) => {
@@ -46,9 +54,11 @@ export default function ReviewsDashboard() {
   };
 
   useEffect(() => {
-    fetchDashboardData();
-    const timer = setTimeout(() => setLoading(false), 1000);
-    return () => clearTimeout(timer);
+    const loadData = async () => {
+      await fetchDashboardData();
+      setLoading(false);
+    };
+    loadData();
   }, []);
 
   const containerVariants = {
@@ -91,7 +101,13 @@ export default function ReviewsDashboard() {
           <AlertCircle className="w-6 h-6 text-danger" />
         </div>
         <p className="text-sm text-danger font-semibold mb-4">{error}</p>
-        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-accent text-accent-ink text-sm font-bold rounded-xl">Retry</button>
+        <button
+          onClick={handleRetry}
+          disabled={retrying}
+          className="px-4 py-2 bg-accent text-accent-ink text-sm font-bold rounded-xl disabled:opacity-50"
+        >
+          {retrying ? "Retrying..." : "Retry"}
+        </button>
       </div>
     );
   }

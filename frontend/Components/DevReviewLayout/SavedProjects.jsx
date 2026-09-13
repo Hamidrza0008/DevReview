@@ -9,18 +9,34 @@ export default function SavedProjects() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [savedProjects, setSavedProjects] = useState([]);
+  const [retrying, setRetrying] = useState(false);
+
+  const fetchSavedProjects = async () => {
+    try {
+      const res = await getSavedProjects();
+      if (res?.success) {
+        setSavedProjects(res.savedProjects || []);
+        setError(null);
+      } else {
+        setError("Failed to load saved projects.");
+      }
+    } catch {
+      setError("Failed to load saved projects. Please try again.");
+    }
+  };
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    await fetchSavedProjects();
+    setRetrying(false);
+  };
 
   useEffect(() => {
-    getSavedProjects()
-      .then((res) => {
-        if (res?.success) {
-          setSavedProjects(res.savedProjects || []);
-        } else {
-          setError("Failed to load saved projects.");
-        }
-      })
-      .catch(() => setError("Failed to load saved projects. Please try again."))
-      .finally(() => setLoading(false));
+    const load = async () => {
+      await fetchSavedProjects();
+      setLoading(false);
+    };
+    load();
   }, []);
 
   const handleRemove = async (event, projectId) => {
@@ -40,7 +56,13 @@ export default function SavedProjects() {
     return (
       <div className="p-8 bg-page min-h-screen flex flex-col items-center justify-center text-center">
         <p className="text-sm text-danger font-semibold mb-4">{error}</p>
-        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-accent text-accent-ink text-sm font-bold rounded-xl">Retry</button>
+        <button
+          onClick={handleRetry}
+          disabled={retrying}
+          className="px-4 py-2 bg-accent text-accent-ink text-sm font-bold rounded-xl disabled:opacity-50"
+        >
+          {retrying ? "Retrying..." : "Retry"}
+        </button>
       </div>
     );
   }

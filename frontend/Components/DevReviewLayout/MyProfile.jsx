@@ -127,9 +127,10 @@ export default function MyProfile() {
   }, [user]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(timer);
-  }, []);
+    if (user) {
+      setLoading(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (toast.show) {

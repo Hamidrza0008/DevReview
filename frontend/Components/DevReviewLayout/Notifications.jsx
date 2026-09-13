@@ -97,22 +97,39 @@ export default function Notifications() {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("All");
   const [hasMore, setHasMore] = useState(true);
+  const [retrying, setRetrying] = useState(false);
 
   const bottomSentinelRef = useRef(null);
   const isLoadingMoreRef = useRef(false);
 
+  const fetchNotifications = async () => {
+    try {
+      const response = await getNotifications({ limit: PAGE_SIZE });
+      if (response?.success && Array.isArray(response.notifications)) {
+        setNotifications(response.notifications);
+        setHasMore(response.hasMore);
+        setError(null);
+      } else {
+        setError("Failed to load notifications.");
+      }
+    } catch {
+      setError("Failed to load notifications. Please try again.");
+    }
+  };
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    await fetchNotifications();
+    setRetrying(false);
+  };
+
   useEffect(() => {
-    getNotifications({ limit: PAGE_SIZE })
-      .then((response) => {
-        if (response?.success && Array.isArray(response.notifications)) {
-          setNotifications(response.notifications);
-          setHasMore(response.hasMore);
-        } else {
-          setError("Failed to load notifications.");
-        }
-      })
-      .catch(() => setError("Failed to load notifications. Please try again."))
-      .finally(() => setLoading(false));
+    const load = async () => {
+      setLoading(true);
+      await fetchNotifications();
+      setLoading(false);
+    };
+    load();
   }, []);
 
   const loadMore = useCallback(async () => {
@@ -214,7 +231,13 @@ export default function Notifications() {
           <div className="py-16 text-center">
             <AlertCircle className="w-7 h-7 text-danger mx-auto mb-3" />
             <h2 className="font-bold text-danger">{error}</h2>
-            <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 bg-accent text-accent-ink text-xs font-bold rounded-xl">Retry</button>
+            <button
+              onClick={handleRetry}
+              disabled={retrying}
+              className="mt-3 px-4 py-2 bg-accent text-accent-ink text-xs font-bold rounded-xl disabled:opacity-50"
+            >
+              {retrying ? "Retrying..." : "Retry"}
+            </button>
           </div>
         ) : filtered.length ? (
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
