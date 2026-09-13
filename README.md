@@ -2,13 +2,14 @@
 
 # 🚀 DevReview
 
-### Showcase your projects. Get real feedback. Grow as a developer.
+### Showcase your projects. Get real feedback. Level up as a developer.
 
 [![MERN Stack](https://img.shields.io/badge/Stack-MERN-2F6F4E?style=for-the-badge)](#-tech-stack)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](#-tech-stack)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38B2AC?style=for-the-badge&logo=tailwind-css)](#-tech-stack)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](#-license)
 
-**[🌐 Live App](https://dev-re-view.vercel.app/) · [📂 Repository](https://github.com/Hamidrza0008/DevReiview) · [🐛 Report Bug](https://github.com/Hamidrza0008/DevReiview/issues)**
+**[🌐 Live Demo](https://dev-re-view.vercel.app/) · [📂 GitHub Repo](https://github.com/Hamidrza0008/DevReiview) · [🐛 Report Bug](https://github.com/Hamidrza0008/DevReiview/issues)**
 
 </div>
 
@@ -16,136 +17,171 @@
 
 ## 📌 Overview
 
-DevReview is a full-stack platform hai jahan developers apne projects upload karte hain, community se honest reviews paate hain, aur apna public profile banate hain — taaki achha kaam GitHub repo me chhupa na rahe.
+**DevReview** is a full-stack developer community platform where builders showcase their projects, receive honest peer reviews, chat 1-on-1, and build their public engineering portfolio — ensuring great code never stays buried in a forgotten repository.
 
-MERN stack + Next.js ke saath bana, clean UX, security aur mobile-optimized interface par focus.
+Built with a focus on clean UX, robust security, fast API response times, and full responsiveness across devices.
 
 ---
 
-## ✨ Features
+## ✨ Core Features
 
-| | |
+| Feature | Description |
 |---|---|
-| 🔐 **Auth** | Email + OTP verification, Google Sign-In, JWT in HTTP-only cookies, forgot/reset password |
-| 👤 **Profiles** | Public developer profiles, editable bio/skills/links, avatar upload |
-| 🧑‍🤝‍🧑 **Follow System** | Follow/unfollow developers, live followers & following counts |
-| 📁 **Projects** | Create, edit, delete, and showcase projects with tech stack, demo & repo links |
-| ⭐ **Reviews** | Add, edit, delete reviews with star ratings |
-| ❤️ **Likes & Bookmarks** | Like and save projects you love |
-| 🧭 **Discovery** | Explore Projects & Developers feeds with search, filters & sorting |
-| 📊 **Dashboard** | Personal stats — projects, likes, reviews given/received, followers/following |
-| 📱 **Responsive** | Dark/light theme, mobile-optimized UI |
+| 🔐 **Authentication & Security** | Email + OTP verification, Google OAuth 2.0, JWT in HTTP-only cookies, Rate Limiting & Helmet headers |
+| 📁 **Project Showcase** | Create, edit, and feature projects with tech stacks, live demo URLs, screenshots, and repository links |
+| ⭐ **Reviews & Ratings** | Peer reviews with star ratings, constructive feedback, and review management |
+| 💬 **Direct Messaging** | 1-on-1 developer conversations with message history and unread indicators |
+| 🔔 **Notification Center** | In-app notifications for reviews, messages, follows, and interactions |
+| 🏆 **Leaderboard** | Community rankings for top developers and highest-rated projects |
+| 👤 **Developer Profiles** | Public portfolio pages featuring tech skills, bio, social links, and project lists |
+| 🧑‍🤝‍🧑 **Follow Network** | Follow your favorite developers and track community activity |
+| ❤️ **Likes & Bookmarks** | Save inspiring projects to your personal collection |
+| 🧭 **Discovery & Search** | Filter projects and devs by tech tags, popularity, ratings, or recency |
+| 📊 **Creator Dashboard** | Real-time analytics on views, reviews given/received, likes, and followers |
+| 🌓 **Modern UI/UX** | Dark & Light theme toggle, smooth Framer Motion micro-animations, mobile-first design |
 
 ---
 
 ## 🛠 Tech Stack
 
-**Frontend** — Next.js 16 (App Router) · React 19 · Tailwind CSS v4 · Framer Motion · Lucide Icons
+### Frontend
+- **Framework**: Next.js 16 (App Router)
+- **Library**: React 19
+- **Styling**: Tailwind CSS v4
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
 
-**Backend** — Node.js · Express 5 · MongoDB Atlas + Mongoose · JWT · bcrypt · Multer
+### Backend
+- **Runtime**: Node.js
+- **Server**: Express 5
+- **Database**: MongoDB Atlas via Mongoose 9
+- **Security**: Helmet, Express-Rate-Limit, bcrypt, HTTP-only Cookies
+- **File Uploads**: Multer + Cloudinary Storage
 
-**Services** — Cloudinary (media) · Resend (transactional email) · Google OAuth (sign-in)
-
-**Deployment** — Vercel (frontend) · Render (backend)
-
-**API** — REST API with **30+ endpoints** covering auth, users, projects, reviews, likes, saves, stats & uploads
+### Third-Party Services
+- **Cloudinary**: Optimized media asset storage & CDN delivery
+- **Resend & Nodemailer**: Transactional emails & OTP verification
+- **Google Cloud OAuth**: Single Sign-On (SSO) authentication
 
 ---
 
 ## 🗂 Project Structure
 
 ```text
-DevReview/
-├── frontend/          Next.js App Router UI
-│   ├── app/            Routes: auth, dashboard, projects, users, profile, settings
-│   ├── Components/     Page-level & shared UI components
-│   ├── context/        AuthContext, ThemeContext, ToastContext
-│   └── services/       Fetch wrappers per API resource
+devreview/
+├── frontend/                  # Next.js 16 Client Application
+│   ├── app/                   # App Router pages & layouts
+│   │   ├── (public)/          # Landing page & auth routes (login, register, OTP)
+│   │   └── (devreviewapp)/    # Dashboard, projects, profile, messages, leaderboard, notifications
+│   ├── Components/            # Modular & reusable UI components
+│   ├── context/               # AuthContext, ThemeContext, ToastContext
+│   └── services/              # Client-side API service layers
 │
-└── backend/           Express REST API (MVC)
-    ├── config/          DB & Cloudinary setup
-    ├── controllers/     Business logic
-    ├── middleware/       Auth (required + optional) & upload
-    ├── models/           User, Project, Review, OTP
-    └── routes/           REST endpoints
+└── backend/                   # Express 5 REST API
+    ├── config/                # Database & Cloudinary configurations
+    ├── controllers/           # Business logic & request handlers
+    ├── middleware/            # JWT authentication, rate limiting, and upload handlers
+    ├── models/                # Mongoose schemas (User, Project, Review, Chat, Notification, etc.)
+    ├── routes/                # REST endpoints
+    └── utils/                 # Email templates, OTP helpers, and token handlers
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/Hamidrza0008/DevReiview.git
 cd DevReiview
-
-cd frontend && npm install
-cd ../backend && npm install
 ```
 
-**`backend/.env`**
+### 2. Backend Setup
+```bash
+cd backend
+npm install
+```
+
+Create a `.env` file inside `backend/`:
 ```env
 PORT=5000
-MONGO_URI=
-JWT_SECRET=
-GOOGLE_CLIENT_ID=
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-RESEND_API_KEY=
+NODE_ENV=development
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+
+# Email Service (Resend or Nodemailer)
+RESEND_API_KEY=your_resend_api_key
+EMAIL=your_sender_email@example.com
+APP_PASSWORD=your_email_app_password
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
 ```
 
-**`frontend/.env`**
+Run the backend development server:
+```bash
+npm run dev
+```
+
+### 3. Frontend Setup
+```bash
+cd ../frontend
+npm install
+```
+
+Create a `.env` file inside `frontend/`:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_oauth_client_id
 ```
 
+Run the frontend development server:
 ```bash
-# each in its own terminal
-cd backend && npm run dev
-cd frontend && npm run dev
+npm run dev
 ```
 
-Visit **http://localhost:3000** 🎉
+Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 ---
 
-## 🔒 Security
+## 📡 API Endpoints Overview
 
-- JWT in **HTTP-only cookies** — client-side JS ke liye inaccessible (XSS-resistant)
-- Passwords **bcrypt** se hashed
-- Email **OTP verification** blocks fake/spam signups
-- Uploads directly to **Cloudinary** — DB me sirf URL
-- **CORS** locked to known frontend origins
-
----
-
-## 🗺️ Roadmap
-
-- [ ] Community discussions & activity feed
-- [ ] Real-time notifications & direct messaging
-- [ ] Developer achievements & reputation system
-- [ ] AI-powered project recommendations
-- [ ] Progressive Web App (PWA) support
+| Module | Base Path | Key Capabilities |
+|---|---|---|
+| **Auth** | `/api/auth` | Register, Login, Google Sign-In, OTP Verify, Forgot/Reset Password, Logout |
+| **Users** | `/api/users` | User profile, bio & skills update, follow/unfollow, bookmarks |
+| **Projects** | `/api/projects` | CRUD projects, upvote, search, filter by tag/sort |
+| **Reviews** | `/api/reviews` | Post review, update/delete review, project review metrics |
+| **Chat** | `/api/chat` | Conversations list, direct messages, unread message badges |
+| **Notifications** | `/api/notifications` | In-app alerts feed, mark as read |
+| **Leaderboard** | `/api/leaderboard` | Top rated developers & trending projects |
+| **Stats** | `/api/stats` | Platform counters & user dashboard analytics |
+| **Upload** | `/api/upload` | Media upload via Cloudinary |
 
 ---
 
-## 🤝 Contributing
+## 🔒 Security Practices
 
-1. Fork the repo & create a feature branch
-2. Make your changes, following the existing structure/conventions
-3. Open a Pull Request
+- **HTTP-Only Cookies**: JWT tokens are protected against XSS attacks.
+- **Strict Helmet Headers & CORS**: Pre-configured headers and locked-down origin access.
+- **Rate Limiting**: Protects authentication and critical endpoints against brute-force attacks.
+- **Bcrypt Hashing**: Secure salted password encryption.
+- **OTP Verification**: Verifies valid email ownership before account activation.
 
 ---
-
-<div align="center">
 
 ## 👨‍💻 Author
 
 **Hamid Rza**
+- GitHub: [@Hamidrza0008](https://github.com/Hamidrza0008)
 
-[![GitHub](https://img.shields.io/badge/GitHub-Hamidrza0008-181717?style=flat&logo=github)](https://github.com/Hamidrza0008)
+---
 
-Licensed under **MIT** — ⭐ star the repo if DevReview was useful to you!
+## 📄 License
 
-</div>
+This project is licensed under the [MIT License](LICENSE).
