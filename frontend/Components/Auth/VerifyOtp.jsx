@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useSearchParams, useRouter } from "next/navigation";
 import { verifyOTP } from '@/services/authApis';
+import { ArrowLeft } from 'lucide-react';
 
 export default function VerifyOtp() {
     const [otp, setOtp] = useState("");
@@ -88,13 +89,22 @@ export default function VerifyOtp() {
             </div>
 
 
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10 overflow-y-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
                     className="w-full max-w-md bg-surface rounded-2xl border border-line p-8 sm:p-10 shadow-2xs"
                 >
+                    <button
+                        type="button"
+                        onClick={() => router.push("/")}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-accent transition-colors mb-6"
+                    >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        Back to Home
+                    </button>
+
                     <h2 className="text-2xl font-bold text-ink mb-1">Verify Credentials</h2>
                     <p className="text-sm text-muted mb-6">Input the 6-digit verification code sent to your workspace.</p>
 
@@ -132,7 +142,7 @@ export default function VerifyOtp() {
                                 required
                                 maxLength={6}
                                 placeholder="000000"
-                                className="w-full px-4 py-3 bg-page border border-line rounded-lg text-xl font-mono tracking-[0.5em] text-center focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-shadow duration-150"
+                                className="w-full px-4 py-3 bg-page border border-line rounded-lg text-xl font-mono tracking-[0.5em] text-center focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all"
                             />
                         </div>
 

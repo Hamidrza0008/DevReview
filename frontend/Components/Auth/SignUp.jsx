@@ -52,6 +52,8 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -253,11 +255,31 @@ export default function SignUp() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label htmlFor="signup-password" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Password</label>
-                      <input id="signup-password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                      <div className="relative">
+                        <input id="signup-password" type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all pr-12" />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute inset-y-0 right-0 pr-4 flex items-center select-none"
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                        >
+                          <span className="text-muted hover:text-ink text-xs font-bold transition-colors">{showPassword ? "HIDE" : "SHOW"}</span>
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <label htmlFor="signup-confirm" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Confirm</label>
-                      <input id="signup-confirm" type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
+                      <div className="relative">
+                        <input id="signup-confirm" type={showConfirmPassword ? "text" : "password"} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm text-ink focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all pr-12" />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute inset-y-0 right-0 pr-4 flex items-center select-none"
+                          aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                        >
+                          <span className="text-muted hover:text-ink text-xs font-bold transition-colors">{showConfirmPassword ? "HIDE" : "SHOW"}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
 

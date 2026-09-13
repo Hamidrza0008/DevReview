@@ -49,12 +49,12 @@ export default function SavedProjects() {
   };
 
   if (loading) {
-    return <div className="p-8 bg-page min-h-screen space-y-6 animate-pulse"><div className="h-10 bg-line rounded w-1/4 mb-8" /><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{[1, 2, 3].map((item) => <div key={item} className="h-80 bg-surface border border-line rounded-[24px]" />)}</div></div>;
+    return <div className="p-4 sm:p-8 bg-page min-h-screen space-y-6 animate-pulse"><div className="h-10 bg-line rounded w-1/4 mb-8" /><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{[1, 2, 3].map((item) => <div key={item} className="h-80 bg-surface border border-line rounded-[24px]" />)}</div></div>;
   }
 
   if (error) {
     return (
-      <div className="p-8 bg-page min-h-screen flex flex-col items-center justify-center text-center">
+      <div className="p-4 sm:p-8 bg-page min-h-screen flex flex-col items-center justify-center text-center">
         <p className="text-sm text-danger font-semibold mb-4">{error}</p>
         <button
           onClick={handleRetry}
@@ -68,7 +68,7 @@ export default function SavedProjects() {
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-8 bg-page min-h-screen text-ink">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 sm:p-8 bg-page min-h-screen text-ink">
       <div className="mb-8"><h1 className="text-3xl font-bold tracking-tight">Saved Projects</h1><p className="text-muted">Your curated bookmarks, patterns, and reference architectures.</p></div>
       {savedProjects.length === 0 ? <SavedProjectsEmptyState /> : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

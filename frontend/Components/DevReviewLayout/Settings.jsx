@@ -109,7 +109,7 @@ export default function Settings() {
         <nav className="md:hidden flex border-b border-line bg-page/50 overflow-x-auto no-scrollbar" role="tablist" aria-label="Settings sections">
           {tabs.map((tab) => {
             const Icon = tab.icon;
-            return <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} aria-controls={`settings-panel-${tab.id}`} id={`settings-tab-${tab.id}`} tabIndex={activeTab === tab.id ? 0 : -1} onClick={() => { setActiveTab(tab.id); setMessage(null); }} className={`flex-1 min-w-0 flex items-center justify-center gap-1.5 px-3 py-3 text-xs font-semibold transition-all whitespace-nowrap ${activeTab === tab.id ? "bg-surface text-accent border-b-2 border-accent" : "text-muted hover:text-ink"}`}><Icon className="w-4 h-4 shrink-0" /><span className="truncate">{tab.label}</span></button>;
+            return <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} aria-controls={`settings-panel-${tab.id}`} id={`settings-tab-${tab.id}`} tabIndex={activeTab === tab.id ? 0 : -1} onClick={() => { setActiveTab(tab.id); setMessage(null); }} className={`flex-1 min-w-0 shrink-0 flex items-center justify-center gap-1.5 px-3 py-3 text-xs font-semibold transition-all whitespace-nowrap ${activeTab === tab.id ? "bg-surface text-accent border-b-2 border-accent" : "text-muted hover:text-ink"}`}><Icon className="w-4 h-4 shrink-0" /><span className="truncate">{tab.label}</span></button>;
           })}
         </nav>
 

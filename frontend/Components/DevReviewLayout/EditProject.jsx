@@ -255,7 +255,7 @@ export default function EditProject() {
         transition={{ duration: 0.4 }}
         className="w-full max-w-5xl md:max-h-[92vh] flex flex-col bg-surface border border-line rounded-3xl shadow-xl relative z-10 overflow-hidden"
       >
-          <div className="px-4 sm:px-6 py-4 border-b border-line bg-surface flex items-center gap-4">
+          <div className="px-4 sm:px-6 py-4 border-b border-line bg-surface flex items-center gap-4 shrink-0">
             <button
               type="button"
               onClick={() => router.back()}
@@ -273,173 +273,179 @@ export default function EditProject() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-5">
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="title" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">
-                    Title <span className="text-danger">*</span>
-                  </label>
-                  <div className="relative group">
-                    <Type className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${errors.title ? 'text-danger' : 'text-muted group-focus-within:text-accent'}`} />
-                    <input
-                      type="text"
-                      id="title"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleInputChange}
-                      placeholder="e.g., DevReview Dashboard"
-                      className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
-                        errors.title ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
-                      }`}
-                    />
-                  </div>
-                  {errors.title && (
-                    <p className="mt-1 text-xs font-medium text-danger">{errors.title}</p>
-                  )}
-                </div>
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-5 lg:h-full">
 
-                <div>
-                  <label htmlFor="thumbnail" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">
-                    Thumbnail Image URL
-                  </label>
-                  <div className="relative group">
-                    <ImageIcon className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-muted group-focus-within:text-info transition-colors" />
-                    <input
-                      type="url"
-                      id="thumbnail"
-                      name="thumbnail"
-                      value={formData.thumbnail}
-                      onChange={handleInputChange}
-                      placeholder="https://example.com/image.png"
-                      className="w-full pl-9 pr-3 py-2 bg-page border border-line rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:border-info focus:ring-2 focus:ring-info/20"
-                    />
-                  </div>
-                </div>
-              </div>
+                <div className="flex flex-col gap-5 h-full justify-start">
 
-              <div className="flex flex-col">
-                <label htmlFor="techStack" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">
-                  Tech Stack <span className="text-danger">*</span>
-                </label>
-                <div className="space-y-2 flex-grow flex flex-col justify-between">
-                  <div className="flex gap-2">
-                    <div className="relative flex-grow group">
-                      <Code2 className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${errors.techStack ? 'text-danger' : 'text-muted group-focus-within:text-accent'}`} />
+                  <div>
+                    <label htmlFor="title" className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
+                      Title <span className="text-danger">*</span>
+                    </label>
+                    <div className="relative group">
+                      <Type className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${errors.title ? 'text-danger' : 'text-muted group-focus-within:text-accent'}`} />
                       <input
                         type="text"
-                        id="techStack"
-                        value={techInput}
-                        onChange={(e) => setTechInput(e.target.value)}
-                        onKeyDown={handleTechKeyDown}
-                        placeholder="e.g., React, Node"
+                        id="title"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        placeholder="e.g., DevReview Dashboard"
                         className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
-                          errors.techStack ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
+                          errors.title ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
                         }`}
                       />
                     </div>
-                    <button
-                      type="button"
-                      onClick={addTechTag}
-                      className="px-4 bg-accent-soft text-accent font-semibold text-xs border border-accent/20 rounded-lg hover:bg-accent/20 transition-colors"
-                    >
-                      Add
-                    </button>
+                    {errors.title && (
+                      <p className="mt-1 text-xs font-medium text-danger">{errors.title}</p>
+                    )}
                   </div>
-                  
-                  <div className={`flex-1 min-h-[60px] max-h-[100px] overflow-y-auto p-2 border rounded-lg bg-surface flex flex-wrap gap-1.5 content-start ${errors.techStack ? 'border-danger/30 bg-danger/5' : 'border-line'}`}>
-                    {techStack.length === 0 ? (
-                      <span className="text-xs text-muted w-full text-center mt-2">No tech added</span>
-                    ) : (
-                      techStack.map((tech, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center gap-1 pl-2 pr-1 py-1 bg-surface-2 border border-line rounded text-[11px] font-bold text-ink"
-                        >
-                          {tech}
-                          <button
-                            type="button"
-                            onClick={() => removeTechTag(index)}
-                            className="w-4 h-4 hover:bg-surface hover:text-danger rounded flex items-center justify-center transition-colors"
+
+                  <div>
+                    <label htmlFor="description" className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
+                      Description <span className="text-danger">*</span>
+                    </label>
+                    <div className="relative group">
+                      <FileText className={`absolute top-2.5 left-3 w-4 h-4 transition-colors ${errors.description ? 'text-danger' : 'text-muted group-focus-within:text-accent'}`} />
+                      <textarea
+                        id="description"
+                        name="description"
+                        rows={4}
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        placeholder="Explain features and problem solved..."
+                        className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm resize-none transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
+                          errors.description ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
+                        }`}
+                      />
+                    </div>
+                    {errors.description && (
+                      <p className="mt-1 text-xs font-medium text-danger">{errors.description}</p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col flex-1">
+                    <label htmlFor="techStack" className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">
+                      Tech Stack <span className="text-danger">*</span>
+                    </label>
+                    <div className="flex gap-2 mb-2">
+                      <div className="relative group flex-grow">
+                        <Code2 className={`absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 transition-colors ${errors.techStack ? 'text-danger' : 'text-muted group-focus-within:text-accent'}`} />
+                        <input
+                          type="text"
+                          id="techStack"
+                          value={techInput}
+                          onChange={(e) => setTechInput(e.target.value)}
+                          onKeyDown={handleTechKeyDown}
+                          placeholder="e.g., React, Node"
+                          className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
+                            errors.techStack ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
+                          }`}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={addTechTag}
+                        className="px-4 bg-accent-soft text-accent font-semibold text-xs border border-accent/20 rounded-lg hover:bg-accent/20 transition-colors"
+                      >
+                        Add
+                      </button>
+                    </div>
+
+                    <div className={`flex-1 min-h-[60px] max-h-[100px] overflow-y-auto p-2 border rounded-lg bg-surface flex flex-wrap gap-1.5 content-start ${errors.techStack ? 'border-danger/30 bg-danger/5' : 'border-line'}`}>
+                      {techStack.length === 0 ? (
+                        <span className="text-xs text-muted w-full text-center mt-2">No tech added</span>
+                      ) : (
+                        techStack.map((tech, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center gap-1 pl-2 pr-1 py-1 bg-surface-2 border border-line rounded text-[11px] font-bold text-ink"
                           >
-                            <X className="w-2.5 h-2.5" />
-                          </button>
-                        </span>
-                      ))
+                            {tech}
+                            <button
+                              type="button"
+                              onClick={() => removeTechTag(index)}
+                              className="w-4 h-4 hover:bg-surface hover:text-danger rounded flex items-center justify-center transition-colors"
+                            >
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+                          </span>
+                        ))
+                      )}
+                    </div>
+                    {errors.techStack && (
+                      <p className="mt-1 text-xs font-medium text-danger">{errors.techStack}</p>
                     )}
                   </div>
                 </div>
-                {errors.techStack && (
-                  <p className="mt-1 text-xs font-medium text-danger">{errors.techStack}</p>
-                )}
-              </div>
 
-            </div>
+                <div className="flex flex-col gap-5 h-full justify-start">
 
-            <div>
-              <label htmlFor="description" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">
-                Description <span className="text-danger">*</span>
-              </label>
-              <div className="relative group">
-                <FileText className={`absolute top-2.5 left-3 w-4 h-4 transition-colors ${errors.description ? 'text-danger' : 'text-muted group-focus-within:text-accent'}`} />
-                <textarea
-                  id="description"
-                  name="description"
-                  rows={4}
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Explain features and problem solved..."
-                  className={`w-full pl-9 pr-3 py-2 bg-page border rounded-lg text-sm resize-none transition-all focus:outline-none focus:bg-surface focus:ring-2 focus:ring-accent/20 ${
-                    errors.description ? "border-danger/40 focus:border-danger bg-danger/5" : "border-line focus:border-accent"
-                  }`}
-                />
-              </div>
-              {errors.description && (
-                <p className="mt-1 text-xs font-medium text-danger">{errors.description}</p>
-              )}
-            </div>
+                  <div>
+                    <label htmlFor="githubUrl" className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">GitBranch Repo</label>
+                    <div className="relative group">
+                      <GitBranch className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-muted group-focus-within:text-ink transition-colors" />
+                      <input
+                        type="url"
+                        id="githubUrl"
+                        name="githubUrl"
+                        value={formData.githubUrl}
+                        onChange={handleInputChange}
+                        placeholder="https://github.com/..."
+                        className="w-full pl-9 pr-3 py-2 bg-page border border-line rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:border-ink focus:ring-2 focus:ring-line"
+                      />
+                    </div>
+                  </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="githubUrl" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">
-                  GitBranch Repo
-                </label>
-                <div className="relative group">
-                  <GitBranch className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-muted group-focus-within:text-ink transition-colors" />
-                  <input
-                    type="url"
-                    id="githubUrl"
-                    name="githubUrl"
-                    value={formData.githubUrl}
-                    onChange={handleInputChange}
-                    placeholder="https://github.com/..."
-                    className="w-full pl-9 pr-3 py-2 bg-page border border-line rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:border-ink focus:ring-2 focus:ring-line"
-                  />
+                  <div>
+                    <label htmlFor="liveUrl" className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">Live Demo</label>
+                    <div className="relative group">
+                      <Globe className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-muted group-focus-within:text-ok transition-colors" />
+                      <input
+                        type="url"
+                        id="liveUrl"
+                        name="liveUrl"
+                        value={formData.liveUrl}
+                        onChange={handleInputChange}
+                        placeholder="https://yourproject.com"
+                        className="w-full pl-9 pr-3 py-2 bg-page border border-line rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:border-ok focus:ring-2 focus:ring-ok/20"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex-1 flex flex-col">
+                    <label htmlFor="thumbnail" className="block text-xs font-bold text-ink mb-1.5 uppercase tracking-wider">Thumbnail (Optional)</label>
+                    <div className="relative group mb-3">
+                      <ImageIcon className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-muted group-focus-within:text-info transition-colors" />
+                      <input
+                        type="url"
+                        id="thumbnail"
+                        name="thumbnail"
+                        value={formData.thumbnail}
+                        onChange={handleInputChange}
+                        placeholder="https://example.com/image.png"
+                        className="w-full pl-9 pr-3 py-2 bg-page border border-line rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:border-info focus:ring-2 focus:ring-info/20"
+                      />
+                    </div>
+
+                    <div className="flex-1 bg-page border border-dashed border-line rounded-lg overflow-hidden flex items-center justify-center min-h-[100px]">
+                      {formData.thumbnail ? (
+                        <img src={formData.thumbnail} alt="Preview" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                      ) : (
+                        <div className="text-center text-muted">
+                          <ImageIcon className="w-6 h-6 mx-auto mb-1 opacity-50" />
+                          <span className="text-[10px] font-medium uppercase tracking-wider">No Preview</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                 </div>
               </div>
-
-              <div>
-                <label htmlFor="liveUrl" className="block text-xs font-bold text-ink uppercase tracking-wider mb-1.5">
-                  Live Demo
-                </label>
-                <div className="relative group">
-                  <Globe className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-muted group-focus-within:text-ok transition-colors" />
-                  <input
-                    type="url"
-                    id="liveUrl"
-                    name="liveUrl"
-                    value={formData.liveUrl}
-                    onChange={handleInputChange}
-                    placeholder="https://yourproject.com"
-                    className="w-full pl-9 pr-3 py-2 bg-page border border-line rounded-lg text-sm transition-all focus:outline-none focus:bg-surface focus:border-ok focus:ring-2 focus:ring-ok/20"
-                  />
-                </div>
-              </div>
             </div>
 
-            <div className="pt-4 border-t border-line flex items-center justify-end gap-3">
+            <div className="px-6 py-4 bg-page border-t border-line flex items-center justify-end gap-3 shrink-0">
               <button
                 type="button"
                 onClick={() => router.push(`/projects/${id}`)}

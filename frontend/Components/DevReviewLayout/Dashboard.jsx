@@ -116,8 +116,8 @@ export default function Dashboard() {
                   <div className="h-10 bg-surface-2 rounded-xl w-full md:w-36 shrink-0" />
                 </div>
 
-                <div className="bg-surface border border-line rounded-2xl px-6 py-5">
-                  <div className="grid grid-cols-3 gap-6">
+                <div className="bg-surface border border-line rounded-2xl px-4 sm:px-6 py-5">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
                     {[...Array(6)].map((_, i) => (
                       <div key={i} className="flex flex-col items-center gap-2">
                         <div className="h-8 bg-surface-2 rounded w-12"></div>
@@ -127,8 +127,8 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                  <div className="lg:col-span-2 space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                  <div className="md:col-span-2 space-y-5">
                     <div className="flex items-center gap-6 border-b border-line pb-3">
                       <div className="h-4 bg-surface-2 rounded w-24" />
                       <div className="h-4 bg-surface-2 rounded w-32" />
@@ -247,8 +247,8 @@ export default function Dashboard() {
                   </div>
                 </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
-                  <motion.div variants={itemVariants} className="lg:col-span-2 space-y-4 sm:space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-start">
+                  <motion.div variants={itemVariants} className="md:col-span-2 space-y-4 sm:space-y-5">
                     <div className="flex items-center gap-4 sm:gap-6 border-b border-line pb-px overflow-x-auto no-scrollbar" role="tablist" aria-label="Dashboard content">
                       {["My Projects", "Feedback Received"].map((tab) => {
                         const isActive = activeTab === tab;
@@ -436,7 +436,7 @@ export default function Dashboard() {
                     </AnimatePresence>
                   </motion.div>
 
-                  <div className="hidden lg:block lg:col-span-1 space-y-5">
+                  <div className="hidden md:block lg:col-span-1 space-y-5">
                     <div className="bg-linear-to-b from-surface to-page border border-line rounded-2xl p-6 text-center space-y-4 shadow-sm">
                        <div className="w-12 h-12 bg-star/10 text-star rounded-full flex items-center justify-center mx-auto mb-2 border border-star/20">
                           <Star className="w-6 h-6 fill-star" />

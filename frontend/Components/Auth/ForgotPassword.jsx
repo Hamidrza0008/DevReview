@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import { forgotPassword } from '@/services/authApis';
 import { useRouter } from 'next/navigation';
 
@@ -37,6 +38,16 @@ export default function ForgotPassword() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.05 } }
+  };
+
+  const itemVariants = {
+    hidden: { y: 12, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 150, damping: 22 } }
+  };
+
   return (
     <div className="h-screen bg-page flex text-ink font-sans antialiased relative overflow-hidden">
       <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-accent-2/10 rounded-full blur-3xl" />
@@ -46,28 +57,28 @@ export default function ForgotPassword() {
       <div className="hidden lg:flex lg:w-1/2 bg-accent relative items-center justify-center p-12 overflow-hidden border-r border-line/10">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
 
-        <div className="relative z-10 max-w-xl w-full text-accent-ink space-y-8">
-          <div className="flex items-center space-x-3 w-fit">
+        <motion.div initial="hidden" animate="visible" variants={containerVariants} className="relative z-10 max-w-xl w-full text-accent-ink space-y-8">
+          <motion.div variants={itemVariants} className="flex items-center space-x-3 w-fit">
             <div className="w-9 h-9 bg-accent-ink rounded-xl flex items-center justify-center shadow-md">
               <span className="text-accent font-black text-xl">&lt;/&gt;</span>
             </div>
             <span className="text-2xl font-bold tracking-tight">DevReview</span>
-          </div>
+          </motion.div>
 
-          <div className="space-y-3">
+          <motion.div variants={itemVariants} className="space-y-3">
             <h1 className="text-4xl font-extrabold tracking-tight">Forgot your password?</h1>
             <p className="text-accent-ink/80 text-lg">No worries, we will help you get back to your DevReview account.</p>
-          </div>
+          </motion.div>
 
-          <div className="relative bg-white/10 md:backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl flex flex-col items-center justify-center py-14">
+          <motion.div variants={itemVariants} className="relative bg-white/10 md:backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl flex flex-col items-center justify-center py-14">
             <div className="w-16 h-16 bg-white/10 rounded-2xl border border-white/20 flex items-center justify-center mb-5">
               <svg className="w-8 h-8 text-accent-ink" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             <p className="text-xs font-mono text-accent-ink/70 tracking-widest uppercase">Cryptographic Key Vault Recovery</p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
 
@@ -78,6 +89,15 @@ export default function ForgotPassword() {
           transition={{ duration: 0.4, ease: "easeOut" }}
           className="w-full max-w-md bg-surface rounded-2xl border border-line p-8 sm:p-10 shadow-2xs"
         >
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-accent transition-colors mb-6"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to Home
+          </button>
+
           <h2 className="text-2xl font-bold text-ink mb-1">Key Recovery</h2>
           <p className="text-sm text-muted mb-6">Input your registered email matrix node to transmit link instructions.</p>
 
@@ -114,7 +134,7 @@ export default function ForgotPassword() {
               >
                 <div>
                   <label htmlFor="forgot-email" className="block text-xs font-bold text-ink uppercase tracking-wider mb-2">Account Node Email</label>
-                  <input id="forgot-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-shadow duration-150" />
+                  <input id="forgot-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all" />
                 </div>
 
                 <button

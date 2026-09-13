@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { resetPassword } from '@/services/authApis';
 
@@ -50,6 +51,16 @@ export default function ResetPassword() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.05 } }
+  };
+
+  const itemVariants = {
+    hidden: { y: 12, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 150, damping: 22 } }
+  };
+
   return (
     <div className="h-screen bg-page flex text-ink font-sans antialiased relative overflow-hidden">
 
@@ -60,28 +71,28 @@ export default function ResetPassword() {
       <div className="hidden lg:flex lg:w-1/2 bg-accent relative items-center justify-center p-12 overflow-hidden border-r border-line/10">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
 
-        <div className="relative z-10 max-w-xl w-full text-accent-ink space-y-8">
-          <div className="flex items-center space-x-3 w-fit">
+        <motion.div initial="hidden" animate="visible" variants={containerVariants} className="relative z-10 max-w-xl w-full text-accent-ink space-y-8">
+          <motion.div variants={itemVariants} className="flex items-center space-x-3 w-fit">
             <div className="w-9 h-9 bg-accent-ink rounded-xl flex items-center justify-center shadow-md">
               <span className="text-accent font-black text-xl">&lt;/&gt;</span>
             </div>
             <span className="text-2xl font-bold tracking-tight">DevReview</span>
-          </div>
+          </motion.div>
 
-          <div className="space-y-3">
+          <motion.div variants={itemVariants} className="space-y-3">
             <h1 className="text-4xl font-extrabold tracking-tight">Reset your password</h1>
             <p className="text-accent-ink/80 text-lg">Establish a secure connection and define your new access credentials.</p>
-          </div>
+          </motion.div>
 
-          <div className="relative bg-white/10 md:backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl flex flex-col items-center justify-center py-14">
+          <motion.div variants={itemVariants} className="relative bg-white/10 md:backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl flex flex-col items-center justify-center py-14">
             <div className="w-16 h-16 bg-white/10 rounded-2xl border border-white/20 flex items-center justify-center mb-5">
               <svg className="w-8 h-8 text-accent-ink" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
             </div>
             <p className="text-xs font-mono text-accent-ink/70 tracking-widest uppercase">Cryptographic Key Override Vault</p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
 
@@ -92,6 +103,15 @@ export default function ResetPassword() {
           transition={{ duration: 0.4, ease: "easeOut" }}
           className="w-full max-w-md bg-surface rounded-2xl border border-line p-8 sm:p-10 shadow-2xs"
         >
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-accent transition-colors mb-6"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to Home
+          </button>
+
           <h2 className="text-2xl font-bold text-ink mb-1">Override Node Access</h2>
           <p className="text-sm text-muted mb-6">Enter transmission OTP and overwrite target parameter keys.</p>
 
@@ -139,7 +159,7 @@ export default function ResetPassword() {
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ""))}
                     placeholder="Enter 6-digit OTP"
-                    className="w-full px-4 py-3 bg-page border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-shadow duration-150"
+                    className="w-full px-4 py-3 bg-page border border-line rounded-lg text-xl font-mono tracking-[0.5em] text-center focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all"
                   />
                 </div>
 
@@ -154,19 +174,15 @@ export default function ResetPassword() {
                       value={newpassword}
                       onChange={(e) => setNewpassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full pl-4 pr-10 py-3 bg-page border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-shadow duration-150"
+                      className="w-full pl-4 pr-10 py-3 bg-page border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink"
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center select-none"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                      {showPassword ? (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                      ) : (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                      )}
+                      <span className="text-muted hover:text-ink text-xs font-bold transition-colors">{showPassword ? "HIDE" : "SHOW"}</span>
                     </button>
                   </div>
                 </div>
@@ -182,19 +198,15 @@ export default function ResetPassword() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full pl-4 pr-10 py-3 bg-page border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-shadow duration-150"
+                      className="w-full pl-4 pr-10 py-3 bg-page border border-line rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-4 focus:ring-accent/5 transition-all"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink"
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center select-none"
                       aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                     >
-                      {showConfirmPassword ? (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
-                      ) : (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                      )}
+                      <span className="text-muted hover:text-ink text-xs font-bold transition-colors">{showConfirmPassword ? "HIDE" : "SHOW"}</span>
                     </button>
                   </div>
                 </div>
