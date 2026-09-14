@@ -202,13 +202,16 @@ export default function UserProfile() {
   if (loading || error) {
     return (
       <div className="p-4 md:p-8 bg-page min-h-screen max-w-7xl mx-auto space-y-8">
-        <button
-          onClick={() => router.back()}
-          className="relative z-10 flex items-center gap-2 text-sm font-semibold text-muted hover:text-accent transition-colors w-fit cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </button>
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs font-semibold text-muted">
+          <button
+            onClick={() => router.back()}
+            className="hover:text-accent transition-colors cursor-pointer"
+          >
+            Developers
+          </button>
+          <span className="text-muted/50">/</span>
+          <span className="text-ink">Profile</span>
+        </nav>
 
         {error ? (
           <motion.div
@@ -288,14 +291,17 @@ export default function UserProfile() {
         />
       </div>
 
-      <motion.button
-        whileHover={{ x: -3 }}
-        onClick={() => router.back()}
-        className="relative z-10 flex items-center gap-2 text-sm font-semibold text-muted hover:text-accent transition-colors w-fit cursor-pointer"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back
-      </motion.button>
+      <nav aria-label="Breadcrumb" className="relative z-10 flex items-center gap-1.5 text-xs font-semibold text-muted mb-4">
+        <motion.button
+          whileHover={{ x: -3 }}
+          onClick={() => router.back()}
+          className="hover:text-accent transition-colors cursor-pointer"
+        >
+          Developers
+        </motion.button>
+        <span className="text-muted/50">/</span>
+        <span className="text-ink truncate">{profileUser?.username || "User"}</span>
+      </nav>
 
       <div className="bg-surface border border-line hover:border-accent/20 rounded-[32px] p-8 md:p-10 shadow-sm hover:shadow-xl hover:shadow-accent/5 transition-all duration-500 relative overflow-hidden z-10">
         <motion.div

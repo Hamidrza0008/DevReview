@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { motion } from 'framer-motion';
 import { GitPullRequest, Star, ShieldCheck } from 'lucide-react';
 
@@ -52,12 +51,12 @@ export default function Reviews() {
 
           <div className="flex flex-col gap-6">
             {points.map((point) => (
-              <div key={point.title} className="flex items-start gap-4">
-                <div className="w-11 h-11 shrink-0 rounded-xl bg-accent-soft text-accent flex items-center justify-center border border-accent/20">
+              <div key={point.title} className="flex items-start gap-4 p-3 -m-3 rounded-xl hover:bg-surface/80 transition-colors duration-300 group">
+                <div className="w-11 h-11 shrink-0 rounded-xl bg-accent-soft text-accent flex items-center justify-center border border-accent/20 group-hover:scale-105 transition-transform duration-300">
                   {point.icon}
                 </div>
                 <div>
-                  <h3 className="font-bold text-ink">{point.title}</h3>
+                  <h3 className="font-bold text-ink group-hover:text-accent transition-colors duration-300">{point.title}</h3>
                   <p className="text-sm text-muted mt-1 leading-relaxed">{point.desc}</p>
                 </div>
               </div>
@@ -84,7 +83,7 @@ export default function Reviews() {
                   <p className="text-[11px] text-muted font-medium">reviewed Finance Tracker</p>
                 </div>
               </div>
-              <div className="text-star text-sm tracking-tighter">★★★★☆</div>
+              <div className="text-star text-sm tracking-tighter" aria-label="4 out of 5 stars" role="img">★★★★☆</div>
             </div>
 
             <p className="text-sm text-muted leading-relaxed">

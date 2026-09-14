@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -71,6 +70,7 @@ export default function FinalCTA() {
             animate={{ y: [0, -6, 0] }}
             transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
             className="absolute right-4 bottom-12 p-2.5 border border-white/10 rounded-xl bg-white/5 md:backdrop-blur-md shadow-lg text-xs text-accent-ink/80 hidden sm:block"
+            aria-hidden="true"
           >
             🛡️
           </motion.div>

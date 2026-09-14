@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Target, Users2, Sparkles } from 'lucide-react';
 
@@ -55,7 +54,7 @@ export default function About() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className="p-6 bg-surface border border-line rounded-2xl shadow-sm flex flex-col gap-4"
+              className="p-6 bg-surface border border-line rounded-2xl shadow-sm flex flex-col gap-4 group hover:shadow-accent/8 hover:-translate-y-1 hover:border-accent/30 transition-all duration-300"
             >
               <div className="w-11 h-11 rounded-xl bg-accent-soft text-accent flex items-center justify-center border border-accent/20">
                 {value.icon}

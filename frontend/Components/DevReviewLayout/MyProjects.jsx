@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Plus, Heart, MessageSquare, ExternalLink, GitBranch, FolderGit2, AlertCircle } from 'lucide-react';

@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -17,7 +16,7 @@ export default function Hero() {
   const goUploadProject = () => router.push(user ? '/projects/create' : '/auth/login');
 
   return (
-    <section className="relative w-full min-h-screen bg-page px-6 md:px-16 lg:px-24 pt-20 pb-20 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center overflow-hidden select-none z-10">
+    <section className="relative w-full min-h-screen bg-page px-6 md:px-16 lg:px-24 pt-20 pb-20 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center overflow-hidden z-10">
 
 
       <div className="hidden md:block absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -212,7 +211,7 @@ export default function Hero() {
               <p className="text-[10px] text-muted leading-relaxed font-medium">
                 Great UI and clean code! Maybe improve the mobile responsive part...
               </p>
-              <div className="text-[10px] text-star tracking-tighter">★★★★☆</div>
+              <div className="text-[10px] text-star tracking-tighter" aria-label="4 out of 5 stars" role="img">★★★★☆</div>
             </div>
           </motion.div>
 

@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { motion } from 'framer-motion';
 
 export default function Features() {
@@ -126,10 +125,6 @@ export default function Features() {
 
                 <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-accent to-accent-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-
-                <span className="text-[11px] font-bold tracking-widest text-accent uppercase mb-2.5 block">
-                  Step 0{idx + 1}
-                </span>
 
                 <h3 className="text-lg font-bold text-ink mb-3 group-hover:text-accent transition-colors duration-300 tracking-tight">
                   {item.title}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getProjectDetails, updateProject } from "@/services/editProjectApi";
 import {
@@ -296,12 +296,13 @@ export default function EditProject() {
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="w-10 h-10 bg-accent-soft border border-accent/20 rounded-xl flex items-center justify-center shrink-0">
-              <Save className="w-5 h-5 text-accent" />
-            </div>
-            <div>
-              <h1 className="text-xl font-extrabold text-ink tracking-tight">Edit Project</h1>
-              <p className="text-xs text-muted">Update your project details and keep your showcase fresh.</p>
+            <div className="flex flex-col min-w-0">
+              <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[10px] font-semibold text-muted">
+                <span>Projects</span>
+                <span className="text-muted/50">/</span>
+                <span className="truncate">Edit</span>
+              </nav>
+              <h1 className="text-lg font-extrabold text-ink tracking-tight truncate">Edit Project</h1>
             </div>
           </div>
 

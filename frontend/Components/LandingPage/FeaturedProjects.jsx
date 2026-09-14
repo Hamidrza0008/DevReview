@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { TechBadge } from './atoms';
 import { useAuth } from '@/context/AuthContext';
 
@@ -31,26 +31,37 @@ export default function FeaturedProjects() {
 
   return (
     <section className="w-full px-6 md:px-12 py-20 bg-surface border-b border-line">
-      <div className="flex items-end justify-between mb-12 max-w-7xl mx-auto">
-        <div>
-          <h2 className="text-3xl font-bold text-ink tracking-tight">Featured Projects</h2>
-          <p className="text-sm text-muted mt-1">Fresh off the platform — be one of the first to get featured</p>
-        </div>
-        <Link
-          href="/projects/explore"
-          className="text-sm font-semibold text-accent hover:brightness-110 flex items-center gap-1 group/btn transition-colors duration-200"
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="flex items-end justify-between mb-12"
         >
-          View all
-          <span className="transform group-hover/btn:translate-x-1 transition-transform duration-200">→</span>
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-        {projects.map((project) => (
-          <div
-            key={project.title}
-            className="bg-surface border border-line rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-accent/30 transition-all duration-300 transform hover:-translate-y-1.5 group cursor-pointer flex flex-col"
+          <div>
+            <h2 className="text-3xl font-bold text-ink tracking-tight">Featured Projects</h2>
+            <p className="text-sm text-muted mt-1">Fresh off the platform — be one of the first to get featured</p>
+          </div>
+          <Link
+            href="/projects/explore"
+            className="text-sm font-semibold text-accent hover:brightness-110 flex items-center gap-1 group/btn transition-colors duration-200"
           >
+            View all
+            <span className="transform group-hover/btn:translate-x-1 transition-transform duration-200">→</span>
+          </Link>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {projects.map((project, idx) => (
+            <motion.div
+              key={project.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: idx * 0.1, type: 'spring', stiffness: 80, damping: 15 }}
+              className="bg-surface border border-line rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-accent/30 transition-all duration-300 transform hover:-translate-y-1.5 group cursor-pointer flex flex-col"
+            >
             <div className="h-48 bg-ink border-b border-line relative overflow-hidden flex items-center justify-center">
               <Image
                 src={project.imageUrl}
@@ -88,11 +99,15 @@ export default function FeaturedProjects() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
 
-        <button
+        <motion.button
           type="button"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.5, delay: projects.length * 0.1 }}
           onClick={() => router.push(user ? '/projects/create' : '/auth/login')}
           className="border-2 border-dashed border-line rounded-2xl flex flex-col items-center justify-center gap-3 py-16 text-muted hover:text-accent hover:border-accent/40 transition-all duration-300"
         >
@@ -100,7 +115,8 @@ export default function FeaturedProjects() {
             <Plus className="w-5 h-5" />
           </div>
           <span className="text-sm font-semibold">Your project could go here</span>
-        </button>
+        </motion.button>
+        </div>
       </div>
     </section>
   );

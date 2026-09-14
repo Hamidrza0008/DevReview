@@ -4,6 +4,42 @@ import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ToastProvider } from "@/context/ToastContext";
 
+export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://devreview.app"),
+  title: {
+    default: "DevReview — Get Honest Code Reviews from Developers",
+    template: "%s | DevReview",
+  },
+  description:
+    "Showcase your projects, get honest feedback from real developers, and improve your skills. DevReview is a community-driven code review platform.",
+  keywords: [
+    "code review",
+    "developer feedback",
+    "project showcase",
+    "developer community",
+    "code quality",
+    "peer review",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "DevReview",
+    title: "DevReview — Get Honest Code Reviews from Developers",
+    description:
+      "Showcase your projects, get honest feedback from real developers, and improve your skills.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DevReview — Get Honest Code Reviews from Developers",
+    description:
+      "Showcase your projects, get honest feedback from real developers, and improve your skills.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
 const themeInitScript = `
 (function(){
   try {

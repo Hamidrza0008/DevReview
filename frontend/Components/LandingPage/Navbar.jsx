@@ -60,7 +60,7 @@ export default function Navbar() {
 
   const handleScrollToSection = (e, href) => {
     e.preventDefault();
-    setIsOpen(false); // Mobile menu band karne ke liye
+    setIsOpen(false);
 
 
     if (href.startsWith('#')) {

@@ -1,5 +1,10 @@
 import { MessageSquare } from "lucide-react";
 
+export const metadata = {
+  title: "Messages",
+  description: "Chat with other developers on DevReview.",
+};
+
 export default function MessagesPage() {
   return (
     <div className="hidden md:flex flex-col items-center justify-center flex-1 min-w-0 text-center px-6" role="status" aria-label="Select a conversation">

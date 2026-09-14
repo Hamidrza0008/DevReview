@@ -6,13 +6,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getMyProjects } from "@/services/getMyProjectsApi";
 import { useAuth } from "@/context/AuthContext";
 import {
-  FolderGit2,
   MessageSquare,
   ThumbsUp,
   Star,
   Plus,
   ExternalLink,
-  ArrowUpRight,
   CheckCircle2,
   FileCode,
   AlertCircle

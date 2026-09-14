@@ -299,14 +299,17 @@ export default function SingleProject() {
               className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-8"
             >
               <div className="flex items-center justify-between gap-4 border-b-2 border-surface-2 pb-4">
-                <motion.button
-                  whileHover={{ x: -4 }}
-                  onClick={() => router.push("/projects/explore")}
-                  className="inline-flex items-center space-x-2 text-xs font-extrabold text-muted hover:text-accent transition-colors focus:outline-none cursor-pointer"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back to Explore</span>
-                </motion.button>
+                <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs font-semibold">
+                  <motion.button
+                    whileHover={{ x: -4 }}
+                    onClick={() => router.push("/projects/explore")}
+                    className="text-muted hover:text-accent transition-colors focus:outline-none cursor-pointer"
+                  >
+                    Explore
+                  </motion.button>
+                  <span className="text-muted/50">/</span>
+                  <span className="text-ink truncate max-w-[200px]">{project?.title || "Project"}</span>
+                </nav>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
