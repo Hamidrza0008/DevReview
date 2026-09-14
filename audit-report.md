@@ -1,16 +1,29 @@
-# DevReview — Complete UI/UX Audit
+# DevReview — Complete UI/UX & Full-Stack QA Audit
 
-**Generated:** September 12, 2026
-**Scope:** Full frontend UI/UX audit (all pages, components, responsive, theme, accessibility)
-**Status:** AUDIT ONLY — no files modified
+**Original Audit:** September 12, 2026
+**Final QA Audit:** September 14, 2026
+**Scope:** Full-stack audit (frontend + backend, all pages, components, responsive, theme, accessibility, security, API services)
+**Status:** READ-ONLY AUDIT — no files modified
+
+---
+
+## PRODUCTION READINESS
+
+**7.5/10 — LATE BETA**
+
+---
+
+## FINAL VERDICT: LATE BETA
+
+The application is functionally complete with strong design systems, consistent theming, and ambitious component design. Most critical original audit issues have been addressed (console.log cleanup, error boundaries, loading states, ARIA tabs, focus traps, keyboard navigation, SEO metadata, 404 page). However, **security blockers** (compromised secrets in git history, weak JWT secret) and **backend hardening gaps** (no global rate limiter, error message leaks, missing input validation) prevent production deployment. The frontend API service layer needs a centralized error handling wrapper. Once secrets are rotated, rate limits added, and error messages sanitized, this is **production candidate** quality.
 
 ---
 
 ## A. CURRENT UI STATUS
 
-**Overall Score: 6.5/10 — Solid MVP / Early Beta**
+**Overall Score: 7.5/10 — Late Beta**
 
-The project has a strong design token system, consistent visual language, and ambitious component design. However, it has critical gaps in mobile experience (messaging), broken interactive elements, accessibility deficiencies, and missing error/retry patterns that prevent it from being production-ready. The core visual design is cohesive but the engineering consistency across components is uneven.
+The project has a strong design token system, consistent visual language, and ambitious component design. Most critical gaps from the original audit have been addressed. Remaining issues are backend security hardening, API service layer consistency, and some accessibility polish.
 
 ### Design System Summary
 
@@ -19,281 +32,303 @@ The project has a strong design token system, consistent visual language, and am
 | Design Token System | Excellent — CSS variables via `@theme` (Tailwind v4) with `.dark` overrides |
 | Theme Toggle | Excellent — View Transitions API circular reveal, respects `prefers-reduced-motion` |
 | Color Palette | Green-dominant "Review Ledger" palette — warm off-white / deep forest-dark |
-| Icon Library | Lucide React (consistent except EditProject.jsx uses inline SVGs) |
+| Icon Library | Lucide React — now consistent across all components (EditProject fixed) |
 | Animation | Framer Motion + CSS keyframes, scroll-triggered entrances on landing page |
 | Typography | System font stack (no custom font defined) |
-| Component Architecture | Mostly good; large components need decomposition |
+| Component Architecture | Good — shared components extracted (Avatar, EmptyState, ErrorAlert, StatCard, SkeletonBox) |
 
 ---
 
-## B. CRITICAL ISSUES
+## B. BLOCKERS (Must-fix before any deployment)
 
-| # | Issue | File | Line | Impact |
-|---|-------|------|------|--------|
-| C1 | **Messaging is desktop-only** — `ConversationList` and `messages/page.jsx` use `hidden md:flex`, making the entire messages feature invisible on mobile. | `ConversationList.jsx`, `messages/page.jsx`, `messages/layout.jsx` | All | Mobile users cannot use messaging at all |
-| C2 | **No real-time messaging** — No WebSocket, polling, or SSE. Messages only appear on page refresh. | `Chat.jsx`, `ConversationList.jsx` | — | Chat feature is fundamentally broken for real use |
-| C3 | **Chat textarea does not auto-resize** — Fixed at `rows={1}` with no growth. Long messages are visually truncated. | `Chat.jsx` | — | Core chat UX is poor |
-| C4 | **EditProject Cancel button is non-functional** — Has `type="button"` but no `onClick` handler. Does nothing when clicked. | `EditProject.jsx` | — | Users cannot cancel editing |
-| C5 | **SignUp logs user credentials to console** — `console.log({ name, username, email, password })` in production code. | `SignUp.jsx` | Line 73-78 | Security vulnerability |
-| C6 | **`console.log` debug statements in all auth components** — Login, VerifyOtp, ForgotPassword, ResetPassword, SupportModal all log to console. | Multiple files | Various | Security and code quality issue |
-| C7 | **No error boundary files exist** — No `error.jsx` or `error.js` in any route. Components handle errors locally but a thrown error in a provider crashes the entire app. | `app/` directory | — | App can crash entirely from unhandled errors |
+| # | Issue | File | Impact |
+|---|-------|------|--------|
+| B1 | **`.env` files with production secrets committed to git history** — MongoDB password, Resend API key, Cloudinary secret, JWT secret, Google OAuth Client ID all exposed in initial commit. | `backend/.env`, `frontend/.env` | All credentials compromised. Must rotate immediately and scrub git history with BFG Repo-Cleaner. |
+| B2 | **Critically weak JWT secret** — `JWT_SECRET = devreview123`. Trivially guessable. | `backend/.env:6` | Any attacker can forge valid JWT tokens and impersonate any user. |
 
 ---
 
-## C. HIGH PRIORITY
+## C. CRITICAL ISSUES (Original Audit — Status Update)
+
+| # | Original Issue | Status | Notes |
+|---|----------------|--------|-------|
+| C1 | Messaging is desktop-only | **PARTIAL** | ConversationList now works on all breakpoints; Chat has mobile back button. But `messages/page.jsx` empty state still `hidden md:flex` — blank on mobile when no conversation selected. |
+| C2 | No real-time messaging | **FAIL** | No WebSocket, polling, or SSE implemented. Messages still require page refresh. |
+| C3 | Chat textarea no auto-resize | **FIXED** | `adjustTextareaHeight` function auto-grows textarea. |
+| C4 | EditProject Cancel button non-functional | **FIXED** | Now has onClick with unsaved-changes confirmation dialog. |
+| C5 | SignUp logs user credentials to console | **FIXED** | All `console.log` credential logging removed. |
+| C6 | `console.log` debug statements in auth | **FIXED** | All credential/debug `console.log` removed. `console.error` remains (acceptable). |
+| C7 | No error boundary files | **FIXED** | `error.jsx` added at `(devreviewapp)` level. `not-found.jsx` added. |
+
+---
+
+## D. HIGH PRIORITY (Original Audit — Status Update)
+
+| # | Original Issue | Status | Notes |
+|---|----------------|--------|-------|
+| H1 | `window.location.reload()` for retry | **FIXED** | Dashboard, ExploreProjects, SavedProjects, etc. now use re-fetch functions. |
+| H2 | No pagination | **FAIL** | Still no pagination on ExploreProjects, ExploreUsers, Leaderboard. |
+| H3 | ExploreUsers "Filters" button dead | **FIXED** | Filtering via category pills with onClick handlers. |
+| H4 | Thumbnail create/edit inconsistency | **FAIL** | Edit still uses URL text input; Create uses file upload with preview. |
+| H5 | Inconsistent icon libraries | **FIXED** | EditProject now uses lucide-react icons exclusively. |
+| H6 | Inconsistent loading spinners | **FIXED** | Unified on lucide-react `Loader2` across all forms. |
+| H7 | No `aria-current="page"` on sidebar | **FIXED** | Added: `aria-current={isActive ? "page" : undefined}`. |
+| H8 | No focus trap in SupportModal | **FIXED** | Full focus trap with Tab/Shift+Tab cycling, Escape to close, focus restoration. |
+| H9 | No keyboard nav on ConversationList | **FIXED** | Added `role="button"`, `tabIndex={0}`, `onKeyDown` for Enter/Space. |
+| H10 | No keyboard nav on SavedProjectCard | **PARTIAL** | Card wrapped in `<button>` making it keyboard accessible, but no explicit `onKeyDown`. |
+| H11 | Delete review no confirmation | **FAIL** | Still no confirmation dialog for review deletion. |
+| H12 | No htmlFor/id on auth inputs | **FIXED** | All auth forms now have proper `htmlFor`/`id` pairs. |
+| H13 | No `role="alert"` on error messages | **PARTIAL** | Login has it. SignUp, VerifyOtp, ForgotPassword, ResetPassword still missing. |
+| H14 | No `inputMode="numeric"` on OTP | **FIXED** | Added to VerifyOtp and ResetPassword with `autoComplete="one-time-code"`. |
+| H15 | No page-level loading/error boundaries | **FIXED** | `loading.jsx` added to 8 routes. `error.jsx` added. |
+| H16 | No ARIA tab roles | **FIXED** | Dashboard, MyProfile, Settings, Notifications all have `role="tablist"`/`role="tab"`/`aria-selected` with keyboard arrow navigation. |
+| H17 | SupportModal labels not associated | **FIXED** | All labels have `htmlFor`/`id` pairs. |
+| H18 | `styled-jsx` in App Router | **FIXED** | No `styled-jsx` found — uses Tailwind CSS variables throughout. |
+| H19 | External Unsplash image in FinalCTA | **FAIL** | Still external URL, no local asset. |
+| H20 | "View all" dead link `href="#"` | **FIXED** | FeaturedProjects now has working navigation links. |
+
+---
+
+## E. NEW BLOCKERS (Backend Security — Discovered in Final Audit)
 
 | # | Issue | File(s) | Impact |
 |---|-------|---------|--------|
-| H1 | **`window.location.reload()` used for retry** in SavedProjects, ReviewsReceived, Notifications, ConversationList, Dashboard | Multiple | Poor UX; loses client-side state; feels like a broken SPA |
-| H2 | **No pagination** in ExploreProjects, ExploreUsers, Leaderboard — all records loaded at once | `ExploreProjects.jsx`, `ExploreUsers.jsx`, `Leaderboard.jsx` | Performance degrades with large datasets |
-| H3 | **ExploreUsers "Filters" button is non-functional** — Has no `onClick` handler, dead UI element | `ExploreUsers.jsx` | User frustration, misleading UI |
-| H4 | **Thumbnail handling inconsistency between Create and Edit** — Create uses file upload with preview; Edit uses URL text input with no preview | `CreateProjects.jsx` vs `EditProject.jsx` | Confusing create/edit flow |
-| H5 | **Inconsistent icon libraries** — CreateProjects/Project/SavedProjectCard/ReviewsReceived use lucide-react; EditProject uses inline SVGs | `EditProject.jsx` | Visual inconsistency |
-| H6 | **Inconsistent loading spinners** — CreateProjects uses `Loader2` from lucide; EditProject uses inline SVG | `EditProject.jsx` | Visual inconsistency |
-| H7 | **Missing `aria-current="page"` on active sidebar nav items** — Screen readers cannot determine current page | `Sidebar.jsx` | Critical for screen reader users |
-| H8 | **No focus trap in SupportModal** — Users can Tab out of modal into background elements | `SupportModal.jsx` | Accessibility violation |
-| H9 | **No keyboard navigation on ConversationList rows** — `<div onClick>` with no tabIndex, role, or keyboard handler | `ConversationList.jsx` | Keyboard users cannot use messaging |
-| H10 | **No keyboard navigation on SavedProjectCard** — `<article onClick>` with no onKeyDown handler | `SavedProjectCard.jsx` | Keyboard users cannot navigate |
-| H11 | **Delete review has no confirmation dialog** — Instantly deletes with no undo | `Project.jsx` | Destructive action without protection |
-| H12 | **No `htmlFor`/`id` associations on auth form inputs** — Labels exist but are not programmatically linked to inputs | All Auth components | Screen readers cannot identify field labels |
-| H13 | **No `role="alert"` on error messages** in any auth component or most app components | Multiple | Screen readers don't announce errors |
-| H14 | **No `inputMode="numeric"` on OTP fields** — Mobile users get full keyboard instead of numeric | `VerifyOtp.jsx`, `ResetPassword.jsx` | Poor mobile OTP experience |
-| H15 | **No page-level `loading.jsx` or `error.jsx` files** — No Next.js loading/error boundaries at any route level | `app/` directory | No loading indicators during route transitions |
-| H16 | **No `role="tablist"`/`role="tab"`/`aria-selected` on any tab implementation** — Dashboard, MyProfile, UserProfile, Settings, Notifications all have tabs without proper ARIA | Multiple | Tab accessibility broken everywhere |
-| H17 | **`SupportModal` labels not programmatically associated** — Inputs lack `id` attributes; labels lack `htmlFor` | `SupportModal.jsx` | Screen readers may not announce field labels |
-| H18 | **`styled-jsx` (`<style jsx>`) used in App Router** — ExploreProjects, ExploreUsers, UserProfile, Leaderboard use this Pages Router feature which may not work correctly in App Router with `"use client"` | Multiple | Styles may not apply or may leak |
-| H19 | **External Unsplash image in FinalCTA** — No local asset, loaded from external CDN at runtime, no blur placeholder | `FinalCTA.jsx` | Performance, reliability, privacy risk |
-| H20 | **"View all" dead link `href="#"`** in FeaturedProjects | `FeaturedProjects.jsx` | Broken navigation |
+| NB1 | **No global rate limiter** — Chat, project creation, review, upload, support endpoints are unlimited per IP. | `backend/middleware/rateLimiter.middleware.js` | Spam, abuse, and DoS vectors open on all authenticated endpoints. |
+| NB2 | **No rate limit on Google OAuth endpoint** — `POST /api/auth/google` is brute-forceable. | `backend/routes/auth.routes.js` | Token brute-force attack vector. |
+| NB3 | **`error.message` leaked to clients in 12+ catch blocks** — Exposes MongoDB errors, file paths, internal logic. | `auth.controller.js:85,131,198,325,386`, `projectController.js:46,247`, `userController.js:62,125,151,177`, `statsController.js:31` | Information disclosure vulnerability. |
+| NB4 | **Zero input validation on project creation** — No length limits on title, description, techStack, URLs. | `backend/controllers/projectController.js:11-33` | Allows oversized/malicious input, potential storage abuse. |
+| NB5 | **`authApis.js` missing try/catch on 8 of 9 functions** — Errors propagate unhandled. Missing `credentials: "include"` on 4 endpoints. | `frontend/services/authApis.js` | Unhandled promise rejections, cookies not set on signup/OTP/forgot/reset. |
+| NB6 | **No `response.ok` checking in any API service** — 401/403/500 silently returned as JSON. | All 18 files in `frontend/services/` | Callers can't distinguish success from failure at HTTP level. |
+| NB7 | **No session expiry/token refresh** — Expired JWTs cause silent failures across app. | `frontend/context/AuthContext.jsx` | Users see broken state with no feedback when session expires. |
+| NB8 | **`reviewApis.js` payload key mismatch** — `addReviews` sends `{ rating, review }` but `editReview` sends `{ reviewRating, reviewComment }`. | `frontend/services/reviewApis.js:10-11,62` | Data corruption on review edits. |
+| NB9 | **`supportApis.js` throws instead of returning** — Inconsistent with all other services. | `frontend/services/supportApis.js:14` | Callers crash because they expect `{ success: false }` return. |
+| NB10 | **`sendEmail.js` silently swallows errors** — OTP send failure doesn't propagate. | `backend/utils/sendEmail.js:18` | User gets "OTP sent" when email actually failed. |
+| NB11 | **Auth error messages enable user enumeration** — "User already exists" / "User not found". | `backend/controllers/auth.controller.js:41-42,150-152` | Attackers can discover registered emails/usernames. |
+| NB12 | **Leaderboard `page`/`limit` have no max bounds** — `limit=999999` dumps entire table. | `backend/controllers/leaderboardController.js:7-8` | API abuse / data extraction vector. |
 
 ---
 
-## D. MEDIUM PRIORITY
+## F. REMAINING HIGH PRIORITY ISSUES
 
 | # | Issue | File(s) |
 |---|-------|---------|
-| M1 | Auth form padding inconsistency — SignUp uses `p-5 sm:p-7` while others use `p-8 sm:p-10` | `SignUp.jsx` |
-| M2 | Auth heading size inconsistency — SignUp is `text-xl` while others are `text-2xl` | `SignUp.jsx` |
-| M3 | Auth subtitle size inconsistency — SignUp is `text-xs` while others are `text-sm` | `SignUp.jsx` |
-| M4 | Submit button style inconsistency — Login/SignUp use ghost/outline; VerifyOtp/ForgotPassword/ResetPassword use accent fill | Multiple Auth |
-| M5 | Password toggle inconsistency — Login uses "SHOW"/"HIDE" text; ResetPassword uses SVG eye icons; SignUp has no toggle | Auth components |
-| M6 | OTP field styling inconsistency — VerifyOtp uses monospace wide-tracking centered input; ResetPassword uses plain input | Auth components |
-| M7 | `h-screen` vs `min-h-screen` inconsistency across auth pages — Login/SignUp/VerifyOtp use `h-screen`; ForgotPassword/ResetPassword use `min-h-screen` | Auth components |
-| M8 | Left-panel Framer Motion animations — Login/SignUp/VerifyOtp have them; ForgotPassword/ResetPassword are static | Auth components |
-| M9 | "Back to Home" button — Only Login and SignUp have it; VerifyOtp, ForgotPassword, ResetPassword lack it | Auth components |
-| M10 | Skeleton components — Only Login and SignUp have them; other auth pages render without skeleton fallback | Auth components |
-| M11 | Toast usage — Only Login and GoogleButton use `useToast`; SignUp relies on redirect only | Auth components |
-| M12 | No password strength indicator or min-length validation on any auth form | All Auth |
-| M13 | No real-time validation on any form — all validation is on-submit only | All Auth |
-| M14 | No `autoFocus` on first input of any auth form | All Auth |
-| M15 | Card shadow inconsistency — Login/SignUp use `shadow-2xs`; VerifyOtp/ForgotPassword/ResetPassword use `shadow-sm` | Auth components |
-| M16 | Form field spacing inconsistency — SignUp uses `space-y-3`, others use `space-y-5` | Auth components |
-| M17 | No date separators in chat message list | `Chat.jsx` |
-| M18 | No message grouping for consecutive same-sender messages | `Chat.jsx` |
-| M19 | No search/filter in ConversationList | `ConversationList.jsx` |
-| M20 | No image/file attachment support in chat | `Chat.jsx` |
-| M21 | `Mark all as read` has no confirmation in Notifications | `Notifications.jsx` |
-| M22 | No `aria-live` region for toast notifications | `ToastContext.jsx` |
-| M23 | No skip-to-content link on any page | Global |
-| M24 | No `beforeunload` handler for unsaved form changes | `EditProject.jsx`, `MyProfile.jsx` |
-| M25 | Artificial loading delays — Dashboard, MyProfile (600ms), Project (1200ms) enforce minimum load times regardless of actual data fetch speed | Multiple |
-| M26 | User avatar fallback inconsistency — Project.jsx uses ui-avatars.com; SavedProjectCard uses empty div; ExploreUsers uses ui-avatars.com with different params | Multiple |
-| M27 | FeaturedProjects section lacks Framer Motion entrance animations (inconsistent with all other landing sections) | `FeaturedProjects.jsx` |
-| M28 | Features section "Step 01-04" labels create confusion with the separate HowItWorks section | `Features.jsx` |
-| M29 | `Styled JSX` `<style jsx global>` in UserProfile.jsx may leak styles globally | `UserProfile.jsx` |
-| M30 | Shimmer CSS duplicated across ExploreProjects, ExploreUsers, UserProfile, Leaderboard | Multiple |
-| M31 | No image preview for thumbnail URL in EditProject (CreateProjects has preview) | `EditProject.jsx` |
-| M32 | `useParams` variable name misuse for `useSearchParams()` in ResetPassword | `ResetPassword.jsx` |
-| M33 | `GitBranchUrl` naming inconsistency — form field named `GitBranchUrl`, payload sends both `githubUrl` and `GitBranchUrl` | `CreateProjects.jsx` |
+| RH1 | No OTP resend functionality — user must restart signup if OTP expires. | `frontend/Components/Auth/VerifyOtp.jsx` |
+| RH2 | Reset password has no strength validation — can set 1-character password. | `frontend/Components/Auth/ResetPassword.jsx` |
+| RH3 | `rememberMe` checkbox in Login is dead — state tracked but never sent to API. | `frontend/Components/Auth/Login.jsx` |
+| RH4 | `UserProfile.jsx:303` — `profileUser` is undefined (should be `user`). Breadcrumb always shows "User". | `frontend/Components/DevReviewLayout/UserProfile.jsx:303` |
+| RH5 | All auth forms use `<a href>` instead of `<Link>` — causes full page reloads, breaks SPA. | All Auth components |
+| RH6 | `<main id="main-content">` missing — skip-nav link in layout.js is broken. | `frontend/app/layout.js` |
+| RH7 | Google script loaded twice — in `layout.js` AND `GoogleButton.jsx`. | `frontend/app/layout.js`, `frontend/Components/Auth/GoogleButton.jsx` |
+| RH8 | Like handlers re-fetch entire lists — causes flash and scroll position loss. | `ExploreProjects.jsx`, `MyProjects.jsx` |
+| RH9 | MyProjects: Like on `<span>` not `<button>` — not keyboard accessible. | `frontend/Components/DevReviewLayout/MyProjects.jsx` |
+| RH10 | MyProjects: Reviews count has `cursor-pointer` but no onClick — dead UX. | `frontend/Components/DevReviewLayout/MyProjects.jsx` |
+| RH11 | Star rating buttons in Project.jsx have no `aria-label`. | `frontend/Components/DevReviewLayout/Project.jsx` |
+| RH12 | CreateProjects: Image upload failure is silent — project publishes without thumbnail with no warning. | `frontend/Components/DevReviewLayout/CreateProjects.jsx:147` |
+| RH13 | CreateProjects: Labels not linked to inputs via htmlFor/id. | `frontend/Components/DevReviewLayout/CreateProjects.jsx` |
+| RH14 | SavedProjects: No try/catch in `confirmRemove` — API failure leaves UI out of sync. | `frontend/Components/DevReviewLayout/SavedProjects.jsx` |
 
 ---
 
-## E. LOW PRIORITY
+## G. REMAINING MEDIUM PRIORITY ISSUES
 
-| # | Issue |
-|---|-------|
-| L1 | Hindi comment in Navbar.jsx (line 63: `// Mobile menu band karne ke liye`) |
-| L2 | `select-none` on entire Hero section prevents text selection |
-| L3 | No hover animations on About section value cards |
-| L4 | No hover animations on Reviews section points |
-| L5 | Emoji in Community.jsx headline not `aria-hidden` |
-| L6 | Star ratings as text characters without `aria-label` in Hero and Reviews |
-| L7 | No `forwardRef` on atom components |
-| L8 | Simple className concatenation in atoms.jsx instead of `twMerge` |
-| L9 | PrimaryButton/SecondaryButton missing `type="button"` |
-| L10 | `dangerouslySetInnerHTML` for inline cursor styles in CustomCursor |
-| L11 | `formatTime` in Notifications hardcoded to `en-IN` locale |
-| L12 | No "scroll to top" button in Notifications infinite scroll |
-| L13 | No online/offline status indicators on user avatars in ConversationList |
-| L14 | Floating stat cards in ExploreUsers reference `users[0]` data, fragile if list is empty |
-| L15 | `verified` check (`dev.isVerified !== false`) defaults to showing verified for undefined values |
-| L16 | URL bar title in UserProfile hardcoded to `.io` TLD |
-| L17 | No message long-press/context menu (copy, delete) |
-| L18 | No link/URL auto-detection in chat messages |
-| L19 | Leaderboard rows not clickable to navigate to user profiles |
-| L20 | Stats hover effects in ReviewsReceived suggest clickability but stats have `cursor-default` |
-
----
-
-## F. MISSING UI
-
-| Category | Missing Items |
-|----------|--------------|
-| **Loading Boundaries** | No `loading.jsx` or `loading.js` at any route level — no skeleton during route transitions |
-| **Error Boundaries** | No `error.jsx` or `error.js` at any route level — unhandled errors crash app |
-| **Not Found** | No `not-found.jsx` at any route level — 404 errors show default Next.js page |
-| **Mobile Messaging** | No mobile conversation list, no back button in Chat on mobile |
-| **Chat Features** | No file attachments, no image sharing, no message reactions, no message editing/deletion, no read receipts, no typing indicators |
-| **Search** | No search in ConversationList, no search in ReviewsReceived, no search in MyProjects, no search in Notifications |
-| **Pagination** | No pagination in ExploreProjects, ExploreUsers, Leaderboard, Reviews in Project detail |
-| **Confirmation Dialogs** | Missing on: delete review, mark all notifications read, clear form in CreateProjects, remove saved project |
-| **Password Validation** | No strength indicator, no min-length, no complexity requirements in any auth form |
-| **Profile** | No follower/following list in MyProfile (only in UserProfile modal) |
-| **Admin/Moderation** | No admin screens, no moderation tools, no report functionality |
-| **User Reporting** | No ability to report users or reviews |
-| **Review Editing UI** | Review edit is inline (no dedicated page), but edit experience could be richer |
-| **Share Functionality** | No share buttons for projects or reviews |
-| **Notification Preferences** | Only 2 toggles in Settings (review alerts, weekly digest) — no granular control |
-| **Onboarding** | No guided tour or onboarding flow for new users |
-| **Footer** | No footer on the landing page (or anywhere) |
-| **Breadcrumbs** | Only in Project detail (`Back to Explore`), not in other nested routes |
-| **SEO** | No meta tags, OpenGraph, or structured data visible in any page component |
-| **404 Page** | No custom 404 page |
+| # | Issue | File(s) |
+|---|-------|---------|
+| RM1 | All loading skeletons missing `role="status"` / `aria-busy` — invisible to assistive tech. | All `loading.jsx`, `SkeletonBox.jsx`, `AppShellSkeleton.jsx` |
+| RM2 | SidebarSkeleton menu items don't match actual sidebar — shows "Settings", missing "Leaderboard", "Messages", "Notifications". | `frontend/components/Skeleton/SidebarSkeleton.jsx` |
+| RM3 | Settings loading skeleton doesn't match actual layout — centered column vs sidebar+content. | `frontend/app/(devreviewapp)/settings/loading.jsx` |
+| RM4 | ToastContext missing `role="alert"` / `aria-live` — screen readers miss notifications. | `frontend/context/ToastContext.jsx` |
+| RM5 | Dashboard `loading.jsx` stats grid not responsive — hardcoded `grid-cols-3`. | `frontend/app/(devreviewapp)/dashboard/loading.jsx` |
+| RM6 | Leaderboard rows not clickable — can't navigate to user profiles. | `frontend/Components/DevReviewLayout/Leaderboard.jsx` |
+| RM7 | No pagination on ExploreProjects, ExploreUsers, Leaderboard. | `ExploreProjects.jsx`, `ExploreUsers.jsx`, `Leaderboard.jsx` |
+| RM8 | No `loading.jsx` for review, users/[username], leaderboard routes. | `app/(devreviewapp)/review/`, `app/(devreviewapp)/users/[username]/`, `app/(devreviewapp)/leaderboard/` |
+| RM9 | UserProfile tabs lack ARIA roles — inconsistent with MyProfile. | `frontend/Components/DevReviewLayout/UserProfile.jsx` |
+| RM10 | UserProfile connections modal missing `role="dialog"`, `aria-modal`, Escape handler. | `frontend/Components/DevReviewLayout/UserProfile.jsx` |
+| RM11 | Navbar hamburger lacks focus trap when mobile menu open. | `frontend/Components/LandingPage/Navbar.jsx` |
+| RM12 | FeaturedProjects cards look clickable but do nothing. | `frontend/Components/LandingPage/FeaturedProjects.jsx` |
+| RM13 | `MessagesLayoutWrapper` regex treats `/messages/user/` routes incorrectly. | `frontend/Components/DevReviewLayout/chat/MessagesLayoutWrapper.jsx` |
+| RM14 | Hardcoded `rgba()` shadows and `text-white` won't adapt if tokens change. | `Sidebar.jsx`, `ExploreProjects.jsx`, `ExploreUsers.jsx`, landing components |
+| RM15 | No `<Link>` in Leaderboard — "Sign In" link causes full page reload. | `frontend/Components/DevReviewLayout/Leaderboard.jsx` |
+| RM16 | `initializeMissingLeaderboards` has no admin middleware — inline role check. | `backend/routes/leaderboardRoutes.js:14-19` |
+| RM17 | No input length validation on support form. | `backend/controllers/support.controller.js:5-11` |
+| RM18 | Upload endpoint has no rate limit. | `backend/middleware/rateLimiter.middleware.js` |
+| RM19 | No error state for connections modal fetch failures in UserProfile. | `frontend/Components/DevReviewLayout/UserProfile.jsx` |
+| RM20 | `app/(devreviewapp)/layout.jsx` — No error boundary wrapping children. | `frontend/app/(devreviewapp)/layout.jsx` |
 
 ---
 
-## G. RESPONSIVE ISSUES
+## H. REMAINING LOW PRIORITY ISSUES
+
+| # | Issue | File(s) |
+|---|-------|---------|
+| RL1 | No `autocomplete` attributes on auth form inputs. | All Auth components |
+| RL2 | No `aria-describedby` linking errors to inputs. | All Auth components |
+| RL3 | Auto-redirect via `setTimeout` can't be cancelled in ForgotPassword/ResetPassword. | `ForgotPassword.jsx`, `ResetPassword.jsx` |
+| RL4 | Login right panel lacks `overflow-y-auto`. | `frontend/Components/Auth/Login.jsx` |
+| RL5 | Avatar `width/height` fixed at 64 regardless of size prop. | `frontend/components/shared/Avatar.jsx` |
+| RL6 | `formatSkill.js` only capitalizes first word — "react native" → "React native". | `frontend/utils/formatSkill.js` |
+| RL7 | `initialized` state in AuthContext is dead code. | `frontend/context/AuthContext.jsx` |
+| RL8 | `Loader2` imported but unused in Leaderboard. | `frontend/Components/DevReviewLayout/Leaderboard.jsx` |
+| RL9 | `User` imported but unused in Community. | `frontend/Components/DevReviewLayout/Community.jsx` |
+| RL10 | Hindi comment in Navbar.jsx. | `frontend/Components/LandingPage/Navbar.jsx` |
+| RL11 | `select-none` on Hero prevents text selection. | `frontend/Components/LandingPage/Hero.jsx` |
+| RL12 | Dead interactive elements in Hero (Reviews/Likes spans). | `frontend/Components/LandingPage/Hero.jsx` |
+| RL13 | SVG icons in Features/HowItWorks missing `aria-hidden`. | `Features.jsx`, `HowItWorks.jsx` |
+| RL14 | 404 page CTA goes to `/dashboard` — may confuse public users. | `frontend/app/not-found.jsx` |
+| RL15 | OG image not explicitly linked in page-level metadata. | `frontend/app/page.js` |
+| RL16 | `formatTime` hardcoded to `en-IN` locale. | `frontend/Components/DevReviewLayout/Notifications.jsx` |
+| RL17 | No message long-press/context menu. | `Chat.jsx` |
+| RL18 | No link/URL auto-detection in chat messages. | `Chat.jsx` |
+| RL19 | No online/offline status on user avatars. | `ConversationList.jsx` |
+| RL20 | `verified` check defaults to verified for undefined values. | Multiple |
+| RL21 | SupportModal auto-close after 2.2s may be too fast. | `SupportModal.jsx` |
+| RL22 | MongoDB hostname leaked via `console.log` in db.js. | `backend/config/db.js:7` |
+| RL23 | Typo "Invalid Reivew" in review controller. | `backend/controllers/reviewController.js:39` |
+| RL24 | No password complexity requirements beyond min length 8. | `backend/utils/validate.js` |
+| RL25 | `UserProfile.jsx` dead imports (`ArrowLeft`, `Star`). | `frontend/Components/DevReviewLayout/UserProfile.jsx` |
+| RL26 | No `aria-hidden` on decorative blur blobs. | `ExploreProjects.jsx`, `Project.jsx` |
+| RL27 | Category chips lack `aria-pressed` / `aria-selected`. | `ExploreProjects.jsx`, `ExploreUsers.jsx` |
+| RL28 | No `autoFocus` on first input of any auth form. | All Auth components |
+
+---
+
+## I. SECURITY AUDIT
+
+### Critical
+
+| # | Issue | File |
+|---|-------|------|
+| S1 | `.env` files with all production secrets committed to git history. | `backend/.env`, `frontend/.env` |
+| S2 | JWT secret is `devreview123` — trivially guessable. | `backend/.env:6` |
+
+### High
+
+| # | Issue | File |
+|---|-------|------|
+| S3 | MongoDB credentials hardcoded in connection string. | `backend/.env:3` |
+| S4 | Gmail app password hardcoded. | `backend/.env:10` |
+| S5 | Cloudinary API secret hardcoded. | `backend/.env:14` |
+| S6 | Resend API key hardcoded. | `backend/.env:5` |
+
+### Medium
+
+| # | Issue | File |
+|---|-------|------|
+| S7 | MongoDB hostname leaked via `console.log`. | `backend/config/db.js:7` |
+| S8 | Raw `error.message` returned to clients in 12+ locations. | Multiple controllers |
+| S9 | User enumeration via "User already exists" / "User not found" messages. | `backend/controllers/auth.controller.js` |
+
+### Low
+
+| # | Issue | Count |
+|---|-------|-------|
+| S10 | `console.error` statements in production code. | 16 locations (acceptable) |
+
+---
+
+## J. RESPONSIVE ISSUES
 
 ### Desktop (1024px+)
 | Issue | File |
 |-------|------|
 | Animated gradient blobs in Sidebar run continuously — may impact low-end devices | `Sidebar.jsx` |
-| Background blobs in ExploreProjects/ExploreUsers hidden on mobile but visible on desktop — can overlap content on certain viewport sizes | `ExploreProjects.jsx`, `ExploreUsers.jsx` |
+| Background blobs can overlap content on certain viewport sizes | `ExploreProjects.jsx`, `ExploreUsers.jsx` |
 
 ### Tablet (768px–1023px)
 | Issue | File |
 |-------|------|
-| SavedProjects uses fixed `p-8` padding — too much on small tablets | `SavedProjects.jsx` |
-| Stats grid in Dashboard uses `grid-cols-3` on all sizes — may cause text overflow for large numbers on tablet | `Dashboard.jsx` |
+| Dashboard stats grid uses `grid-cols-3` — may cause text overflow on tablet | `Dashboard.jsx` |
+| Dashboard community rank card hidden (`hidden lg:block`) — content lost on tablet | `Dashboard.jsx` |
 
 ### Mobile (< 768px)
 | Issue | File |
 |-------|------|
-| **CRITICAL:** Messaging is completely hidden — ConversationList, messages/page.jsx both `hidden md:flex` | Multiple |
-| No back button in Chat header on mobile — once in a conversation, no way to go back without browser back | `Chat.jsx` |
-| Chat textarea input area may be obscured by mobile keyboard | `Chat.jsx` |
-| Auth left panel completely hidden — decorative content wasted on mobile | Auth components |
+| Messages empty state hidden on mobile — blank screen when no conversation selected | `messages/page.jsx` |
+| Chat textarea may be obscured by mobile keyboard | `Chat.jsx` |
+| Auth left panel completely hidden — decorative content wasted | Auth components |
 | Hero 3D card and floating elements hidden — mobile hero is text-only | `Hero.jsx` |
-| Custom cursor hidden on touch devices — correct behavior but no alternative indicator | `CustomCursor.jsx` |
-| "Back to Home" button missing on some auth pages — users can only use browser back | Multiple Auth |
-| FeaturedProjects grid goes single-column — only 2 projects + CTA card, feels sparse | `FeaturedProjects.jsx` |
-| Dashboard community rank card hidden (`hidden lg:block`) — sidebar content lost on tablet | `Dashboard.jsx` |
-| Settings sidebar tabs stack vertically on mobile — uses `grid-cols-1 md:grid-cols-4` | `Settings.jsx` |
+| Custom cursor hidden on touch devices — correct behavior | `CustomCursor.jsx` |
+| FeaturedProjects grid single-column — feels sparse with only 2 projects + CTA | `FeaturedProjects.jsx` |
+| Settings sidebar tabs stack vertically | `Settings.jsx` |
 
 ---
 
-## H. THEME ISSUES
+## K. THEME ISSUES
 
 ### Light Mode
 | Issue | File |
 |-------|------|
-| Hardcoded `rgba(47,111,78,...)` shadows in Sidebar — accent color value won't adapt if token changes | `Sidebar.jsx` |
-| Hardcoded `rgba(63,169,122,0.12)` in ExploreProjects animated chart overlay | `ExploreProjects.jsx` |
-| `background=2F6F4E` in ui-avatars fallback URLs across multiple components | Multiple |
-| `bg-gradient-to-r from-accent to-accent-2 text-white` in ExploreUsers hero — `text-white` is hardcoded | `ExploreUsers.jsx` |
-| `rgba(22,42,31,0.12)` hardcoded shadow in Community landing section | `Community.jsx` (landing) |
-| `rgba(0,0,0,0.08)` hardcoded shadow in Hero card | `Hero.jsx` |
-| `rgba(47,111,78,0.2)` and `rgba(47,111,78,0.08)` in Features/HowItWorks hover shadows | `Features.jsx`, `HowItWorks.jsx` |
+| Hardcoded `rgba(47,111,78,...)` shadows won't adapt if token changes | `Sidebar.jsx` |
+| Hardcoded `rgba(63,169,122,0.12)` in chart overlay | `ExploreProjects.jsx` |
+| `background=2F6F4E` in ui-avatars fallback URLs | Multiple |
+| `text-white` hardcoded in ExploreUsers hero | `ExploreUsers.jsx` |
+| Hardcoded shadows in landing page sections | `Community.jsx`, `Hero.jsx`, `Features.jsx`, `HowItWorks.jsx` |
 
 ### Dark Mode
 | Issue | File |
 |-------|------|
-| Same hardcoded shadows as light mode — they won't adapt to dark backgrounds | Multiple |
-| `bg-[radial-gradient(circle_at_top_right,theme(colors.white/30)_0,transparent_100%)]` in ExploreUsers — `theme()` resolves at build time, may not adapt | `ExploreUsers.jsx` |
-| `#FFFFFF` in radial gradients for dot grid patterns — always white regardless of theme | Multiple |
+| Same hardcoded shadows — won't adapt to dark backgrounds | Multiple |
+| `#FFFFFF` in radial gradients for dot patterns | Multiple |
 
 ### Theme Toggle
 | Status | Notes |
 |--------|-------|
-| View Transitions API circular reveal | Excellent — smooth, animated, respects `prefers-reduced-motion` |
-| CSS variable swap via `.dark` class | Excellent — no `dark:` variants needed |
-| FOUC prevention inline script | Good — reads localStorage before paint |
+| View Transitions API circular reveal | Excellent |
+| CSS variable swap via `.dark` class | Excellent |
+| FOUC prevention inline script | Good |
 
 ---
 
-## I. ACCESSIBILITY ISSUES
+## L. ACCESSIBILITY ISSUES
 
-### Critical
-| Issue | Files |
-|-------|-------|
-| No `htmlFor`/`id` on auth form inputs — labels not programmatically associated | All Auth components |
-| No `role="alert"` on error messages — screen readers don't announce errors | All components |
-| No `aria-current="page"` on active sidebar nav items | `Sidebar.jsx` |
-| No `role="tablist"`/`role="tab"`/`aria-selected` on tabs | Dashboard, MyProfile, UserProfile, Settings, Notifications |
+### Fixed from Original Audit
+| Issue | Status |
+|-------|--------|
+| `htmlFor`/`id` on auth form inputs | **FIXED** — All auth forms |
+| `aria-current="page"` on sidebar | **FIXED** |
+| `role="tablist"`/`role="tab"`/`aria-selected` on tabs | **FIXED** — Dashboard, MyProfile, Settings, Notifications |
+| Focus trap in SupportModal | **FIXED** |
+| Keyboard nav on ConversationList | **FIXED** |
+| `inputMode="numeric"` on OTP fields | **FIXED** |
+| `aria-label` and `aria-expanded` on hamburger | **FIXED** |
+| `aria-live` for chat messages | **FIXED** |
+| `aria-label` on chat textarea | **FIXED** |
+| `role="dialog"` and `aria-modal` on SupportModal | **FIXED** |
+| Labels programmatically associated in SupportModal | **FIXED** |
 
-### High
-| Issue | Files |
-|-------|-------|
-| No focus trap in SupportModal | `SupportModal.jsx` |
-| No keyboard navigation on ConversationList rows | `ConversationList.jsx` |
-| No keyboard navigation on SavedProjectCard | `SavedProjectCard.jsx` |
-| No `inputMode="numeric"` on OTP fields | `VerifyOtp.jsx`, `ResetPassword.jsx` |
-| No `autocomplete` attributes on auth inputs (`email`, `current-password`, `new-password`, `one-time-code`) | All Auth |
-| No `aria-label` on hamburger button in Navbar | `Navbar.jsx` |
-| No `aria-expanded` on hamburger button | `Navbar.jsx` |
-| No `aria-live` region for new chat messages | `Chat.jsx` |
-| No `aria-label` on chat textarea | `Chat.jsx` |
-| Developer name in ExploreUsers (`h3`) is clickable but not keyboard accessible | `ExploreUsers.jsx` |
-| Category chips have no `aria-pressed`/`aria-selected` | `ExploreProjects.jsx`, `ExploreUsers.jsx` |
-| Like/save buttons in ExploreProjects have no `aria-label` text alternatives | `ExploreProjects.jsx` |
-
-### Medium
-| Issue | Files |
-|-------|-------|
-| No skip-to-content link on any page | Global |
+### Remaining
+| Issue | File(s) |
+|-------|---------|
+| `role="alert"` missing on error messages in SignUp, VerifyOtp, ForgotPassword, ResetPassword | Auth components |
+| No `role="status"` / `aria-busy` on loading skeletons | All loading states |
+| UserProfile tabs lack ARIA roles | `UserProfile.jsx` |
+| Connections modal missing `role="dialog"`, `aria-modal`, Escape | `UserProfile.jsx` |
+| No skip-to-content link (target exists but no visible link) | Global |
 | No `aria-describedby` on form error messages | Multiple |
-| No `aria-invalid` on form fields with errors | Multiple |
-| No programmatic focus on modal open | `SupportModal.jsx` |
-| No `role="dialog"` or `aria-modal` on connections modal in UserProfile | `UserProfile.jsx` |
-| No Escape key handler on connections modal | `UserProfile.jsx` |
 | Star rating buttons have no accessible labels | `Project.jsx` |
-| Emoji in Hero and Reviews lack `aria-hidden` | Landing page |
-| Tab buttons have `outline-none` removing default focus indicator | Multiple |
-| Hamburger menu lacks keyboard trap when open | `Navbar.jsx` |
+| Category chips lack `aria-pressed` | `ExploreProjects.jsx`, `ExploreUsers.jsx` |
+| No `<main id="main-content">` wrapper | `layout.js` |
+| Navbar hamburger lacks focus trap when open | `Navbar.jsx` |
 
 ---
 
-## J. COMPONENT CONSISTENCY ISSUES
+## M. COMPONENT CONSISTENCY (Fixed from Original)
 
-### Duplicated Components
-| Component | Duplicated In | Should Be Shared |
-|-----------|---------------|-----------------|
-| `Shimmer` | `ExploreProjects.jsx`, `ExploreUsers.jsx` | Extract to `Components/Skeleton/Shimmer.jsx` |
-| Shimmer CSS (`@keyframes shimmer`) | `ExploreProjects.jsx`, `ExploreUsers.jsx`, `UserProfile.jsx`, `Leaderboard.jsx`, `globals.css` | Single definition in `globals.css` (already exists there) |
-| Animated gradient CSS (`@keyframes gradient-x`) | `ExploreProjects.jsx`, `ExploreUsers.jsx`, `Leaderboard.jsx` | Extract to shared CSS |
-| Error alert pattern | Auth components, Dashboard, ExploreProjects, etc. | Should be a shared `ErrorAlert` component |
-| Empty state pattern | Dashboard, MyProjects, SavedProjects, ReviewsReceived, Notifications, ExploreProjects, ExploreUsers | Should be a shared `EmptyState` component |
-| Loading skeleton pattern | Dashboard, ExploreProjects, ExploreUsers, MyProjects, SavedProjects, Leaderboard, Settings | Should use shared skeleton primitives |
-| Toast notifications | `ToastContext.jsx`, `MyProfile.jsx`, `Project.jsx` — different implementations | Unify on ToastContext |
-| User avatar with fallback | Multiple files — different fallback strategies (ui-avatars.com with different params, empty div, initials) | Should be a shared `Avatar` component |
-| Stat card pattern | Dashboard, ReviewsReceived, Community, Leaderboard | Should be a shared `StatCard` component |
-| Retry button pattern | Multiple — some use `window.location.reload()`, some re-fetch, some navigate | Should standardize on re-fetch |
-
-### Inconsistent Patterns
-| Pattern | Variants Found |
-|---------|---------------|
-| **Card border-radius** | `rounded-2xl`, `rounded-[24px]`, `rounded-[28px]`, `rounded-[32px]`, `rounded-3xl` — no standard |
-| **Card shadow** | `shadow-2xs`, `shadow-sm`, `shadow-md`, `shadow-2xl`, `shadow-[4px_0_24px_rgba(...)]` — no standard |
-| **Icon library** | `lucide-react` everywhere except `EditProject.jsx` which uses inline SVGs |
-| **Form label association** | `EditProject.jsx` has proper `htmlFor`/`id`; `CreateProjects.jsx` and all Auth components do not |
-| **Loading spinners** | `Loader2` from lucide (CreateProjects), inline SVG (EditProject), CSS border spinner (ConversationList) |
-| **Success notifications** | Floating toast (CreateProjects, Project), inline banner (EditProject), success card (ForgotPassword, ResetPassword), auto-close modal (SupportModal) |
-| **Error retry** | `window.location.reload()` (multiple), `fetchProjects()` re-fetch (ExploreProjects), navigate away (Project), inline re-fetch (Community stats) |
-| **Owner avatar fallback** | ui-avatars.com with `background=2F6F4E` (Sidebar, Leaderboard), ui-avatars.com with `background=F1F5F9` (ExploreUsers, MyProfile), empty div (SavedProjectCard) |
-| **Password visibility toggle** | Text "SHOW"/"HIDE" (Login), SVG eye icons (ResetPassword), none (SignUp) |
+| Issue | Status |
+|-------|--------|
+| Shimmer CSS duplicated | **FIXED** — Moved to `globals.css`, shared `SkeletonBox` component |
+| Error alert pattern duplicated | **FIXED** — Shared `ErrorAlert` component |
+| Empty state pattern duplicated | **FIXED** — Shared `EmptyState` component |
+| User avatar with fallback inconsistent | **FIXED** — Shared `Avatar` component |
+| Stat card pattern duplicated | **FIXED** — Shared `StatCard` component |
+| Loading spinners inconsistent | **FIXED** — Unified on lucide-react `Loader2` |
+| Icon library inconsistent (EditProject inline SVGs) | **FIXED** — All lucide-react |
+| `window.location.reload()` for retry | **FIXED** — Programmatic re-fetch |
+| `styled-jsx` in App Router | **FIXED** — No styled-jsx found |
+| `beforeunload` for unsaved changes | **FIXED** — EditProject and MyProfile |
 
 ---
 
-## K. PRODUCTION READINESS CHECKLIST
+## N. PRODUCTION READINESS CHECKLIST
 
 | Area | Status |
 |------|--------|
@@ -316,235 +351,205 @@ The project has a strong design token system, consistent visual language, and am
 | Notifications with infinite scroll | [x] Complete |
 | Settings page | [x] Complete |
 | Community page | [x] Complete |
-| Support modal | [x] Complete |
+| Support modal (with focus trap) | [x] Complete |
 | Toast notification system | [x] Complete |
-| Skeleton loading states | [~] Partially complete — only Login/SignUp have page skeletons |
-| Error states per component | [~] Partially complete — most components have error UI but no error boundaries |
+| Shared components (Avatar, EmptyState, ErrorAlert, StatCard, SkeletonBox) | [x] Complete |
+| Skeleton loading states | [x] Complete — 8 route-level loading.jsx files |
+| Error states per component | [x] Complete — Most components have error UI with retry |
+| Error boundary (route level) | [x] Complete — `error.jsx` at `(devreviewapp)` level |
 | Empty states per component | [x] Complete |
-| Responsive design (mobile) | [~] Partially complete — messaging broken on mobile |
+| 404 page | [x] Complete — Custom `not-found.jsx` |
+| SEO / meta tags | [x] Complete — Page-level metadata on all routes |
+| Favicon / OG images / Apple icon | [x] Complete — Dynamic generation via `icon.js`, `apple-icon.js`, `opengraph-image.js` |
+| Responsive design (mobile) | [~] Partial — Messaging mostly works, empty state gap |
 | Responsive design (tablet) | [x] Complete |
-| Keyboard navigation | [~] Partially complete — sidebar and some cards work; tabs, modals, chat don't |
-| Screen reader support | [ ] Missing — no ARIA tab roles, no alert roles, no label associations |
-| Focus management | [ ] Missing — no focus traps, no programmatic focus, no skip links |
-| Page-level loading boundaries | [ ] Missing — no `loading.jsx` files |
-| Page-level error boundaries | [ ] Missing — no `error.jsx` files |
-| 404 page | [ ] Missing — no `not-found.jsx` |
-| SEO / meta tags | [ ] Missing — no metadata exports |
-| Real-time messaging | [ ] Missing — no WebSocket/polling |
-| Mobile messaging | [ ] Missing — completely non-functional |
-| Chat features (attachments, reactions, etc.) | [ ] Missing |
+| Keyboard navigation | [~] Partial — Sidebar, cards, tabs, modals work; some gaps remain |
+| Screen reader support | [~] Partial — ARIA tabs fixed, focus traps added; loading skeletons and some error alerts still missing |
+| Focus management | [~] Partial — SupportModal focus trap works; no skip-to-content link |
+| Page-level loading boundaries | [x] Complete |
+| Page-level error boundaries | [x] Complete |
+| `beforeunload` for unsaved changes | [x] Complete — EditProject, MyProfile |
+| `console.log` cleanup | [x] Complete — All credential/debug logs removed |
+| Real-time messaging | [ ] Missing — No WebSocket/polling |
 | Pagination (explore pages) | [ ] Missing |
-| Confirmation dialogs for destructive actions | [~] Partially — only delete project has confirmation |
+| Chat features (attachments, reactions, etc.) | [ ] Missing |
+| Confirmation dialogs for destructive actions | [~] Partial — Delete project has confirmation; delete review does not |
 | Footer | [ ] Missing |
-| Breadcrumbs | [~] Partially — only in Project detail |
+| Breadcrumbs | [~] Partial — Only in Project detail |
 | Onboarding flow | [ ] Missing |
 | Admin/moderation screens | [ ] Missing |
 | User reporting | [ ] Missing |
 | Share functionality | [ ] Missing |
-| Password strength validation | [ ] Missing |
-| Real-time form validation | [ ] Missing |
-| `beforeunload` for unsaved changes | [ ] Missing |
-| Favicon / public assets | [~] Partially — only 2 SVG previews in public/ |
-| `console.log` cleanup | [ ] Missing — debug logs in all auth components + SupportModal |
+| Password strength validation | [~] Partial — SignUp has it; ResetPassword does not |
+| Real-time form validation | [~] Partial — SignUp has it; other auth forms do not |
 
 ---
 
-## L. RECOMMENDED FIX ORDER
+## O. RECOMMENDED REMAINING WORK
 
-### Phase 1: Critical Functional UI (Must-fix before any release)
-1. Remove all `console.log` debug statements (especially credential logging in SignUp)
-2. Fix non-functional Cancel button in EditProject
-3. Make messaging usable on mobile (add mobile conversation list, back button)
-4. Auto-resize chat textarea
-5. Add `error.jsx` boundaries at route level
-6. Fix `styled-jsx` usage in App Router components (ExploreProjects, ExploreUsers, UserProfile, Leaderboard)
+### Phase 1: Security Hardening (CRITICAL)
+1. Rotate ALL secrets (MongoDB, Resend, Cloudinary, Gmail, Google OAuth, JWT)
+2. Scrub git history with BFG Repo-Cleaner
+3. Replace weak JWT secret with 256-bit random string
+4. Add global rate limiter to all routes
+5. Add rate limit to Google OAuth endpoint
+6. Replace `error.message` in all catch blocks with generic strings
+7. Add input validation to `createProjects`
+8. Remove user enumeration from auth error messages
 
-### Phase 2: Broken Responsive Behavior
-7. Fix SavedProjects mobile padding (`p-8` → `p-4 sm:p-8`)
-8. Fix ExploreUsers "Filters" button (make functional or remove)
-9. Fix Dashboard stats grid text overflow on smaller screens
-10. Ensure auth pages have consistent padding/spacing
+### Phase 2: Frontend API Layer
+9. Fix `authApis.js` — Add try/catch, `credentials: "include"`
+10. Fix `reviewApis.js` payload key mismatch
+11. Fix `supportApis.js` throw → return pattern
+12. Add `response.ok` checking to all services
+13. Create centralized `apiClient.js` wrapper
+14. Add session expiry / token refresh handling
 
-### Phase 3: Accessibility Critical
-11. Add `htmlFor`/`id` to all form inputs across auth and app components
-12. Add `role="alert"` to error message containers
-13. Add `aria-current="page"` to sidebar active nav items
-14. Add `role="tablist"`/`role="tab"`/`aria-selected` to all tab implementations
-15. Add focus trap to SupportModal and connections modal
-16. Add `inputMode="numeric"` and `autocomplete="one-time-code"` to OTP fields
-17. Add `aria-label` to hamburger button with `aria-expanded`
-18. Make ConversationList and SavedProjectCard keyboard-accessible
+### Phase 3: UX Fixes
+15. Add OTP resend functionality
+16. Add password strength rules on reset
+17. Fix `messages/page.jsx` mobile empty state
+18. Convert `<a href>` to `<Link>` in auth forms
+19. Fix `UserProfile.jsx:303` breadcrumb bug
+20. Remove duplicate Google script load
+21. Fix `rememberMe` dead checkbox
 
-### Phase 4: Theme Inconsistencies
-19. Replace hardcoded `rgba(47,111,78,...)` shadows with CSS variable-based values
-20. Replace hardcoded `background=2F6F4E` in ui-avatars URLs with a consistent value
-21. Audit and fix all `text-white` hardcoded instances
-22. Ensure all dot-grid patterns use `var(--color-muted)` consistently
+### Phase 4: Accessibility Polish
+22. Add `role="alert"` to remaining auth error messages
+23. Add `role="status"` / `aria-busy` to all loading skeletons
+24. Add ARIA tab roles to UserProfile
+25. Add focus trap to UserProfile connections modal
+26. Add `<main id="main-content">` wrapper
+27. Add skip-to-content visible link
+28. Add `aria-label` to star rating buttons
 
-### Phase 5: Missing Loading/Error/Empty States
-23. Add `loading.jsx` files to key routes (dashboard, explore, project detail)
-24. Add `not-found.jsx` custom 404 page
-25. Add `window.location.reload()` → programmatic re-fetch conversion (SavedProjects, ReviewsReceived, Notifications, ConversationList)
-26. Add minimum loading time removal (MyProfile 600ms, Project 1200ms)
+### Phase 5: Pagination & Scale
+29. Add pagination to ExploreProjects, ExploreUsers, Leaderboard
+30. Make leaderboard rows clickable to user profiles
+31. Add pagination to user's projects and reviews
 
-### Phase 6: Component Consistency
-27. Standardize auth form padding, heading sizes, subtitle sizes, button styles
-28. Standardize password toggle component (pick one: text or SVG icon)
-29. Extract shared components: Avatar, EmptyState, ErrorAlert, StatCard, Shimmer
-30. Standardize card border-radius (`rounded-2xl`) and shadow (`shadow-sm`)
-31. Make EditProject use lucide-react icons instead of inline SVGs
-32. Make EditProject thumbnail handling match CreateProjects (file upload with preview)
-33. Unify toast notifications on ToastContext (remove MyProfile's custom toast)
-
-### Phase 7: Micro-interactions & Polish
-34. Add hover animations to About and Reviews landing sections
-35. Add Framer Motion to FeaturedProjects section
-36. Add `aria-hidden` to decorative emojis
-37. Add `aria-label` to star rating buttons
-38. Add skip-to-content link
-39. Remove Hindi comment in Navbar
-40. Fix Features/HowItWorks semantic overlap
-
-### Phase 8: Final Visual Polish
-41. Add favicon and OpenGraph images to public/
-42. Add page-level metadata exports for SEO
-43. Add breadcrumbs to nested routes
-44. Add `beforeunload` handlers for forms with unsaved changes
-45. Clean up unused imports across codebase
+### Phase 6: Polish
+32. Fix CreateProjects labels → htmlFor/id
+33. Fix CreateProjects silent image upload failure
+34. Add try/catch to SavedProjects confirmRemove
+35. Fix hardcoded `rgba()` shadows with CSS variables
+36. Fix Settings loading skeleton layout mismatch
+37. Fix Dashboard loading skeleton responsiveness
+38. Clean up unused imports (Leaderboard, Community, UserProfile)
 
 ---
 
-## M. EXACT FILE REFERENCES
+## P. EXACT FILE REFERENCES
 
-### Critical Issues
+### Security Issues
 
-| File | Component | Line/Section | Issue | Why It Matters | Fix |
-|------|-----------|-------------|-------|----------------|-----|
-| `Components/Auth/SignUp.jsx` | SignUp | Lines 73-78 | `console.log({ name, username, email, password })` | Leaks user credentials to browser console | Remove all console.log statements |
-| `Components/DevReviewLayout/EditProject.jsx` | EditProject | Cancel button JSX | `<button type="button">Cancel</button>` has no `onClick` | Button does nothing when clicked | Add `onClick={() => router.back()}` or `onClick={onCancel}` |
-| `Components/DevReviewLayout/chat/Chat.jsx` | Chat | Textarea element | `<textarea rows={1}>` with no auto-resize | Long messages truncated in 1-row textarea | Add ref-based auto-resize or use `field-sizing: content` |
-| `Components/DevReviewLayout/chat/ConversationList.jsx` | ConversationList | Root container | `hidden md:flex` | Entirely invisible on mobile | Add mobile-specific conversation list (sheet/drawer) |
-| `Components/DevReviewLayout/chat/Chat.jsx` | Chat | Root container | `flex-1 min-w-0` with no mobile back button | No way to return to conversation list on mobile | Add back button in header on mobile |
-| `Components/DevReviewLayout/ExploreUsers.jsx` | ExploreUsers | "Filters" button | `<button>` with no `onClick` handler | Dead UI element that does nothing | Implement filter functionality or remove button |
-| `Components/DevReviewLayout/EditProject.jsx` | EditProject | All form inputs | Uses inline SVG icons instead of lucide-react | Visual inconsistency with rest of app | Replace with lucide-react icons |
-| `Components/DevReviewLayout/EditProject.jsx` | EditProject | Thumbnail field | URL text input vs file upload in CreateProjects | Inconsistent create/edit UX | Match CreateProjects file upload pattern |
+| File | Line | Issue |
+|------|------|-------|
+| `backend/.env` | 3 | MongoDB credentials in connection string |
+| `backend/.env` | 5 | Resend API key |
+| `backend/.env` | 6 | JWT secret `devreview123` |
+| `backend/.env` | 10 | Gmail app password |
+| `backend/.env` | 13-14 | Cloudinary API key/secret |
+| `backend/.env` | 18 | Google OAuth Client ID |
+| `frontend/.env` | 5 | Google OAuth Client ID |
+| `backend/config/db.js` | 7 | MongoDB hostname leaked via console.log |
 
-### Auth Consistency Issues
+### Error Message Leaks
 
-| File | Line/Section | Issue | Reference File |
-|------|-------------|-------|----------------|
-| `Components/Auth/SignUp.jsx` | Card padding | `p-5 sm:p-7` | Login.jsx uses `p-8 sm:p-10` |
-| `Components/Auth/SignUp.jsx` | Heading | `text-xl` | Login.jsx uses `text-2xl` |
-| `Components/Auth/SignUp.jsx` | Subtitle | `text-xs` | Login.jsx uses `text-sm` |
-| `Components/Auth/SignUp.jsx` | Submit button | `bg-page border border-line` (ghost) | VerifyOtp.jsx uses `bg-accent` (primary) |
-| `Components/Auth/SignUp.jsx` | Form spacing | `space-y-3` | Login.jsx uses `space-y-5` |
-| `Components/Auth/SignUp.jsx` | Label margin | `mb-1` | Login.jsx uses `mb-2` |
-| `Components/Auth/SignUp.jsx` | Input padding | `px-3.5 py-2` | Login.jsx uses `px-4 py-3` |
-| `Components/Auth/SignUp.jsx` | Right panel padding | `p-4 sm:p-8` | Login.jsx uses `p-6 sm:p-12` |
-| `Components/Auth/SignUp.jsx` | Card shadow | `shadow-2xs` | VerifyOtp.jsx uses `shadow-sm` |
-| `Components/Auth/SignUp.jsx` | Password toggle | None | Login.jsx has "SHOW"/"HIDE" |
-| `Components/Auth/VerifyOtp.jsx` | OTP input | Plain `text-sm` | VerifyOtp.jsx uses `text-xl font-mono tracking-[0.5em] text-center` |
-| `Components/Auth/ForgotPassword.jsx` | Root | `min-h-screen` | Login.jsx uses `h-screen` |
-| `Components/Auth/ForgotPassword.jsx` | Left panel | No Framer Motion animation | Login.jsx has animated content |
-| `Components/Auth/ResetPassword.jsx` | Password toggle | SVG eye icons | Login.jsx uses "SHOW"/"HIDE" text |
-| `Components/Auth/ResetPassword.jsx` | Root | `min-h-screen` | Login.jsx uses `h-screen` |
+| File | Line | Context |
+|------|------|---------|
+| `backend/controllers/auth.controller.js` | 85 | signUp catch |
+| `backend/controllers/auth.controller.js` | 131 | verifyOTP catch |
+| `backend/controllers/auth.controller.js` | 198 | login catch |
+| `backend/controllers/auth.controller.js` | 325 | forgotPassword catch |
+| `backend/controllers/auth.controller.js` | 387 | resetPassword catch |
+| `backend/controllers/projectController.js` | 46 | createProjects catch |
+| `backend/controllers/projectController.js` | 247 | getExploreProjects catch |
+| `backend/controllers/userController.js` | 62 | getUserProfile catch |
+| `backend/controllers/userController.js` | 125 | toggleFollow catch |
+| `backend/controllers/userController.js` | 151 | getFollowers catch |
+| `backend/controllers/userController.js` | 177 | getFollowing catch |
+| `backend/controllers/statsController.js` | 31 | getStats catch |
 
-### Accessibility Issues by File
+### Missing Rate Limits
 
-| File | Line/Section | Issue |
-|------|-------------|-------|
-| `Components/Auth/Login.jsx` | Email input | Missing `htmlFor`/`id` pair with label |
-| `Components/Auth/Login.jsx` | Password input | Missing `htmlFor`/`id` pair with label |
-| `Components/Auth/Login.jsx` | Error alert | Missing `role="alert"` |
-| `Components/Auth/SignUp.jsx` | All 5 inputs | Missing `htmlFor`/`id` pairs |
-| `Components/Auth/SignUp.jsx` | Error alert | Missing `role="alert"` |
-| `Components/Auth/VerifyOtp.jsx` | OTP input | Missing `htmlFor`/`id`, `inputMode="numeric"`, `autocomplete="one-time-code"` |
-| `Components/Auth/ForgotPassword.jsx` | Email input | Missing `htmlFor`/`id` |
-| `Components/Auth/ResetPassword.jsx` | All 3 inputs | Missing `htmlFor`/`id`, OTP missing `inputMode="numeric"` |
-| `Components/DevReviewLayout/Sidebar.jsx` | Nav buttons | Missing `aria-current="page"` |
-| `Components/LandingPage/Navbar.jsx` | Hamburger button | Missing `aria-label` and `aria-expanded` |
-| `Components/DevReviewLayout/SupportModal.jsx` | Form inputs | Missing `id` attributes, labels not associated |
-| `Components/DevReviewLayout/SupportModal.jsx` | Modal | Missing focus trap |
-| `Components/DevReviewLayout/chat/Chat.jsx` | Textarea | Missing `aria-label` |
-| `Components/DevReviewLayout/chat/Chat.jsx` | Message list | Missing `aria-live` region |
-| `Components/DevReviewLayout/chat/ConversationList.jsx` | Conversation rows | Not keyboard accessible (no tabIndex, role, onKeyDown) |
-| `Components/DevReviewLayout/SavedProjectCard.jsx` | Article card | Not keyboard accessible (no tabIndex, onKeyDown) |
-| `Components/DevReviewLayout/Dashboard.jsx` | Tab buttons | Missing `role="tab"`, `aria-selected` |
-| `Components/DevReviewLayout/MyProfile.jsx` | Tab buttons | Missing `role="tablist"`/`role="tab"`/`aria-selected` |
-| `Components/DevReviewLayout/UserProfile.jsx` | Tab buttons | Missing ARIA tab roles |
-| `Components/DevReviewLayout/UserProfile.jsx` | Connections modal | Missing `role="dialog"`, `aria-modal`, Escape handler |
-| `Components/DevReviewLayout/Settings.jsx` | Tab buttons | Missing ARIA tab roles |
-| `Components/DevReviewLayout/Notifications.jsx` | Tab buttons | Missing ARIA tab roles |
-| `Components/DevReviewLayout/ExploreUsers.jsx` | Developer name `h3` | Clickable but not keyboard accessible |
+| Route | Auth Required | Rate Limited |
+|-------|---------------|--------------|
+| `POST /api/auth/google` | No | **NO** |
+| `POST /api/chat/send` | Yes | **NO** |
+| `POST /api/projects` | Yes | **NO** |
+| `POST /api/projects/:id/review` | Yes | **NO** |
+| `POST /api/projects/:id/like` | Yes | **NO** |
+| `POST /api/support` | Yes | **NO** |
+| `POST /api/upload` | Yes | **NO** |
+| `GET /api/stats` | No | **NO** |
+| `GET /api/leaderboard` | No | **NO** |
 
-### Theme Issues by File
+### Frontend API Service Issues
 
-| File | Line/Section | Hardcoded Value | Should Be |
-|------|-------------|----------------|-----------|
-| `Components/DevReviewLayout/Sidebar.jsx` | Shadow styles | `rgba(47,111,78,0.4)`, `rgba(47,111,78,0.5)` | CSS variable-based shadow |
-| `Components/DevReviewLayout/Sidebar.jsx` | ui-avatars URL | `background=2F6F4E` | Consistent token-based color |
-| `Components/DevReviewLayout/ExploreProjects.jsx` | Chart overlay | `rgba(63,169,122,0.12)` | CSS variable |
-| `Components/DevReviewLayout/ExploreUsers.jsx` | Hero button | `text-white` | `text-accent-ink` |
-| `Components/DevReviewLayout/ExploreUsers.jsx` | ui-avatars URL | `background=F1F5F9&color=111827` | Consistent with other fallbacks |
-| `Components/DevReviewLayout/ExploreUsers.jsx` | Dot pattern | `#FFFFFF` in inline radial gradient | `var(--color-surface)` or keep (decorative) |
-| `Components/LandingPage/FinalCTA.jsx` | Image | External Unsplash URL | Download to `public/` or use app CDN |
-| `Components/LandingPage/Features.jsx` | Hover shadow | `rgba(47,111,78,0.2)` | CSS variable |
-| `Components/LandingPage/HowItWorks.jsx` | Hover shadow | `rgba(47,111,78,0.12)` | CSS variable |
-| `Components/LandingPage/Community.jsx` | Card shadow | `rgba(22,42,31,0.12)` | CSS variable |
-| `Components/LandingPage/Hero.jsx` | Card shadow | `rgba(0,0,0,0.08)` | CSS variable |
-| `Components/DevReviewLayout/Dashboard.jsx` | ui-avatars URL | `background=2F6F4E` | Consistent with other fallbacks |
+| File | Issue |
+|------|-------|
+| `frontend/services/authApis.js` | 8/9 functions missing try/catch; 4 functions missing `credentials: "include"` |
+| `frontend/services/reviewApis.js` | `editReview` payload keys mismatched with `addReviews` |
+| `frontend/services/supportApis.js` | `throw` instead of `return { success: false }` |
+| All 18 service files | No `response.ok` checking |
 
 ---
 
-## N. FULL UI INVENTORY
+## Q. FULL UI INVENTORY
 
 ### Pages & Routes
 
-| Route | File | Purpose |
-|-------|------|---------|
-| `/` | `app/page.js` | Root redirect to landing |
-| `/LandingPage` | `app/(public)/LandingPage/page.jsx` | Marketing landing page |
-| `/auth/login` | `app/(public)/auth/login/page.jsx` | Login |
-| `/auth/signup` | `app/(public)/auth/signup/page.jsx` | Registration |
-| `/auth/verify-otp` | `app/(public)/auth/verify-otp/page.jsx` | Email OTP verification |
-| `/auth/forgot-password` | `app/(public)/auth/forgot-password/page.jsx` | Forgot password |
-| `/auth/reset-password` | `app/(public)/auth/reset-password/page.jsx` | Password reset |
-| `/dashboard` | `app/(devreviewapp)/dashboard/page.jsx` | User dashboard |
-| `/projects/explore` | `app/(devreviewapp)/projects/explore/page.jsx` | Explore all projects |
-| `/projects/my` | `app/(devreviewapp)/projects/my/page.jsx` | User's projects |
-| `/projects/create` | `app/(devreviewapp)/projects/create/page.jsx` | Create project |
-| `/projects/[id]` | `app/(devreviewapp)/projects/[id]/page.jsx` | Project detail |
-| `/projects/[id]/edit` | `app/(devreviewapp)/projects/[id]/edit/page.jsx` | Edit project |
-| `/projects/saved` | `app/(devreviewapp)/projects/saved/page.jsx` | Saved/bookmarked projects |
-| `/review` | `app/(devreviewapp)/review/page.jsx` | Reviews received |
-| `/leaderboard` | `app/(devreviewapp)/leaderboard/page.jsx` | Community leaderboard |
-| `/settings` | `app/(devreviewapp)/settings/page.jsx` | User settings |
-| `/notifications` | `app/(devreviewapp)/notifications/page.jsx` | Notifications |
-| `/messages` | `app/(devreviewapp)/messages/page.jsx` | Messages (empty state) |
-| `/messages/[conversationId]` | `app/(devreviewapp)/messages/[conversationId]/page.jsx` | Chat conversation |
-| `/messages/user/[userId]` | `app/(devreviewapp)/messages/user/[userId]/page.jsx` | New conversation with user |
-| `/community` | `app/(devreviewapp)/community/page.jsx` | Community page |
-| `/users/explore` | `app/(devreviewapp)/users/explore/page.jsx` | Explore users |
-| `/users/[username]` | `app/(devreviewapp)/users/[username]/page.jsx` | User profile |
-| `/profile/my` | `app/(devreviewapp)/profile/my/page.jsx` | My profile |
+| Route | File | loading.jsx | error.jsx |
+|-------|------|-------------|-----------|
+| `/` | `app/page.js` | — | — |
+| `/LandingPage` | `app/(public)/LandingPage/page.jsx` | — | — |
+| `/auth/login` | `app/(public)/auth/login/page.jsx` | — | — |
+| `/auth/signup` | `app/(public)/auth/signup/page.jsx` | — | — |
+| `/auth/verify-otp` | `app/(public)/auth/verify-otp/page.jsx` | — | — |
+| `/auth/forgot-password` | `app/(public)/auth/forgot-password/page.jsx` | — | — |
+| `/auth/reset-password` | `app/(public)/auth/reset-password/page.jsx` | — | — |
+| `/dashboard` | `app/(devreviewapp)/dashboard/page.jsx` | [x] | — |
+| `/projects/explore` | `app/(devreviewapp)/projects/explore/page.jsx` | [x] | — |
+| `/projects/my` | `app/(devreviewapp)/projects/my/page.jsx` | — | — |
+| `/projects/create` | `app/(devreviewapp)/projects/create/page.jsx` | — | — |
+| `/projects/[id]` | `app/(devreviewapp)/projects/[id]/page.jsx` | [x] | — |
+| `/projects/[id]/edit` | `app/(devreviewapp)/projects/[id]/edit/page.jsx` | — | — |
+| `/projects/saved` | `app/(devreviewapp)/projects/saved/page.jsx` | — | — |
+| `/review` | `app/(devreviewapp)/review/page.jsx` | — | — |
+| `/leaderboard` | `app/(devreviewapp)/leaderboard/page.jsx` | — | — |
+| `/settings` | `app/(devreviewapp)/settings/page.jsx` | [x] | — |
+| `/notifications` | `app/(devreviewapp)/notifications/page.jsx` | [x] | — |
+| `/messages` | `app/(devreviewapp)/messages/page.jsx` | [x] | — |
+| `/messages/[conversationId]` | `app/(devreviewapp)/messages/[conversationId]/page.jsx` | — | — |
+| `/messages/user/[userId]` | `app/(devreviewapp)/messages/user/[userId]/page.jsx` | — | — |
+| `/community` | `app/(devreviewapp)/community/page.jsx` | [x] | — |
+| `/users/explore` | `app/(devreviewapp)/users/explore/page.jsx` | [x] | — |
+| `/users/[username]` | `app/(devreviewapp)/users/[username]/page.jsx` | — | — |
+| `/profile/my` | `app/(devreviewapp)/profile/my/page.jsx` | [x] | — |
+| **App-level** | `app/(devreviewapp)/error.jsx` | — | [x] |
+| **404** | `app/not-found.jsx` | — | — |
 
 ### Layouts
 
 | File | Purpose |
 |------|---------|
 | `app/layout.js` | Root layout — ThemeProvider, ToastProvider, AuthProvider, FOUC script |
-| `app/(devreviewapp)/layout.jsx` | App shell — Sidebar, auth guard, responsive padding |
+| `app/(devreviewapp)/layout.jsx` | App shell — Sidebar, auth guard, responsive padding, `id="main-content"` |
 | `app/(devreviewapp)/messages/layout.jsx` | Messages split-view — ConversationList + children |
 
-### Components
+### Shared Components
 
-| Directory | Components |
-|-----------|-----------|
-| `Components/Auth/` | Login, SignUp, VerifyOtp, ForgotPassword, ResetPassword, GoogleButton |
-| `Components/LandingPage/` | Navbar, Hero, Features, HowItWorks, FeaturedProjects, Reviews, Community, About, FinalCTA, Preloader, CustomCursor, atoms (DevReviewLogo, PrimaryButton, SecondaryButton, TechBadge, ThemeToggle) |
-| `Components/DevReviewLayout/` | Sidebar, Dashboard, ExploreProjects, ExploreUsers, MyProjects, CreateProjects, EditProject, Project, SavedProjects, SavedProjectCard, ReviewsReceived, MyProfile, UserProfile, Settings, Notifications, Leaderboard, SupportModal, Community |
-| `Components/DevReviewLayout/chat/` | Chat, ConversationList |
-| `Components/Skeleton/` | SkeletonBox, SidebarSkeleton, AppShellSkeleton |
+| Component | File | Purpose |
+|-----------|------|---------|
+| Avatar | `components/shared/Avatar.jsx` | User avatar with initials fallback |
+| ConfirmDialog | `components/shared/ConfirmDialog.jsx` | Confirmation dialog with focus trap |
+| EmptyState | `components/shared/EmptyState.jsx` | Empty state with icon, title, description, action |
+| ErrorAlert | `components/shared/ErrorAlert.jsx` | Error state with retry button |
+| StatCard | `components/shared/StatCard.jsx` | Stat display card with loading state |
+| SkeletonBox | `components/Skeleton/SkeletonBox.jsx` | Shimmer skeleton primitive |
+| AppShellSkeleton | `components/Skeleton/AppShellSkeleton.jsx` | Full app shell skeleton |
+| SidebarSkeleton | `components/Skeleton/SidebarSkeleton.jsx` | Sidebar skeleton |
 
 ### Context Providers
 
@@ -561,13 +566,13 @@ The project has a strong design token system, consistent visual language, and am
 |------|-----------|
 | `services/authApis.js` | signup, verify-otp, login, google, forgot-password, reset-password, me, logout, updateProfile, changePassword |
 | `services/createProjectApi.js` | POST /projects |
-| `services/editProjectApi.js` | GET/PUT /projects/:id/edit, DELETE /projects/:id |
+| `services/editProjectApi.js` | GET/PUT/DELETE /projects/:id |
 | `services/getExploreProjectsApi.js` | GET /projects/explore |
 | `services/getMyProjectsApi.js` | GET /projects/my |
 | `services/getProjectByIdApi.js` | GET /projects/:id |
 | `services/getProjectsByUsernameApi.js` | GET /user/projects/:username |
 | `services/getNotificationsApi.js` | GET /notifications, PATCH read/read-all, GET unread-count |
-| `services/reviewApis.js` | POST/GET/PUT/DELETE /projects/:id/review, GET /projects/my-reviews, GET/PATCH unread/read |
+| `services/reviewApis.js` | POST/GET/PUT/DELETE /projects/:id/review, GET my-reviews, GET/PATCH unread/read |
 | `services/leaderboardApi.js` | GET /leaderboard, GET /leaderboard/me |
 | `services/toggleLikesApi.js` | POST /projects/:id/like |
 | `services/savedProjectsApi.js` | POST /projects/:id/save, GET /projects/saved/me |
@@ -577,6 +582,22 @@ The project has a strong design token system, consistent visual language, and am
 | `services/followApi.js` | POST /users/:username/follow |
 | `services/conversationsApis.js` | GET conversations, POST send, GET messages/:id, GET/PATCH unread/read, GET user/:userId |
 
+### Backend Routes
+
+| Route Mount | File | Rate Limited |
+|-------------|------|--------------|
+| `/api/auth` | `auth.routes.js` | [x] (except Google) |
+| `/api/users` | `user.routes.js` | [ ] |
+| `/api/projects` | `projectRoutes.js` | [ ] |
+| `/api/user/projects` | `userProject.routes.js` | [ ] |
+| `/api/stats` | `stats.routes.js` | [ ] |
+| `/api/upload` | `upload.routes.js` | [ ] |
+| `/api/notifications` | `notifications.routes.js` | [ ] |
+| `/api/support` | `support.routes.js` | [ ] |
+| `/api/reviews` | `reviews.routes.js` | [ ] |
+| `/api/chat` | `chatRoutes.js` | [ ] |
+| `/api/leaderboard` | `leaderboardRoutes.js` | [ ] |
+
 ---
 
-*End of UI/UX Audit Report*
+*End of Final QA Audit Report — September 14, 2026*
