@@ -3,9 +3,10 @@ const router = express.Router();
 const authMiddleware = require("../middleware/auth.middleware");
 const { createProjects, getMyProjects, getProjectById, getExploreProjects, updateProject, deleteProject, getProjectForEdit, toggleLikes, toggleSaveProject, getSavedProjects} = require("../controllers/projectController.js");
 const { addReviews, getReviews, deleteReview, editReview, getCurrentUserReview } = require("../controllers/reviewController.js");
+const { projectCreateLimiter, reviewCreateLimiter, likeLimiter } = require("../middleware/rateLimiter.middleware");
 
 
-router.post("/", authMiddleware, createProjects);
+router.post("/", projectCreateLimiter, authMiddleware, createProjects);
 
 router.get("/my", authMiddleware, getMyProjects);
 
@@ -23,12 +24,12 @@ router.get("/:id", authMiddleware, getProjectById);
 
 router.post("/:projectId/save", authMiddleware, toggleSaveProject);
 
-router.post("/:id/review", authMiddleware, addReviews);
-router.put("/:id/review", authMiddleware, editReview);
+router.post("/:id/review", reviewCreateLimiter, authMiddleware, addReviews);
+router.put("/:id/review", reviewCreateLimiter, authMiddleware, editReview);
 router.get("/:id/review", authMiddleware, getReviews);
 router.delete("/:id/review", authMiddleware, deleteReview);
 
-router.post("/:id/like", authMiddleware, toggleLikes);
+router.post("/:id/like", likeLimiter, authMiddleware, toggleLikes);
 
 router.delete("/:id", authMiddleware, deleteProject);
 

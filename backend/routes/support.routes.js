@@ -6,7 +6,8 @@ const {
 } = require("../controllers/support.controller");
 
 const authMiddleware = require("../middleware/auth.middleware");
+const { supportLimiter } = require("../middleware/rateLimiter.middleware");
 
-router.post("/", authMiddleware, createSupportRequest);
+router.post("/", supportLimiter, authMiddleware, createSupportRequest);
 
 module.exports = router;

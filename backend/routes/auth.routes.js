@@ -10,7 +10,7 @@ router.post("/verify-otp", otpLimiter, verifyOTP);
 
 router.post("/login", authLimiter, login);
 
-router.post("/google", googleAuth);
+router.post("/google", authLimiter, googleAuth);
 
 router.post("/forgot-password", authLimiter, forgotPassword);
 

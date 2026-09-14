@@ -24,7 +24,111 @@ const otpLimiter = rateLimit({
     }
 });
 
+// Rate limiter for chat/message sending
+const chatLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 30,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: "Too many chat messages from this IP. Please try again after 15 minutes."
+    }
+});
+
+// Rate limiter for project creation
+const projectCreateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: "Too many project creation requests from this IP. Please try again after 15 minutes."
+    }
+});
+
+// Rate limiter for review creation/edit
+const reviewCreateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: "Too many review requests from this IP. Please try again after 15 minutes."
+    }
+});
+
+// Rate limiter for likes
+const likeLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: "Too many like requests from this IP. Please try again after 15 minutes."
+    }
+});
+
+// Rate limiter for file uploads
+const uploadLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: "Too many upload requests from this IP. Please try again after 15 minutes."
+    }
+});
+
+// Rate limiter for support requests
+const supportLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: "Too many support requests from this IP. Please try again after 15 minutes."
+    }
+});
+
+// Rate limiter for stats endpoint
+const statsLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: "Too many requests from this IP. Please try again after 15 minutes."
+    }
+});
+
+// Rate limiter for leaderboard endpoint
+const leaderboardLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        success: false,
+        message: "Too many requests from this IP. Please try again after 15 minutes."
+    }
+});
+
 module.exports = {
     authLimiter,
-    otpLimiter
+    otpLimiter,
+    chatLimiter,
+    projectCreateLimiter,
+    reviewCreateLimiter,
+    likeLimiter,
+    uploadLimiter,
+    supportLimiter,
+    statsLimiter,
+    leaderboardLimiter
 };
