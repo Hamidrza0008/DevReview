@@ -300,7 +300,7 @@ export default function UserProfile() {
           Developers
         </motion.button>
         <span className="text-muted/50">/</span>
-        <span className="text-ink truncate">{profileUser?.username || "User"}</span>
+        <span className="text-ink truncate">{user?.username || "User"}</span>
       </nav>
 
       <div className="bg-surface border border-line hover:border-accent/20 rounded-[32px] p-8 md:p-10 shadow-sm hover:shadow-xl hover:shadow-accent/5 transition-all duration-500 relative overflow-hidden z-10">
