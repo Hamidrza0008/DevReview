@@ -58,9 +58,11 @@ const getUserProfile = async (req, res) => {
             activity,
         })
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        })
+        console.error("Get user profile error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Something went wrong. Please try again later."
+        });
     }
 }
 
@@ -121,9 +123,11 @@ const toggleFollow = async (req, res) => {
             followersCount: targetUser.followers.length,
         });
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        })
+        console.error("Toggle follow error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Something went wrong. Please try again later."
+        });
     }
 }
 
@@ -147,9 +151,11 @@ const getFollowers = async (req, res) => {
             followers: user.followers,
         });
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        })
+        console.error("Get followers error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Something went wrong. Please try again later."
+        });
     }
 }
 
@@ -173,9 +179,11 @@ const getFollowing = async (req, res) => {
             following: user.following,
         });
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        })
+        console.error("Get following error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Something went wrong. Please try again later."
+        });
     }
 }
 
@@ -261,6 +269,7 @@ const getAllUsers = async (req, res) => {
             users: usersWithStats
         });
     } catch (error) {
+        console.error("Get all users error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",

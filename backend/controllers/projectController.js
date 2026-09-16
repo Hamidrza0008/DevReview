@@ -40,12 +40,17 @@ const createProjects = async (req, res) => {
             project
         })
     } catch (error) {
-        res.status(500).json({
-
+        console.error("Create project error:", error);
+        if (error.name === "ValidationError") {
+            return res.status(400).json({
+                success: false,
+                message: "Validation failed. Please check your project details."
+            });
+        }
+        return res.status(500).json({
             success: false,
-            message: error.message
-
-        })
+            message: "Something went wrong. Please try again later."
+        });
     }
 }
 
@@ -98,8 +103,8 @@ const getMyProjects = async (req, res) => {
             projects: updatedProjects,
         })
     } catch (error) {
-
-        res.status(500).json({
+        console.error("Get my projects error:", error);
+        return res.status(500).json({
             success: false,
             message: "Internal Server Error"
         });
@@ -155,12 +160,11 @@ const getProjectById = async (req, res) => {
             reviewsCount: stats.reviewsCount
         });
     } catch (error) {
-
+        console.error("Get project by ID error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
         });
-
     }
 }
 
@@ -242,9 +246,10 @@ const getExploreProjects = async (req, res) => {
             nextCursor,
         });
     } catch (error) {
+        console.error("Get explore projects error:", error);
         return res.status(500).json({
             success: false,
-            message: error.message,
+            message: "Something went wrong. Please try again later.",
         });
     }
 };
@@ -274,7 +279,7 @@ const getProjectForEdit = async (req, res) => {
             project,
         })
     } catch (error) {
-
+        console.error("Get project for edit error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error."
@@ -330,12 +335,11 @@ const updateProject = async (req, res) => {
             project
         })
     } catch (error) {
-
+        console.error("Update project error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error."
         });
-
     }
 }
 
@@ -372,7 +376,7 @@ const deleteProject = async (req, res) => {
         });
 
     } catch (error) {
-
+        console.error("Delete project error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error."
@@ -428,7 +432,7 @@ const toggleLikes = async (req, res) => {
             likesCount: project.likes.length
         })
     } catch (error) {
-
+        console.error("Toggle likes error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
@@ -500,7 +504,7 @@ const getProjectByUsername = async (req, res) => {
             projects: updatedProjects,
         });
     } catch (error) {
-
+        console.error("Get project by username error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",
@@ -553,7 +557,7 @@ const toggleSaveProject = async (req, res) => {
             message: "Project saved successfully",
         });
     } catch (error) {
-
+        console.error("Toggle save project error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",
@@ -588,7 +592,7 @@ const getSavedProjects = async (req, res) => {
             savedProjects: validSavedProjects,
         });
     } catch (error) {
-
+        console.error("Get saved projects error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",

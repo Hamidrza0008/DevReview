@@ -80,9 +80,14 @@ const signUp = async (req, res) => {
 
 
     } catch (error) {
-
+        console.error("Signup error:", error);
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: "User already exists"
+            });
+        }
         return res.status(500).json({
-            message: error.message
+            message: "Something went wrong. Please try again later."
         });
     }
 }
@@ -126,9 +131,9 @@ const verifyOTP = async (req, res) => {
         });
 
     } catch (error) {
-
+        console.error("Verify OTP error:", error);
         return res.status(500).json({
-            message: error.message
+            message: "Something went wrong. Please try again later."
         });
     }
 
@@ -193,9 +198,10 @@ const login = async (req, res) => {
             }
         })
     } catch (error) {
+        console.error("Login error:", error);
         return res.status(500).json({
             success: false,
-            message: error.message,
+            message: "Something went wrong. Please try again later.",
         });
 
     }
@@ -278,6 +284,7 @@ const googleAuth = async (req, res) => {
             }
         });
     } catch (error) {
+        console.error("Google auth error:", error);
         return res.status(500).json({
             success: false,
             message: "Google sign-in failed. Please try again."
@@ -320,9 +327,10 @@ const forgotPassword = async (req, res) => {
             success: true,
         })
     } catch (error) {
+        console.error("Forgot password error:", error);
         return res.status(500).json({
             success: false,
-            message: error.message,
+            message: "Something went wrong. Please try again later.",
         });
     }
 
@@ -382,9 +390,10 @@ const resetPassword = async (req, res) => {
             success: true
         })
     } catch (error) {
+        console.error("Reset password error:", error);
         return res.status(500).json({
             success: false,
-            message: error.message,
+            message: "Something went wrong. Please try again later.",
         });
     }
 
@@ -407,7 +416,7 @@ const getMe = async (req, res) => {
             user,
         })
     } catch (error) {
-
+        console.error("GetMe error:", error);
         return res.status(500).json({
             message: "Server error"
         })
@@ -428,7 +437,7 @@ const logout = async (req, res) => {
         });
 
     } catch (error) {
-
+        console.error("Logout error:", error);
         return res.status(500).json({
             message: "Server error"
         });
@@ -488,6 +497,12 @@ const updateMe = async (req, res) => {
             user: updateUser
         })
     } catch (error) {
+        console.error("UpdateMe error:", error);
+        if (error.name === "ValidationError") {
+            return res.status(400).json({
+                message: "Validation failed"
+            });
+        }
         return res.status(500).json({
             message: "Server error"
         });
@@ -518,6 +533,7 @@ const changePassword = async (req, res) => {
         await user.save();
         return res.status(200).json({ success: true, message: "Password updated successfully" });
     } catch (error) {
+        console.error("Change password error:", error);
         return res.status(500).json({ success: false, message: "Server error" });
     }
 };

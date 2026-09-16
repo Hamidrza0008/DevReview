@@ -80,7 +80,7 @@ const addReviews = async (req, res) => {
 
 
     } catch (error) {
-
+        console.error("Add review error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
@@ -114,7 +114,7 @@ const getReviews = async (req, res) => {
         });
 
     } catch (error) {
-
+        console.error("Get reviews error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
@@ -162,7 +162,7 @@ const deleteReview = async (req, res) => {
             }
         )
     } catch (error) {
-
+        console.error("Delete review error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
@@ -224,6 +224,7 @@ const editReview = async (req, res) => {
 
 
     } catch (error) {
+        console.error("Edit review error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
@@ -290,7 +291,7 @@ const getCurrentUserReview = async (req, res) => {
         });
 
     } catch (error) {
-
+        console.error("Get current user review error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",
@@ -315,6 +316,7 @@ const getUnreadReviewCount = async (req, res) => {
             data: { unreadCount: count },
         });
     } catch (error) {
+        console.error("Get unread review count error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",
@@ -365,6 +367,7 @@ const markReviewAsRead = async (req, res) => {
             message: "Review marked as read",
         });
     } catch (error) {
+        console.error("Mark review as read error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",

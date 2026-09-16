@@ -24,10 +24,10 @@ const getStats = async (req, res) => {
             likes,
         })
     } catch (error) {
+        console.error("Get stats error:", error);
         return res.status(500).json({
             success: false,
             message: "Failed to fetch stats",
-            error: error.message,
         });
     }
 }

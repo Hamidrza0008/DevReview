@@ -85,6 +85,7 @@ const sendMessage = async (req, res) => {
             },
         });
     } catch (error) {
+        console.error("Send message error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error",
@@ -146,6 +147,7 @@ const getConversations = async (req, res) => {
             data: conversations,
         });
     } catch (error) {
+        console.error("Get conversations error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error",
@@ -219,6 +221,7 @@ const getMessages = async (req, res) => {
             },
         });
     } catch (error) {
+        console.error("Get messages error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error",
@@ -261,6 +264,7 @@ const getUnreadCount = async (req, res) => {
             data: { totalUnread },
         });
     } catch (error) {
+        console.error("Get unread count error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error",
@@ -313,6 +317,7 @@ const markAsRead = async (req, res) => {
             data: { modifiedCount: result.modifiedCount },
         });
     } catch (error) {
+        console.error("Mark as read error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error",
@@ -345,6 +350,7 @@ const getUserById = async (req, res) => {
             data: user,
         });
     } catch (error) {
+        console.error("Get user by ID error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error",

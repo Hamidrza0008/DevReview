@@ -26,7 +26,7 @@ const createSupportRequest = async (req, res) => {
       data: supportRequest,
     });
   } catch (error) {
-
+    console.error("Create support request error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",

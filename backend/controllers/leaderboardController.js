@@ -33,6 +33,7 @@ const getLeaderboard = async (req, res) => {
             },
         });
     } catch (error) {
+        console.error("Get leaderboard error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",
@@ -69,6 +70,7 @@ const getMyRanking = async (req, res) => {
             },
         });
     } catch (error) {
+        console.error("Get my ranking error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",
@@ -121,6 +123,7 @@ const getUserRanking = async (req, res) => {
             },
         });
     } catch (error) {
+        console.error("Get user ranking error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",
@@ -163,6 +166,7 @@ const initializeMissingLeaderboards = async (req, res) => {
             initialized: missingUsers.length,
         });
     } catch (error) {
+        console.error("Initialize missing leaderboards error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",

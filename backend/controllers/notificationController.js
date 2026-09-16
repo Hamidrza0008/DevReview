@@ -41,7 +41,7 @@ const getNotifications = async(req, res) => {
 
 
     } catch (error) {
-
+        console.error("Get notifications error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
@@ -59,6 +59,7 @@ const markNotificationRead = async (req, res) => {
         if (!notification) return res.status(404).json({ success: false, message: "Notification not found" });
         return res.status(200).json({ success: true, notification });
     } catch (error) {
+        console.error("Mark notification read error:", error);
         return res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 };
@@ -68,6 +69,7 @@ const markAllNotificationsRead = async (req, res) => {
         await Notification.updateMany({ recipient: req.user.id, isRead: false }, { $set: { isRead: true } });
         return res.status(200).json({ success: true });
     } catch (error) {
+        console.error("Mark all notifications read error:", error);
         return res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 };
@@ -80,6 +82,7 @@ const getUnreadNotificationCount = async (req, res) => {
             data: { unreadCount: count },
         });
     } catch (error) {
+        console.error("Get unread notification count error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",

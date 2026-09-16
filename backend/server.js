@@ -61,9 +61,7 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 
 app.use((err, req, res, next) => {
-    if (process.env.NODE_ENV !== "production") {
-        console.error(err);
-    }
+    console.error("Unhandled server error:", err);
 
     if (res.headersSent) {
         return next(err);
