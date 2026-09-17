@@ -5,12 +5,21 @@ const Users = require("../models/Users")
 const mongoose = require("mongoose");
 const { calculateAverageRating, getReviewStats } = require("../utils/calculateRating");
 const { addRankingPoints } = require("../services/rankingService");
+const { validateProjectPayload } = require("../utils/validate");
 
 
 
 const createProjects = async (req, res) => {
     try {
         const userId = req.user.id;
+
+        const validation = validateProjectPayload(req.body, { isUpdate: false });
+        if (!validation.isValid) {
+            return res.status(400).json({
+                success: false,
+                message: validation.error,
+            });
+        }
 
         const {
             title,
@@ -19,7 +28,7 @@ const createProjects = async (req, res) => {
             techStack,
             githubUrl,
             liveUrl
-        } = req.body;
+        } = validation.sanitized;
 
         const project = await Projects.create({
             title,
@@ -28,9 +37,8 @@ const createProjects = async (req, res) => {
             techStack,
             githubUrl,
             liveUrl,
-
             owner: userId,
-        })
+        });
 
         await addRankingPoints(userId, "CREATE_PROJECT");
 
@@ -38,7 +46,7 @@ const createProjects = async (req, res) => {
             success: true,
             message: "Project Created Successfully",
             project
-        })
+        });
     } catch (error) {
         console.error("Create project error:", error);
         if (error.name === "ValidationError") {
@@ -258,26 +266,33 @@ const getProjectForEdit = async (req, res) => {
     try {
         const { id } = req.params;
 
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Project ID",
+            });
+        }
+
         const project = await Projects.findById(id);
 
         if (!project) {
             return res.status(404).json({
                 success: false,
                 message: "Project not found."
-            })
+            });
         }
 
         if (project.owner.toString() !== req.user.id) {
             return res.status(403).json({
                 success: false,
                 message: "You are not authorized to edit this project."
-            })
+            });
         }
 
         return res.status(200).json({
             success: true,
             project,
-        })
+        });
     } catch (error) {
         console.error("Get project for edit error:", error);
         return res.status(500).json({
@@ -291,20 +306,35 @@ const updateProject = async (req, res) => {
     try {
         const { id } = req.params;
 
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Project ID",
+            });
+        }
+
+        const validation = validateProjectPayload(req.body, { isUpdate: true });
+        if (!validation.isValid) {
+            return res.status(400).json({
+                success: false,
+                message: validation.error,
+            });
+        }
+
         const project = await Projects.findById(id);
 
         if (!project) {
             return res.status(404).json({
                 success: false,
                 message: "Project Not Found"
-            })
+            });
         }
 
         if (project.owner.toString() !== req.user.id) {
             return res.status(403).json({
                 success: false,
                 message: "Sorry , Your are not the Owner of this Project",
-            })
+            });
         }
 
         const {
@@ -314,28 +344,36 @@ const updateProject = async (req, res) => {
             techStack,
             githubUrl,
             liveUrl
-        } = req.body;
+        } = validation.sanitized;
 
-        project.title = title || project.title;
-        project.description = description || project.description;
-        project.thumbnail = thumbnail || project.thumbnail;
-        project.githubUrl = githubUrl || project.githubUrl;
-        project.liveUrl = liveUrl || project.liveUrl;
-
-        if (techStack) {
-            project.techStack = techStack;
-        }
+        if (title !== undefined) project.title = title;
+        if (description !== undefined) project.description = description;
+        if (thumbnail !== undefined) project.thumbnail = thumbnail;
+        if (githubUrl !== undefined) project.githubUrl = githubUrl;
+        if (liveUrl !== undefined) project.liveUrl = liveUrl;
+        if (techStack !== undefined) project.techStack = techStack;
 
         await project.save();
-
 
         return res.status(200).json({
             success: true,
             message: "Project updated successfully.",
             project
-        })
+        });
     } catch (error) {
         console.error("Update project error:", error);
+        if (error.name === "ValidationError") {
+            return res.status(400).json({
+                success: false,
+                message: "Validation failed. Please check your project details.",
+            });
+        }
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid data format provided.",
+            });
+        }
         return res.status(500).json({
             success: false,
             message: "Internal server error."
