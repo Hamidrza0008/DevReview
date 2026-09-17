@@ -9,8 +9,18 @@ export const createProject = async (formdata) => {
             body: JSON.stringify(formdata)
         });
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to create project",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to create project" };
     }
 };

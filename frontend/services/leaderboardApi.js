@@ -7,7 +7,18 @@ export const getLeaderboard = async (page = 1, limit = 20) => {
                 credentials: "include",
             }
         );
-        return await response.json();
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch leaderboard",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
         return { success: false, message: error.message || "Failed to fetch leaderboard" };
     }
@@ -22,7 +33,18 @@ export const getMyRanking = async () => {
                 credentials: "include",
             }
         );
-        return await response.json();
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch your ranking",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
         return { success: false, message: error.message || "Failed to fetch your ranking" };
     }

@@ -5,9 +5,19 @@ export const getConversationsApi = async () => {
             credentials: "include",
         });
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch conversations",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to fetch conversations" };
     }
 };
 
@@ -22,9 +32,19 @@ export const sendMessageApi = async (receiverId, text) => {
             body: JSON.stringify({ receiverId, text }),
         });
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to send message",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to send message" };
     }
 };
 
@@ -41,9 +61,19 @@ export const getMessagesApi = async (conversationId, { limit = 20, before } = {}
             }
         );
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch messages",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to fetch messages" };
     }
 };
 
@@ -54,9 +84,19 @@ export const getUserByIdApi = async (userId) => {
             credentials: "include",
         });
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch user details",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to fetch user details" };
     }
 };
 
@@ -67,9 +107,19 @@ export const getUnreadCountApi = async () => {
             credentials: "include",
         });
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch unread count",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to fetch unread count" };
     }
 };
 
@@ -80,8 +130,18 @@ export const markConversationAsReadApi = async (conversationId) => {
             credentials: "include",
         });
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to mark conversation as read",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to mark conversation as read" };
     }
 };

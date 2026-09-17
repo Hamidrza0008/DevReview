@@ -8,9 +8,19 @@ export const toggleSaveProject = async (projectId) => {
             }
         );
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to toggle save project",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to toggle save project" };
     }
 };
 
@@ -24,8 +34,18 @@ export const getSavedProjects = async () => {
             }
         );
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch saved projects",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to fetch saved projects" };
     }
 };

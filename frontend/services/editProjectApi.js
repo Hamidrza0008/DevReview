@@ -5,9 +5,19 @@ export const getProjectDetails = async (id) => {
             credentials: "include",
         });
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch project details",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to fetch project details" };
     }
 };
 
@@ -22,9 +32,19 @@ export const updateProject = async (id, formdata) => {
             body: JSON.stringify(formdata)
         });
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to update project",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to update project" };
     }
 };
 
@@ -38,8 +58,18 @@ export const deleteProject = async (id) => {
             }
         );
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to delete project",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to delete project" };
     }
 };

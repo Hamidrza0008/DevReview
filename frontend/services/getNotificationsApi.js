@@ -11,9 +11,19 @@ export const getNotifications = async ({ limit = 20, before } = {}) => {
             }
         );
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch notifications",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to fetch notifications" };
     }
 };
 
@@ -23,9 +33,20 @@ export const markNotificationRead = async (id) => {
             method: "PATCH",
             credentials: "include",
         });
-        return await response.json();
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to mark notification as read",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to mark notification as read" };
     }
 };
 
@@ -35,9 +56,20 @@ export const markAllNotificationsRead = async () => {
             method: "PATCH",
             credentials: "include",
         });
-        return await response.json();
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to mark all notifications as read",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to mark all notifications as read" };
     }
 };
 
@@ -47,8 +79,19 @@ export const getUnreadNotificationCountApi = async () => {
             method: "GET",
             credentials: "include",
         });
-        return await response.json();
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch unread notification count",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to fetch unread notification count" };
     }
 };

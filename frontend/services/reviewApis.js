@@ -1,5 +1,13 @@
 export const addReviews = async (id, reviewRating, reviewComment) => {
     try {
+        let rating = reviewRating;
+        let comment = reviewComment;
+
+        if (typeof reviewRating === "object" && reviewRating !== null) {
+            rating = reviewRating.rating !== undefined ? reviewRating.rating : reviewRating.reviewRating;
+            comment = reviewRating.review !== undefined ? reviewRating.review : reviewRating.reviewComment;
+        }
+
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}/review`, {
             method: "POST",
             credentials: "include",
@@ -7,12 +15,24 @@ export const addReviews = async (id, reviewRating, reviewComment) => {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                rating: reviewRating,
-                review: reviewComment,
+                rating: rating,
+                review: comment,
+                reviewRating: rating,
+                reviewComment: comment,
             })
         });
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to add review",
+                ...data
+            };
+        }
+
+        return data;
     } catch (error) {
         return {
             success: false,
@@ -27,7 +47,18 @@ export const getReviews = async (id) => {
             method: "GET",
             credentials: "include",
         });
-        return await response.json();
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch reviews",
+                ...data
+            };
+        }
+
+        return data;
     } catch (error) {
         return {
             success: false,
@@ -42,7 +73,18 @@ export const deleteReview = async (id) => {
             method: "DELETE",
             credentials: "include",
         });
-        return await response.json();
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to delete review",
+                ...data
+            };
+        }
+
+        return data;
     } catch (error) {
         return {
             success: false,
@@ -53,16 +95,39 @@ export const deleteReview = async (id) => {
 
 export const editReview = async (id, reviewRating, reviewComment) => {
     try {
+        let rating = reviewRating;
+        let comment = reviewComment;
+
+        if (typeof reviewRating === "object" && reviewRating !== null) {
+            rating = reviewRating.reviewRating !== undefined ? reviewRating.reviewRating : reviewRating.rating;
+            comment = reviewRating.reviewComment !== undefined ? reviewRating.reviewComment : reviewRating.review;
+        }
+
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}/review`, {
             method: "PUT",
             credentials: "include",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ reviewRating, reviewComment })
+            body: JSON.stringify({
+                rating: rating,
+                review: comment,
+                reviewRating: rating,
+                reviewComment: comment,
+            })
         });
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to update review",
+                ...data
+            };
+        }
+
+        return data;
     } catch (error) {
         return {
             success: false,
@@ -78,7 +143,17 @@ export const getMyReviews = async () => {
             credentials: "include"
         });
 
-        return await response.json();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch reviews",
+                ...data
+            };
+        }
+
+        return data;
     } catch (error) {
         return { success: false, message: error.message || "Something went wrong" };
     }
@@ -90,7 +165,18 @@ export const getUnreadReviewCountApi = async () => {
             method: "GET",
             credentials: "include",
         });
-        return await response.json();
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch unread review count",
+                ...data
+            };
+        }
+
+        return data;
     } catch (error) {
         return { success: false, message: error.message || "Something went wrong" };
     }
@@ -102,7 +188,18 @@ export const markReviewAsReadApi = async (reviewId) => {
             method: "PATCH",
             credentials: "include",
         });
-        return await response.json();
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to mark review as read",
+                ...data
+            };
+        }
+
+        return data;
     } catch (error) {
         return { success: false, message: error.message || "Something went wrong" };
     }

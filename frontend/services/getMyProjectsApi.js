@@ -4,8 +4,19 @@ export const getMyProjects = async () => {
             method: "GET",
             credentials: "include",
         });
-        return await response.json();
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            return {
+                success: false,
+                message: data?.message || "Failed to fetch your projects",
+                ...data,
+            };
+        }
+
+        return data;
     } catch (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: error.message || "Failed to fetch your projects" };
     }
 };
