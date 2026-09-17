@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Trophy,
@@ -536,13 +537,13 @@ export default function Leaderboard() {
                 </div>
                 <div className="text-center py-6">
                   <p className="text-sm text-muted mb-4">Sign in to see your ranking on the leaderboard.</p>
-                  <a
+                  <Link
                     href="/auth/login"
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-accent-ink text-sm font-bold rounded-xl hover:brightness-110 transition-all active:scale-[0.98]"
                   >
                     Sign In
                     <ArrowUpRight className="w-4 h-4" />
-                  </a>
+                  </Link>
                 </div>
               </motion.div>
             ) : myRankingLoading ? (

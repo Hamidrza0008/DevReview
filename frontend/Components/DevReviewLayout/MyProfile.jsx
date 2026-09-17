@@ -19,7 +19,7 @@ import { toggleLikes } from "@/services/toggleLikesApi";
 import { formatSkill } from "@/utils/formatSkill";
 import { getProjectLikesCount, getProjectReviewsCount } from "@/utils/projectCounts";
 import SavedProjectCard, { SavedProjectsEmptyState } from "@/Components/DevReviewLayout/SavedProjectCard";
-import { ConfirmDialog } from "@/Components/shared";
+import { ConfirmDialog, ErrorAlert } from "@/Components/shared";
 
 export default function MyProfile() {
   const router = useRouter();
@@ -32,6 +32,7 @@ export default function MyProfile() {
   const [myProjects, setMyProjects] = useState([]);
   const [savedProjects, setSavedProjects] = useState([]);
   const [savedProjectsLoading, setSavedProjectsLoading] = useState(true);
+  const [savedProjectsError, setSavedProjectsError] = useState(null);
 
   const { showToast } = useToast();
 
@@ -63,12 +64,16 @@ export default function MyProfile() {
 
   const getSavedProj = async () => {
     try {
+      setSavedProjectsLoading(true);
       const res = await getSavedProjects();
       if (res?.success) {
         setSavedProjects(res.savedProjects || []);
+        setSavedProjectsError(null);
+      } else {
+        setSavedProjectsError(res?.message || "Failed to load saved projects.");
       }
     } catch (err) {
-      console.error("Failed to fetch saved projects:", err);
+      setSavedProjectsError("Failed to load saved projects. Please try again.");
     } finally {
       setSavedProjectsLoading(false);
     }
@@ -869,6 +874,11 @@ const stats = {
                       <div key={item} className="h-80 bg-surface border border-line rounded-[24px]" />
                     ))}
                   </div>
+                ) : savedProjectsError ? (
+                  <ErrorAlert
+                    message={savedProjectsError}
+                    onRetry={getSavedProj}
+                  />
                 ) : savedProjects.length === 0 ? (
                   <SavedProjectsEmptyState />
                 ) : (

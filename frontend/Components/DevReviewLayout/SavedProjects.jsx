@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import SavedProjectCard, { SavedProjectsEmptyState } from "@/Components/DevReviewLayout/SavedProjectCard";
 import { getSavedProjects, toggleSaveProject } from "@/services/savedProjectsApi";
-import { ConfirmDialog } from "@/Components/shared";
+import { ConfirmDialog, ErrorAlert } from "@/Components/shared";
 
 export default function SavedProjects() {
   const [loading, setLoading] = useState(true);
@@ -20,7 +20,7 @@ export default function SavedProjects() {
         setSavedProjects(res.savedProjects || []);
         setError(null);
       } else {
-        setError("Failed to load saved projects.");
+        setError(res?.message || "Failed to load saved projects.");
       }
     } catch {
       setError("Failed to load saved projects. Please try again.");
@@ -62,15 +62,12 @@ export default function SavedProjects() {
 
   if (error) {
     return (
-      <div className="p-4 sm:p-8 bg-page min-h-screen flex flex-col items-center justify-center text-center">
-        <p className="text-sm text-danger font-semibold mb-4">{error}</p>
-        <button
-          onClick={handleRetry}
-          disabled={retrying}
-          className="px-4 py-2 bg-accent text-accent-ink text-sm font-bold rounded-xl disabled:opacity-50"
-        >
-          {retrying ? "Retrying..." : "Retry"}
-        </button>
+      <div className="p-4 sm:p-8 bg-page min-h-screen flex items-center justify-center">
+        <ErrorAlert
+          message={error}
+          onRetry={handleRetry}
+          retryLabel={retrying ? "Retrying..." : "Retry"}
+        />
       </div>
     );
   }

@@ -73,10 +73,6 @@ export default function RootLayout({ children }) {
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
-        <Script
-          src="https://accounts.google.com/gsi/client"
-          strategy="afterInteractive"
-        />
         <ThemeProvider>
           <ToastProvider>
             <AuthProvider>

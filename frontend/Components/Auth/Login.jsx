@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import GoogleButton from "./GoogleButton";
+import Link from "next/link";
 
 
 export function LoginSkeleton() {
@@ -83,7 +84,8 @@ export default function Login() {
     try {
       const res = await login({
         email,
-        password
+        password,
+        rememberMe,
       });
 
       if (res.success) {
@@ -281,7 +283,7 @@ export default function Login() {
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <label htmlFor="login-password" className="block text-xs font-bold text-ink uppercase tracking-wider">Access Key / Password</label>
-                      <a href="/auth/forgot-password" className="text-xs font-bold text-accent hover:underline">Lost Key?</a>
+                      <Link href="/auth/forgot-password" className="text-xs font-bold text-accent hover:underline">Lost Key?</Link>
                     </div>
                     <div className="relative">
                       <input
@@ -355,7 +357,7 @@ export default function Login() {
             )}
           </AnimatePresence>
 
-          <p className="text-center text-sm text-muted mt-8">New to the ecosystem? <a href="/auth/signup" className="font-bold text-accent hover:underline">Create Account</a></p>
+          <p className="text-center text-sm text-muted mt-8">New to the ecosystem? <Link href="/auth/signup" className="font-bold text-accent hover:underline">Create Account</Link></p>
         </motion.div>
       </div>
     </div>

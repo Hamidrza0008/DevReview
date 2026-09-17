@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { resetPassword } from '@/services/authApis';
+import Link from 'next/link';
 
 export default function ResetPassword() {
   const router = useRouter();
@@ -268,9 +269,9 @@ export default function ResetPassword() {
 
 
           <div className="mt-6 pt-6 border-t border-line text-center">
-            <a href="/auth/login" className="inline-flex items-center space-x-2 text-sm font-bold text-accent hover:brightness-110">
+            <Link href="/auth/login" className="inline-flex items-center space-x-2 text-sm font-bold text-accent hover:brightness-110">
               <span>Return to Core Login</span>
-            </a>
+            </Link>
           </div>
         </motion.div>
       </div>

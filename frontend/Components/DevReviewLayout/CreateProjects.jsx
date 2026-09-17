@@ -140,11 +140,22 @@ export default function CreateProjects() {
           body: uploadFormData,
           credentials: "include",
         });
-        
-        const data = await response.json();
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data.imageUrl) {
+          setErrorMessage(data?.message || "Failed to upload project thumbnail. Please check the file and try again.");
+          setSubmitStatus("error");
+          setIsSubmitting(false);
+          return;
+        }
+
         imageUrl = data.imageUrl;
       } catch (err) {
-        console.error("Image upload failed:", err);
+        setErrorMessage("Network error while uploading thumbnail. Please check your connection.");
+        setSubmitStatus("error");
+        setIsSubmitting(false);
+        return;
       }
     }
 

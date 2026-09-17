@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function MessagesPage() {
   return (
-    <div className="hidden md:flex flex-col items-center justify-center flex-1 min-w-0 text-center px-6" role="status" aria-label="Select a conversation">
+    <div className="flex flex-col items-center justify-center flex-1 min-w-0 text-center px-6 py-8 md:py-12" role="status" aria-label="Select a conversation">
       <div className="w-14 h-14 rounded-2xl bg-surface-2 border border-line flex items-center justify-center mb-4">
         <MessageSquare className="w-6 h-6 text-muted" />
       </div>

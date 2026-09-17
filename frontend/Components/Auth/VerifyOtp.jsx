@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useRouter } from "next/navigation";
 import { verifyOTP } from '@/services/authApis';
 import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export default function VerifyOtp() {
     const [otp, setOtp] = useState("");
@@ -179,7 +180,7 @@ export default function VerifyOtp() {
                     </form>
 
                     <div className="flex flex-col items-center justify-center space-y-2 mt-6">
-                        <a href="/auth/signup" className="text-xs text-muted hover:text-ink transition-colors">Back to profile creation</a>
+                        <Link href="/auth/signup" className="text-xs text-muted hover:text-ink transition-colors">Back to profile creation</Link>
                     </div>
                 </motion.div>
             </div>

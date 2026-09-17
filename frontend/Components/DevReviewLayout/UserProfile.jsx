@@ -204,13 +204,13 @@ export default function UserProfile() {
       <div className="p-4 md:p-8 bg-page min-h-screen max-w-7xl mx-auto space-y-8">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs font-semibold text-muted">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push("/users/explore")}
             className="hover:text-accent transition-colors cursor-pointer"
           >
             Developers
           </button>
           <span className="text-muted/50">/</span>
-          <span className="text-ink">Profile</span>
+          <span className="text-ink truncate max-w-[200px]">{username || "Profile"}</span>
         </nav>
 
         {error ? (
@@ -294,13 +294,13 @@ export default function UserProfile() {
       <nav aria-label="Breadcrumb" className="relative z-10 flex items-center gap-1.5 text-xs font-semibold text-muted mb-4">
         <motion.button
           whileHover={{ x: -3 }}
-          onClick={() => router.back()}
+          onClick={() => router.push("/users/explore")}
           className="hover:text-accent transition-colors cursor-pointer"
         >
           Developers
         </motion.button>
         <span className="text-muted/50">/</span>
-        <span className="text-ink truncate">{user?.username || "User"}</span>
+        <span className="text-ink truncate max-w-[200px]">{user?.name || user?.username || username || "User"}</span>
       </nav>
 
       <div className="bg-surface border border-line hover:border-accent/20 rounded-[32px] p-8 md:p-10 shadow-sm hover:shadow-xl hover:shadow-accent/5 transition-all duration-500 relative overflow-hidden z-10">

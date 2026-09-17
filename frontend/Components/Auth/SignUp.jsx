@@ -6,6 +6,7 @@ import { ArrowLeft, Check, X as XIcon } from 'lucide-react';
 import { signUp } from '@/services/authApis';
 import { useRouter } from 'next/navigation';
 import GoogleButton from './GoogleButton';
+import Link from 'next/link';
 
 
 export function SignUpSkeleton() {
@@ -433,7 +434,7 @@ export default function SignUp() {
             )}
           </AnimatePresence>
 
-          <p className="text-center text-sm text-muted mt-8">Already verified? <a href="/auth/login" className="font-bold text-accent hover:underline">Log In</a></p>
+          <p className="text-center text-sm text-muted mt-8">Already verified? <Link href="/auth/login" className="font-bold text-accent hover:underline">Log In</Link></p>
         </motion.div>
       </div>
     </div>
