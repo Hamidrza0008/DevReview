@@ -96,9 +96,19 @@ const sendMessage = async (req, res) => {
 const getConversations = async (req, res) => {
     try {
         const userId = req.user.id;
+        const { limit: limitStr, before } = req.query;
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 50);
+
+        const matchStage = { participants: new mongoose.Types.ObjectId(userId) };
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({ success: false, message: "Invalid cursor" });
+            }
+            matchStage.lastMessageAt = { $lt: new Date(before) };
+        }
 
         const conversations = await Conversation.aggregate([
-            { $match: { participants: new mongoose.Types.ObjectId(userId) } },
+            { $match: matchStage },
             {
                 $lookup: {
                     from: "messages",
@@ -140,11 +150,20 @@ const getConversations = async (req, res) => {
                 },
             },
             { $sort: { lastMessageAt: -1 } },
+            { $limit: limit + 1 },
         ]);
+
+        const hasMore = conversations.length > limit;
+        if (hasMore) conversations.pop();
+        const nextCursor = hasMore && conversations.length > 0
+            ? conversations[conversations.length - 1].lastMessageAt?.toISOString() || null
+            : null;
 
         return res.status(200).json({
             success: true,
             data: conversations,
+            hasMore,
+            nextCursor,
         });
     } catch (error) {
         console.error("Get conversations error:", error);

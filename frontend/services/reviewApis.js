@@ -41,9 +41,15 @@ export const addReviews = async (id, reviewRating, reviewComment) => {
     }
 };
 
-export const getReviews = async (id) => {
+export const getReviews = async (id, params = {}) => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}/review`, {
+        const searchParams = new URLSearchParams();
+        if (params.limit) searchParams.set("limit", params.limit);
+        if (params.before) searchParams.set("before", params.before);
+        const queryString = searchParams.toString();
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/projects/${id}/review${queryString ? `?${queryString}` : ""}`;
+
+        const response = await fetch(url, {
             method: "GET",
             credentials: "include",
         });

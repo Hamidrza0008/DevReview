@@ -1,6 +1,12 @@
-export const getProjectByUsername = async (username) => {
+export const getProjectByUsername = async (username, params = {}) => {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/projects/${username}`, {
+        const searchParams = new URLSearchParams();
+        if (params.limit) searchParams.set("limit", params.limit);
+        if (params.before) searchParams.set("before", params.before);
+        const queryString = searchParams.toString();
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/user/projects/${username}${queryString ? `?${queryString}` : ""}`;
+
+        const res = await fetch(url, {
             method: "GET",
             credentials: "include",
         });

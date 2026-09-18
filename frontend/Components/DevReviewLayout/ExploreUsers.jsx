@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -43,6 +43,7 @@ function Shimmer({ className = "" }) {  return <div className={`shimmer rounded-
 export default function ExploreUsers() {
   const [users, setUsers] = useState([]); 
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("All");
@@ -50,24 +51,57 @@ export default function ExploreUsers() {
   const [followLoadingIds, setFollowLoadingIds] = useState({});
   const [isPinned, setIsPinned] = useState(false);
   const [retrying, setRetrying] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const isLoadingMoreRef = useRef(false);
+  const bottomSentinelRef = useRef(null);
   
   const router = useRouter();
+  const isMountedRef = useRef(true);
 
-  const fetchUsersList = async () => {
+  const PAGE_SIZE = 20;
+
+  const fetchUsersList = async (showLoader = true) => {
     try {
-      setLoading(true);
+      if (showLoader) setLoading(true);
       setError(null);
-      const res = await getAllUsers();
+      const res = await getAllUsers({ limit: PAGE_SIZE });
       
       if (res?.users) {
         setUsers(res.users);
+        setHasMore(res.hasMore);
       }
     } catch (err) {
       setError("Failed to load developers. Please try again later.");
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   };
+
+  const loadMore = useCallback(async () => {
+    if (isLoadingMoreRef.current || !hasMore) return;
+    isLoadingMoreRef.current = true;
+    setLoadingMore(true);
+
+    const cursor = users[users.length - 1]?._id;
+    try {
+      const res = await getAllUsers({ limit: PAGE_SIZE, before: cursor });
+      if (!isMountedRef.current) return;
+      if (res?.users) {
+        setUsers((prev) => {
+          const existingIds = new Set(prev.map((u) => u._id));
+          const newUsers = res.users.filter((u) => !existingIds.has(u._id));
+          if (newUsers.length === 0) return prev;
+          return [...prev, ...newUsers];
+        });
+        setHasMore(res.hasMore);
+      }
+    } catch {
+      // silent
+    } finally {
+      setLoadingMore(false);
+      isLoadingMoreRef.current = false;
+    }
+  }, [users, hasMore]);
 
   const handleRetry = async () => {
     setRetrying(true);
@@ -76,10 +110,10 @@ export default function ExploreUsers() {
   };
 
   useEffect(() => {
-    let isMounted = true;
+    isMountedRef.current = true;
 
     const load = async () => {
-      if (isMounted) {
+      if (isMountedRef.current) {
         await fetchUsersList();
       }
     };
@@ -93,10 +127,28 @@ export default function ExploreUsers() {
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  useEffect(() => {
+    if (loading || !hasMore) return;
+    const sentinel = bottomSentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMoreRef.current && hasMore) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loading, hasMore, loadMore]);
 
   const filteredDevelopers = useMemo(() => {
     return users
@@ -777,6 +829,17 @@ export default function ExploreUsers() {
                   );
                 })}
               </motion.div>
+            )}
+            {loadingMore && (
+              <div className="flex justify-center py-8">
+                <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+            {hasMore && !loading && filteredDevelopers.length > 0 && (
+              <div ref={bottomSentinelRef} className="h-10" />
+            )}
+            {!hasMore && filteredDevelopers.length > 0 && !searchQuery && selectedFilter === "All" && (
+              <p className="text-center text-muted text-sm py-8">You&apos;ve seen all developers</p>
             )}
           </AnimatePresence>
         </section>

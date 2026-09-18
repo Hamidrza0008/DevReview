@@ -2,6 +2,7 @@ const Users = require("../models/Users");
 const Projects = require("../models/Projects");
 const Review = require("../models/Review");
 const Notification = require("../models/Notification");
+const mongoose = require("mongoose");
 const { addRankingPoints } = require("../services/rankingService");
 
 const getUserProfile = async (req, res) => {
@@ -134,11 +135,10 @@ const toggleFollow = async (req, res) => {
 const getFollowers = async (req, res) => {
     try {
         const { username } = req.params;
+        const { limit: limitStr, before } = req.query;
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 50);
 
-        const user = await Users.findOne({ username }).populate(
-            "followers",
-            "name username profileImage bio"
-        );
+        const user = await Users.findOne({ username });
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -146,9 +146,37 @@ const getFollowers = async (req, res) => {
             });
         }
 
+        let followerIds = user.followers || [];
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({ success: false, message: "Invalid cursor" });
+            }
+            const beforeIndex = followerIds.findIndex((id) => id.toString() === before);
+            if (beforeIndex !== -1) {
+                followerIds = followerIds.slice(0, beforeIndex);
+            }
+        }
+
+        const pageIds = followerIds.slice(0, limit + 1);
+        const hasMore = pageIds.length > limit;
+        if (hasMore) pageIds.pop();
+        const nextCursor = hasMore && pageIds.length > 0
+            ? pageIds[pageIds.length - 1].toString()
+            : null;
+
+        const followers = await Users.find({ _id: { $in: pageIds } })
+            .select("name username profileImage bio");
+
+        const followerMap = new Map(followers.map((u) => [u._id.toString(), u]));
+        const orderedFollowers = pageIds
+            .map((id) => followerMap.get(id.toString()))
+            .filter(Boolean);
+
         return res.status(200).json({
             success: true,
-            followers: user.followers,
+            followers: orderedFollowers,
+            hasMore,
+            nextCursor,
         });
     } catch (error) {
         console.error("Get followers error:", error);
@@ -162,11 +190,10 @@ const getFollowers = async (req, res) => {
 const getFollowing = async (req, res) => {
     try {
         const { username } = req.params;
+        const { limit: limitStr, before } = req.query;
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 50);
 
-        const user = await Users.findOne({ username }).populate(
-            "following",
-            "name username profileImage bio"
-        );
+        const user = await Users.findOne({ username });
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -174,9 +201,37 @@ const getFollowing = async (req, res) => {
             });
         }
 
+        let followingIds = user.following || [];
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({ success: false, message: "Invalid cursor" });
+            }
+            const beforeIndex = followingIds.findIndex((id) => id.toString() === before);
+            if (beforeIndex !== -1) {
+                followingIds = followingIds.slice(0, beforeIndex);
+            }
+        }
+
+        const pageIds = followingIds.slice(0, limit + 1);
+        const hasMore = pageIds.length > limit;
+        if (hasMore) pageIds.pop();
+        const nextCursor = hasMore && pageIds.length > 0
+            ? pageIds[pageIds.length - 1].toString()
+            : null;
+
+        const following = await Users.find({ _id: { $in: pageIds } })
+            .select("name username profileImage bio");
+
+        const followingMap = new Map(following.map((u) => [u._id.toString(), u]));
+        const orderedFollowing = pageIds
+            .map((id) => followingMap.get(id.toString()))
+            .filter(Boolean);
+
         return res.status(200).json({
             success: true,
-            following: user.following,
+            following: orderedFollowing,
+            hasMore,
+            nextCursor,
         });
     } catch (error) {
         console.error("Get following error:", error);
@@ -190,10 +245,27 @@ const getFollowing = async (req, res) => {
 const getAllUsers = async (req, res) => {
 
     try {
+        const { limit: limitStr, before } = req.query;
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 50);
 
-        const users = await Users.find({
-            _id: { $ne: req.user.id }
-        }).select("name username bio profileImage skills githubUrl portfolioUrl followers");
+        const query = { _id: { $ne: req.user.id } };
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({ success: false, message: "Invalid cursor" });
+            }
+            query._id = { $ne: req.user.id, $lt: new mongoose.Types.ObjectId(before) };
+        }
+
+        const users = await Users.find(query)
+            .select("name username bio profileImage skills githubUrl portfolioUrl followers")
+            .sort({ _id: -1 })
+            .limit(limit + 1);
+
+        const hasMore = users.length > limit;
+        if (hasMore) users.pop();
+        const nextCursor = hasMore && users.length > 0
+            ? users[users.length - 1]._id.toString()
+            : null;
 
         const userIds = users.map((u) => u._id);
 
@@ -266,7 +338,9 @@ const getAllUsers = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            users: usersWithStats
+            users: usersWithStats,
+            hasMore,
+            nextCursor,
         });
     } catch (error) {
         console.error("Get all users error:", error);

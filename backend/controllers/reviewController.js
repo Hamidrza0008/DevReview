@@ -11,6 +11,13 @@ const addReviews = async (req, res) => {
         const { rating, review } = req.body;
         const { id } = req.params;
 
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Project ID",
+            });
+        }
+
         const project = await Projects.findById(id);
 
         if (!project) {
@@ -91,7 +98,14 @@ const addReviews = async (req, res) => {
 const getReviews = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = req.user.id;
+        const { limit: limitStr, before } = req.query;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Project ID",
+            });
+        }
 
         const project = await Projects.findById(id);
 
@@ -102,15 +116,35 @@ const getReviews = async (req, res) => {
             })
         }
 
-        const reviews = await Reviews.find({
-            project: id,
-        }).populate("user", "username name profileImage").sort({ createdAt: -1 });
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 50);
+
+        const query = { project: id };
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({ success: false, message: "Invalid cursor" });
+            }
+            query._id = { $lt: new mongoose.Types.ObjectId(before) };
+        }
+
+        const reviews = await Reviews.find(query)
+            .populate("user", "username name profileImage")
+            .sort({ createdAt: -1 })
+            .limit(limit + 1);
+
+        const hasMore = reviews.length > limit;
+        if (hasMore) reviews.pop();
+        const nextCursor = hasMore && reviews.length > 0
+            ? reviews[reviews.length - 1]._id.toString()
+            : null;
+
+        const totalCount = await Reviews.countDocuments({ project: id });
 
         return res.status(200).json({
             success: true,
             reviews,
-            reviewsCount: reviews.length,
-
+            reviewsCount: totalCount,
+            hasMore,
+            nextCursor,
         });
 
     } catch (error) {
@@ -235,32 +269,61 @@ const editReview = async (req, res) => {
 const getCurrentUserReview = async (req, res) => {
     try {
         const userId = req.user.id;
+        const { limit: limitStr, before } = req.query;
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 50);
 
-        // 1. User ke saare projects
+        // 1. User ke saare projects (needed for stats and likes)
         const projects = await Projects.find({
             owner: userId,
         }).select("_id title likes");
 
         const projectIds = projects.map(project => project._id);
 
-        // 2. User ne diye hue reviews
-        const givenReviews = await Reviews.find({
-            user: userId,
-        })
-            .populate("project", "title thumbnail slug")
-            .sort({ createdAt: -1 });
+        // 2. User ne diye hue reviews (paginated)
+        const givenQuery = { user: userId };
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({ success: false, message: "Invalid cursor" });
+            }
+            givenQuery._id = { $lt: new mongoose.Types.ObjectId(before) };
+        }
 
-        // 3. User ke projects pe aaye reviews
-        const receivedReviews = await Reviews.find({
-            project: {
-                $in: projectIds,
-            },
-        })
+        const givenReviews = await Reviews.find(givenQuery)
+            .populate("project", "title thumbnail slug")
+            .sort({ createdAt: -1 })
+            .limit(limit + 1);
+
+        const hasMoreGiven = givenReviews.length > limit;
+        if (hasMoreGiven) givenReviews.pop();
+        const nextCursor = hasMoreGiven && givenReviews.length > 0
+            ? givenReviews[givenReviews.length - 1]._id.toString()
+            : null;
+
+        // 3. Total counts for stats (using aggregation)
+        const [givenCountResult, receivedCountResult] = await Promise.all([
+            Reviews.countDocuments({ user: userId }),
+            Reviews.countDocuments({ project: { $in: projectIds } }),
+        ]);
+
+        // 4. User ke projects pe aaye reviews (paginated from same cursor)
+        const receivedQuery = { project: { $in: projectIds } };
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({ success: false, message: "Invalid cursor" });
+            }
+            receivedQuery._id = { $lt: new mongoose.Types.ObjectId(before) };
+        }
+
+        const receivedReviews = await Reviews.find(receivedQuery)
             .populate("user", "username name profileImage")
             .populate("project", "title thumbnail")
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .limit(limit + 1);
 
-        // 4. Likes Details
+        const hasMoreReceived = receivedReviews.length > limit;
+        if (hasMoreReceived) receivedReviews.pop();
+
+        // 5. Likes Details
         const projectLikes = projects.map(project => ({
             projectId: project._id,
             title: project.title,
@@ -268,7 +331,7 @@ const getCurrentUserReview = async (req, res) => {
             likes: project.likes,
         }));
 
-        // 5. Total Likes
+        // 6. Total Likes
         const totalLikes = projects.reduce((total, project) => {
             return total + project.likes.length;
         }, 0);
@@ -279,8 +342,8 @@ const getCurrentUserReview = async (req, res) => {
             stats: {
                 totalProjects: projects.length,
                 totalLikes,
-                totalGivenReviews: givenReviews.length,
-                totalReceivedReviews: receivedReviews.length,
+                totalGivenReviews: givenCountResult,
+                totalReceivedReviews: receivedCountResult,
             },
 
             givenReviews,

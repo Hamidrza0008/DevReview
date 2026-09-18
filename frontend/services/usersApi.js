@@ -21,9 +21,15 @@ export const getUserProfile = async (username) => {
     }
 };
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (params = {}) => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/`, {
+        const searchParams = new URLSearchParams();
+        if (params.limit) searchParams.set("limit", params.limit);
+        if (params.before) searchParams.set("before", params.before);
+        const queryString = searchParams.toString();
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/users/${queryString ? `?${queryString}` : ""}`;
+
+        const response = await fetch(url, {
             method: "GET",
             credentials: "include",
         });
@@ -44,9 +50,15 @@ export const getAllUsers = async () => {
     }
 };
 
-export const getFollowers = async (username) => {
+export const getFollowers = async (username, params = {}) => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${username}/followers`, {
+        const searchParams = new URLSearchParams();
+        if (params.limit) searchParams.set("limit", params.limit);
+        if (params.before) searchParams.set("before", params.before);
+        const queryString = searchParams.toString();
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/users/${username}/followers${queryString ? `?${queryString}` : ""}`;
+
+        const response = await fetch(url, {
             method: "GET",
             credentials: "include",
         });
@@ -67,9 +79,15 @@ export const getFollowers = async (username) => {
     }
 };
 
-export const getFollowing = async (username) => {
+export const getFollowing = async (username, params = {}) => {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${username}/following`, {
+        const searchParams = new URLSearchParams();
+        if (params.limit) searchParams.set("limit", params.limit);
+        if (params.before) searchParams.set("before", params.before);
+        const queryString = searchParams.toString();
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/users/${username}/following${queryString ? `?${queryString}` : ""}`;
+
+        const response = await fetch(url, {
             method: "GET",
             credentials: "include",
         });

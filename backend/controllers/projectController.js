@@ -3,7 +3,6 @@ const Projects = require("../models/Projects");
 const Reviews = require("../models/Review");
 const Users = require("../models/Users")
 const mongoose = require("mongoose");
-const { calculateAverageRating, getReviewStats } = require("../utils/calculateRating");
 const { addRankingPoints } = require("../services/rankingService");
 const { validateProjectPayload } = require("../utils/validate");
 
@@ -65,9 +64,24 @@ const createProjects = async (req, res) => {
 
 const getMyProjects = async (req, res) => {
     try {
-        const projects = await Projects.find({
-            owner: req.user.id
-        }).sort({ createdAt: -1 })
+        const { limit: limitStr, before } = req.query;
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 50);
+
+        const query = { owner: req.user.id };
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({ success: false, message: "Invalid cursor" });
+            }
+            query._id = { $lt: new mongoose.Types.ObjectId(before) };
+        }
+
+        const projects = await Projects.find(query).sort({ createdAt: -1 }).limit(limit + 1);
+
+        const hasMore = projects.length > limit;
+        if (hasMore) projects.pop();
+        const nextCursor = hasMore && projects.length > 0
+            ? projects[projects.length - 1]._id.toString()
+            : null;
 
         const userId = req.user.id;
 
@@ -109,6 +123,8 @@ const getMyProjects = async (req, res) => {
         return res.status(200).json({
             success: true,
             projects: updatedProjects,
+            hasMore,
+            nextCursor,
         })
     } catch (error) {
         console.error("Get my projects error:", error);
@@ -146,8 +162,23 @@ const getProjectById = async (req, res) => {
             (savedId) => savedId.toString() === id.toString()
         );
 
-        const reviews = await Reviews.find({ project: id });
-        const stats = getReviewStats(reviews);
+        const statsResult = await Reviews.aggregate([
+            { $match: { project: new mongoose.Types.ObjectId(id) } },
+            {
+                $group: {
+                    _id: null,
+                    reviewsCount: { $sum: 1 },
+                    totalRating: { $sum: "$rating" },
+                },
+            },
+        ]);
+
+        const stats = statsResult.length > 0
+            ? {
+                reviewsCount: statsResult[0].reviewsCount,
+                averageRating: Number((statsResult[0].totalRating / statsResult[0].reviewsCount).toFixed(1)),
+            }
+            : { reviewsCount: 0, averageRating: 0 };
 
         const enrichedProject = {
             ...project.toObject(),
@@ -403,6 +434,10 @@ const deleteProject = async (req, res) => {
 
         await project.deleteOne();
 
+        await Reviews.deleteMany({ project: id });
+
+        await Notification.deleteMany({ project: id });
+
         await Users.updateMany(
             { savedProjects: id },
             { $pull: { savedProjects: id } }
@@ -481,6 +516,8 @@ const getProjectByUsername = async (req, res) => {
     try {
         const { username } = req.params;
         const loggedInUserId = req.user.id;
+        const { limit: limitStr, before } = req.query;
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 50);
 
         // Find profile owner
         const user = await Users.findOne({ username }).select("-password");
@@ -492,10 +529,22 @@ const getProjectByUsername = async (req, res) => {
             });
         }
 
-        // Get all projects of profile owner
-        const projects = await Projects.find({
-            owner: user._id,
-        }).sort({ createdAt: -1 });
+        // Get projects of profile owner (paginated)
+        const query = { owner: user._id };
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({ success: false, message: "Invalid cursor" });
+            }
+            query._id = { $lt: new mongoose.Types.ObjectId(before) };
+        }
+
+        const projects = await Projects.find(query).sort({ createdAt: -1 }).limit(limit + 1);
+
+        const hasMore = projects.length > limit;
+        if (hasMore) projects.pop();
+        const nextCursor = hasMore && projects.length > 0
+            ? projects[projects.length - 1]._id.toString()
+            : null;
 
         const projectIds = projects.map((p) => p._id);
 
@@ -540,6 +589,8 @@ const getProjectByUsername = async (req, res) => {
             success: true,
             message: "Projects Retrieved Successfully",
             projects: updatedProjects,
+            hasMore,
+            nextCursor,
         });
     } catch (error) {
         console.error("Get project by username error:", error);
@@ -606,28 +657,47 @@ const toggleSaveProject = async (req, res) => {
 const getSavedProjects = async (req, res) => {
     try {
         const userId = req.user.id;
+        const { limit: limitStr, before } = req.query;
+        const limit = Math.min(Math.max(parseInt(limitStr, 10) || 20, 1), 50);
 
-        const user = await Users.findById(userId).populate({
-            path: "savedProjects",
-            populate: {
-                path: "owner",
-                select: "name username profileImage",
-            },
-        });
+        const user = await Users.findById(userId);
 
-        const validSavedProjects = user.savedProjects.filter(
+        let savedIds = user.savedProjects || [];
+        if (before) {
+            if (!mongoose.Types.ObjectId.isValid(before)) {
+                return res.status(400).json({ success: false, message: "Invalid cursor" });
+            }
+            savedIds = savedIds.filter((id) => id.toString() !== before);
+            const beforeIndex = savedIds.findIndex((id) => id.toString() === before);
+            if (beforeIndex !== -1) {
+                savedIds = savedIds.slice(0, beforeIndex);
+            }
+        }
+
+        const pageIds = savedIds.slice(0, limit + 1);
+        const hasMore = pageIds.length > limit;
+        if (hasMore) pageIds.pop();
+        const nextCursor = hasMore && pageIds.length > 0
+            ? pageIds[pageIds.length - 1].toString()
+            : null;
+
+        const projects = await Projects.find({ _id: { $in: pageIds } })
+            .populate("owner", "name username profileImage");
+
+        const projectMap = new Map(projects.map((p) => [p._id.toString(), p]));
+        const orderedProjects = pageIds
+            .map((id) => projectMap.get(id.toString()))
+            .filter(Boolean);
+
+        const validSavedProjects = orderedProjects.filter(
             (project) => project && project._id
         );
-
-        if (validSavedProjects.length !== user.savedProjects.length) {
-            const validIds = validSavedProjects.map((p) => p._id);
-            user.savedProjects = validIds;
-            await user.save();
-        }
 
         return res.status(200).json({
             success: true,
             savedProjects: validSavedProjects,
+            hasMore,
+            nextCursor,
         });
     } catch (error) {
         console.error("Get saved projects error:", error);
