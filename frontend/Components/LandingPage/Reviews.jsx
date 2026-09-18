@@ -1,9 +1,56 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { GitPullRequest, Star, ShieldCheck } from 'lucide-react';
+import { getLandingReviews } from '@/services/landingApi';
+import SkeletonBox from '@/Components/Skeleton/SkeletonBox';
+import Avatar from '@/Components/shared/Avatar';
+
+function StarRating({ rating }) {
+  const stars = [];
+  for (let i = 1; i <= 5; i++) {
+    stars.push(
+      <span key={i} className={i <= rating ? 'text-star' : 'text-line'}>
+        ★
+      </span>
+    );
+  }
+  return <span className="text-sm tracking-tighter" aria-label={`${rating} out of 5 stars`}>{stars}</span>;
+}
+
+function ReviewCard({ review, className = '' }) {
+  const userName = review.user?.name || review.user?.username || 'Anonymous';
+  const projectName = review.project?.title || 'a project';
+
+  return (
+    <div className={`w-full max-w-sm bg-page border border-line rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-6 flex flex-col gap-4 ${className}`}>
+      <div className="flex items-center justify-between border-b border-line pb-4">
+        <div className="flex items-center gap-3">
+          <Avatar
+            src={review.user?.profileImage}
+            name={userName}
+            size="sm"
+          />
+          <div>
+            <p className="text-sm font-bold text-ink">{userName}</p>
+            <p className="text-[11px] text-muted font-medium">reviewed {projectName}</p>
+          </div>
+        </div>
+        <StarRating rating={review.rating} />
+      </div>
+
+      <p className="text-sm text-muted leading-relaxed">
+        &ldquo;{review.review}&rdquo;
+      </p>
+    </div>
+  );
+}
 
 export default function Reviews() {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const points = [
     {
       icon: <GitPullRequest className="w-6 h-6" />,
@@ -21,6 +68,20 @@ export default function Reviews() {
       desc: 'Reviews you give and receive build a visible track record — helpful reviewers get noticed too.',
     },
   ];
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchReviews() {
+      const data = await getLandingReviews();
+      if (cancelled) return;
+      if (data.success && data.reviews) {
+        setReviews(data.reviews);
+      }
+      setLoading(false);
+    }
+    fetchReviews();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <section id="reviews" className="relative w-full px-6 md:px-12 py-24 bg-surface border-b border-line overflow-hidden">
@@ -72,29 +133,41 @@ export default function Reviews() {
           transition={{ duration: 0.6, delay: 0.15 }}
           className="relative flex justify-center"
         >
-          <div className="w-full max-w-sm bg-page border border-line rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-6 flex flex-col gap-4">
-            <div className="flex items-center justify-between border-b border-line pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-linear-to-br from-accent to-accent-2 text-accent-ink flex items-center justify-center font-bold text-xs">
-                  HS
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-ink">Hariom Singh</p>
-                  <p className="text-[11px] text-muted font-medium">reviewed Finance Tracker</p>
+          {loading && (
+            <div className="w-full max-w-sm bg-page border border-line rounded-2xl p-6 space-y-4">
+              <div className="flex items-center gap-3 pb-4 border-b border-line">
+                <SkeletonBox className="w-9 h-9 rounded-full" />
+                <div className="space-y-2 flex-1">
+                  <SkeletonBox className="h-4 w-24" />
+                  <SkeletonBox className="h-3 w-32" />
                 </div>
               </div>
-              <div className="text-star text-sm tracking-tighter" aria-label="4 out of 5 stars" role="img">★★★★☆</div>
+              <SkeletonBox className="h-4 w-full" />
+              <SkeletonBox className="h-4 w-3/4" />
             </div>
+          )}
 
-            <p className="text-sm text-muted leading-relaxed">
-              "Clean component structure and good use of hooks. The dashboard chart re-renders on every keystroke though — worth memoizing."
-            </p>
-
-            <div className="flex items-center gap-4 text-xs font-semibold text-muted pt-4 border-t border-line">
-              <span className="flex items-center gap-1.5">Code Quality <span className="text-ink">8/10</span></span>
-              <span className="flex items-center gap-1.5">Clarity <span className="text-ink">9/10</span></span>
+          {!loading && reviews.length > 0 && (
+            <div className="relative w-full max-w-sm">
+              {reviews.length >= 3 && (
+                <div className="absolute top-4 left-4 right-4 bottom-0 bg-surface border border-line rounded-2xl shadow-sm opacity-40" />
+              )}
+              {reviews.length >= 2 && (
+                <div className="absolute top-2 left-2 right-2 bottom-0 bg-surface border border-line rounded-2xl shadow-sm opacity-60" />
+              )}
+              <ReviewCard review={reviews[0]} className="relative z-10" />
             </div>
-          </div>
+          )}
+
+          {!loading && reviews.length === 0 && (
+            <div className="w-full max-w-sm bg-page border border-dashed border-line rounded-2xl p-8 text-center">
+              <div className="w-12 h-12 rounded-full bg-accent-soft text-accent flex items-center justify-center mx-auto mb-4">
+                <Star className="w-5 h-5" />
+              </div>
+              <p className="text-sm font-semibold text-ink">No reviews yet</p>
+              <p className="text-xs text-muted mt-1">Reviews from the community will appear here.</p>
+            </div>
+          )}
         </motion.div>
       </div>
     </section>

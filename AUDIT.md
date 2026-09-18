@@ -149,10 +149,10 @@
 | Settings | `updateProfile`, `changePassword` APIs | **YES** | None — real data | `Settings.jsx` | REAL |
 | Community Stats | `getStats` API | **YES** | None — real data | `Community.jsx` | REAL |
 | Auth (Login/Signup) | `authApis` | **YES** | None — real data | Auth components | REAL |
-| **Landing Featured Projects** | **Hardcoded array** | **NO** | Fake projects with hardcoded titles, stacks, developer names | `FeaturedProjects.jsx:11-26` | **STATIC** |
-| **Landing Hero Demo Card** | **Hardcoded** | **NO** | Fake project card: "Hamid Raza", "Finance Tracker", `12 Reviews`, `24 Likes`, fake review | `Hero.jsx:140-231` | **STATIC** (marketing) |
-| **Landing Reviews Section** | **Hardcoded** | **NO** | Fake review from "Hariom Singh", fake rating, fake text | `Reviews.jsx:75-97` | **STATIC** |
-| **Landing Community Preview** | **Hardcoded** | **NO** | Fake community review preview | `Community.jsx:84-123` | **STATIC** |
+| **Landing Featured Projects** | **`GET /api/projects/featured`** | **YES** | **None — real data from DB** | `FeaturedProjects.jsx` | **FIXED (Bunch 3)** |
+| **Landing Hero Demo Card** | **Hardcoded** | **NO** | Fake project card: "Hamid Raza", "Finance Tracker", `12 Reviews`, `24 Likes`, fake review | `Hero.jsx:140-231` | **STATIC (marketing) — intentionally retained** |
+| **Landing Reviews Section** | **`GET /api/reviews/landing`** | **YES** | **None — real data from DB** | `Reviews.jsx` | **FIXED (Bunch 3)** |
+| **Landing Community Preview** | **`GET /api/stats`** | **YES** | **None — real aggregate stats from DB** | `Community.jsx` | **FIXED (Bunch 3)** |
 
 ---
 
@@ -192,8 +192,8 @@
 | Chat | Send → Receive → Read | **WORKING** | No auto-scroll on new messages | `Chat.jsx` |
 | Notifications | Fetch → Read → Mark | **WORKING** | None | `notificationController.js` |
 | Settings | Edit profile → Save | **WORKING** | No input length validation | `Settings.jsx` |
-| Landing Featured Projects | Display | **BROKEN** | Entirely hardcoded, not from API | `FeaturedProjects.jsx:11-26` |
-| Landing Reviews | Display | **BROKEN** | Entirely hardcoded fake review | `Reviews.jsx:75-97` |
+| Landing Featured Projects | Display | **FIXED** | Now fetches real projects from `GET /api/projects/featured` | `FeaturedProjects.jsx` |
+| Landing Reviews | Display | **FIXED** | Now fetches real reviews from `GET /api/reviews/landing` | `Reviews.jsx` |
 | Explore Users | Paginated list → Search | **WORKING** | `getAllUsers` has no pagination (backend) | `userController.js:194` |
 
 ---
@@ -624,3 +624,64 @@ Bunch 2 items that remain unfixed (out of scope for this batch):
 - **M-4/M-5/M-6/M-7**: Race conditions — require atomic operations (Bunch 3)
 - **M-12/M-13**: Ranking point reversal on delete/unlike — requires ranking service changes (Bunch 3)
 - **M-15**: `getUserProfile` N+1 query pattern — requires aggregation rewrite (Bunch 3)
+
+---
+
+# Bunch 3 Completion Report
+
+## Fixed
+
+| Audit ID | File(s) Changed | What Was Wrong | What Was Changed | Why Production-Safe |
+|---|---|---|---|---|
+| H-8 | `frontend/Components/LandingPage/FeaturedProjects.jsx`, `backend/controllers/projectController.js`, `backend/routes/landing.routes.js`, `frontend/services/landingApi.js` | Landing Featured Projects used hardcoded static array with fake project titles, tech stacks, and developer names | Created public `GET /api/projects/featured` endpoint (no auth, bounded limit=10). Frontend fetches real projects with review stats via `getFeaturedProjects()` service. Shows loading skeleton, empty state, error state. Each project links to real detail page | Public endpoint rate-limited via `statsLimiter`. Bounded query with `.limit()`. Uses aggregation for review stats. No sensitive data exposed. Graceful empty/error handling |
+| H-9 | `frontend/Components/LandingPage/Reviews.jsx`, `backend/controllers/reviewController.js`, `backend/routes/landing.routes.js`, `frontend/services/landingApi.js` | Landing Reviews section displayed a hardcoded fake review from "Hariom Singh" with fake rating and review text | Created public `GET /api/reviews/landing` endpoint (no auth, bounded limit=6). Frontend fetches real reviews with user/project info via `getLandingReviews()` service. Shows loading skeleton, empty state. Uses Avatar component for user images | Public endpoint rate-limited. Bounded query with `.limit()` and `.lean()`. Populates only `user` (name, username, profileImage) and `project` (title). No private data exposed |
+| H-10 | `frontend/Components/LandingPage/Community.jsx` | Community preview displayed a hardcoded fake review card with fabricated community feedback | Replaced fake review card with real-time community stats from existing `GET /api/stats` endpoint (developers, projects, reviews, likes). Shows loading skeleton during fetch | Reuses existing public stats endpoint. No new backend code. Real aggregate counts from database |
+
+## Dynamic Data Map
+
+| Section | Previous Source | New Source | Bounded? |
+|---|---|---|---|
+| Featured Projects | Hardcoded array in `FeaturedProjects.jsx:11-26` | `GET /api/projects/featured` (public, rate-limited) | Yes (max 10) |
+| Landing Reviews | Hardcoded review in `Reviews.jsx:75-97` | `GET /api/reviews/landing` (public, rate-limited) | Yes (max 6) |
+| Community Preview | Hardcoded fake review card in `Community.jsx:84-123` | `GET /api/stats` (existing public endpoint) | Yes (aggregate counts) |
+| Hero Demo Card | Hardcoded marketing demo | Unchanged — marketing content (audit: "STATIC (marketing)") | N/A |
+| Categories (Explore) | Hardcoded arrays | Unchanged — product configuration (fixed technology categories) | N/A |
+
+## APIs Added/Modified
+
+| Endpoint | Purpose | Auth | Max Response | Database Query |
+|---|---|---|---|---|
+| `GET /api/landing/projects/featured` | Return recent projects with review stats for landing page | No (public) | 10 projects | `Projects.find({}).populate("owner").sort({createdAt:-1}).limit(10)` + `Reviews.aggregate()` for stats |
+| `GET /api/landing/reviews/landing` | Return recent reviews with user/project info for landing page | No (public) | 6 reviews | `Reviews.find({}).populate("user").populate("project").sort({createdAt:-1}).limit(6).lean()` |
+
+Both endpoints use the existing `statsLimiter` (60 req/15min).
+
+## Static Data Intentionally Retained
+
+| Data | Location | Reason |
+|---|---|---|
+| Hero demo card ("Finance Tracker Dashboard", "12 Reviews", "24 Likes") | `Hero.jsx:138-231` | Marketing demo content — audit labels it "STATIC (marketing)". Intentional visual showcase, not fake production data |
+| Hero stats bar ("Day 1", "100%", "Open ★") | `Hero.jsx:102-117` | Brand messaging / marketing copy, not data metrics |
+| Explore Projects categories | `ExploreProducts.jsx:29-40` | Fixed technology categories (product configuration) |
+| Explore Users categories | `ExploreUsers.jsx:27-38` | Fixed user category filters (product configuration) |
+| About section founder credit | `About.jsx:80` | Actual creator attribution |
+| Feature points in Reviews/Community | `Reviews.jsx:7-23`, `Community.jsx:8-24` | Product feature descriptions (not data) |
+
+## Testing
+
+- **Backend syntax check**: All 4 modified/new backend files pass `node -c` — `projectController.js`, `reviewController.js`, `landing.routes.js`, `server.js`
+- **Frontend lint**: `npx eslint` on `FeaturedProjects.jsx`, `Reviews.jsx`, `Community.jsx`, `landingApi.js` — 0 errors, 0 warnings
+- **Frontend build**: `npm run build` completes successfully — compiled, TypeScript checked, all 29 routes generated
+- **No test suite available**: Backend has no test scripts configured
+
+## Remaining Issues
+
+Bunch 3 items that remain unfixed:
+
+- **H-7**: `dangerouslyAllowSVG: true` — Next.js config change (Bunch 3 scope but not dynamic-data related)
+- **H-11**: 10MB JSON body limit — config change (Bunch 3 scope but not dynamic-data related)
+- **H-12**: Missing robots.txt/sitemap.xml — file creation (Bunch 3 scope but not dynamic-data related)
+- **M-16/M-17**: Hardcoded category filter arrays — retained as product configuration (see above)
+- **M-4/M-5/M-6/M-7**: Race conditions — require atomic operations (Bunch 3 scope but not dynamic-data related)
+- **M-12/M-13**: Ranking point reversal — requires ranking service changes (Bunch 3 scope but not dynamic-data related)
+- **M-15**: `getUserProfile` N+1 query — requires aggregation rewrite (Bunch 3 scope but not dynamic-data related)

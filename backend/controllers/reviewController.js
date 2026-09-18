@@ -438,4 +438,28 @@ const markReviewAsRead = async (req, res) => {
     }
 };
 
-module.exports = { addReviews, getReviews, deleteReview, editReview , getCurrentUserReview, getUnreadReviewCount, markReviewAsRead };
+const getLandingReviews = async (req, res) => {
+    try {
+        const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 3, 1), 6);
+
+        const reviews = await Reviews.find({})
+            .populate("user", "name username profileImage")
+            .populate("project", "title")
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .lean();
+
+        return res.status(200).json({
+            success: true,
+            reviews,
+        });
+    } catch (error) {
+        console.error("Get landing reviews error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
+    }
+};
+
+module.exports = { addReviews, getReviews, deleteReview, editReview , getCurrentUserReview, getUnreadReviewCount, markReviewAsRead, getLandingReviews };

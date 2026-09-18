@@ -708,4 +708,63 @@ const getSavedProjects = async (req, res) => {
     }
 };
 
-module.exports = { createProjects, getMyProjects, getProjectById, getExploreProjects, updateProject, deleteProject, getProjectForEdit, toggleLikes, getProjectByUsername, toggleSaveProject, getSavedProjects };
+const getFeaturedProjects = async (req, res) => {
+    try {
+        const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 6, 1), 10);
+
+        const projects = await Projects.find({})
+            .populate("owner", "name username profileImage")
+            .sort({ createdAt: -1 })
+            .limit(limit);
+
+        const projectIds = projects.map((p) => p._id);
+
+        const reviewsData = await Reviews.aggregate([
+            { $match: { project: { $in: projectIds } } },
+            {
+                $group: {
+                    _id: "$project",
+                    count: { $sum: 1 },
+                    totalRating: { $sum: "$rating" },
+                },
+            },
+        ]);
+
+        const reviewsMap = new Map();
+        for (const r of reviewsData) {
+            reviewsMap.set(r._id.toString(), {
+                reviewsCount: r.count,
+                averageRating: Number((r.totalRating / r.count).toFixed(1)),
+            });
+        }
+
+        const featured = projects.map((proj) => {
+            const stats = reviewsMap.get(proj._id.toString()) || { reviewsCount: 0, averageRating: 0 };
+            return {
+                _id: proj._id,
+                title: proj.title,
+                description: proj.description,
+                thumbnail: proj.thumbnail,
+                techStack: proj.techStack,
+                likesCount: proj.likes.length,
+                owner: proj.owner,
+                reviewsCount: stats.reviewsCount,
+                averageRating: stats.averageRating,
+                createdAt: proj.createdAt,
+            };
+        });
+
+        return res.status(200).json({
+            success: true,
+            projects: featured,
+        });
+    } catch (error) {
+        console.error("Get featured projects error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
+    }
+};
+
+module.exports = { createProjects, getMyProjects, getProjectById, getExploreProjects, updateProject, deleteProject, getProjectForEdit, toggleLikes, getProjectByUsername, toggleSaveProject, getSavedProjects, getFeaturedProjects };

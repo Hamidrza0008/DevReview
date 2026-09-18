@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle2, Code2, MessageSquare, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, Code2, MessageSquare, Sparkles, Users, FolderOpen, Star, Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { getStats } from '@/services/statsApi';
+import SkeletonBox from '@/Components/Skeleton/SkeletonBox';
 
 const highlights = [
   {
@@ -23,8 +25,45 @@ const highlights = [
   },
 ];
 
+function StatItem({ icon: Icon, label, value, loading }) {
+  return (
+    <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-page border border-line">
+      <div className="w-10 h-10 rounded-xl bg-accent-soft text-accent flex items-center justify-center border border-accent/20">
+        <Icon className="w-5 h-5" />
+      </div>
+      {loading ? (
+        <SkeletonBox className="h-7 w-12" />
+      ) : (
+        <span className="text-2xl font-bold text-ink">{value.toLocaleString()}</span>
+      )}
+      <span className="text-[11px] text-muted font-semibold uppercase tracking-wider">{label}</span>
+    </div>
+  );
+}
+
 export default function Community() {
   const router = useRouter();
+  const [stats, setStats] = useState({ developers: 0, projects: 0, reviews: 0, likes: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchStats() {
+      const data = await getStats();
+      if (cancelled) return;
+      if (data.success) {
+        setStats({
+          developers: data.developers || 0,
+          projects: data.projects || 0,
+          reviews: data.reviews || 0,
+          likes: data.likes || 0,
+        });
+      }
+      setLoading(false);
+    }
+    fetchStats();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <section id="community" className="relative w-full overflow-hidden border-b border-line bg-page px-6 py-20 md:px-12 md:py-24">
@@ -86,40 +125,19 @@ export default function Community() {
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink font-mono text-xs font-bold text-accent-2">&lt;/&gt;</div>
                 <div>
-                  <p className="text-sm font-bold text-ink">Project review</p>
-                  <p className="text-xs text-muted">A preview of useful feedback</p>
+                  <p className="text-sm font-bold text-ink">Community Stats</p>
+                  <p className="text-xs text-muted">Real-time platform metrics</p>
                 </div>
               </div>
-              <span className="hidden rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-accent sm:inline-flex">Constructive</span>
+              <span className="hidden rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-accent sm:inline-flex">Live</span>
             </div>
 
             <div className="p-5 sm:p-7">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-accent to-accent-2 text-sm font-bold text-accent-ink">DR</div>
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-bold text-ink">DevReview community</p>
-                    <span className="text-xs text-muted">Architecture feedback</span>
-                  </div>
-                  <p className="mt-3 text-sm leading-7 text-muted sm:text-base">
-                    “The project structure is clean and easy to follow. Consider separating the data-fetching logic into a reusable hook so the UI stays focused and future features are easier to test.”
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-line bg-page p-4">
-                  <div className="flex items-center gap-2 text-sm font-bold text-ink">
-                    <CheckCircle2 className="h-4 w-4 text-accent" /> What works well
-                  </div>
-                  <p className="mt-2 text-xs leading-5 text-muted">Clear component structure and consistent naming across the project.</p>
-                </div>
-                <div className="rounded-2xl border border-line bg-page p-4">
-                  <div className="flex items-center gap-2 text-sm font-bold text-ink">
-                    <Sparkles className="h-4 w-4 text-accent-2" /> Next improvement
-                  </div>
-                  <p className="mt-2 text-xs leading-5 text-muted">Extract shared logic and add focused tests for the main user flow.</p>
-                </div>
+              <div className="grid grid-cols-2 gap-3">
+                <StatItem icon={Users} label="Developers" value={stats.developers} loading={loading} />
+                <StatItem icon={FolderOpen} label="Projects" value={stats.projects} loading={loading} />
+                <StatItem icon={MessageSquare} label="Reviews" value={stats.reviews} loading={loading} />
+                <StatItem icon={Heart} label="Likes" value={stats.likes} loading={loading} />
               </div>
             </div>
           </div>

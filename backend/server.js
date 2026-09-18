@@ -14,6 +14,7 @@ const supportRoutes = require("./routes/support.routes");
 const chatRoutes = require("./routes/chatRoutes");
 const reviewsRoute = require("./routes/reviews.routes");
 const leaderboardRoutes = require("./routes/leaderboardRoutes");
+const landingRoutes = require("./routes/landing.routes");
 
 
 
@@ -40,6 +41,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 
 app.use("/api/stats", statsRoute);
+
+app.use("/api/landing", landingRoutes);
 
 
 app.get("/", (req, res) => {
