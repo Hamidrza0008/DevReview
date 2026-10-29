@@ -2,7 +2,7 @@
 
 # 🚀 DevReview
 
-### Showcase your projects. Get real feedback. Level up as a developer.
+### Showcase your projects. Get real feedback. Grow up as a developer.
 
 **[🌐 Live Demo](https://dev-re-view.vercel.app/) · [📂 GitHub Repo](https://github.com/Hamidrza0008/DevReview)**
 
