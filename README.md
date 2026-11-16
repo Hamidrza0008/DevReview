@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 DevReview
+# 🚀 Dev Review
 
 ### Showcase your projects. Get real feedback. Grow up as a developer.
 
